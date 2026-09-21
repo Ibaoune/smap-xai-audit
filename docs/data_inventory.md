@@ -99,19 +99,22 @@ For a 24-h interval, multiplying by 86400 converts the mean rate to `kg m-2 day-
 **GLEAM path:**
 `/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/data/validation/evapotranspiration/GLEAM/`
 
-- Actual ET variable/product: E
-- Versions available: v3.7a and v4.3a
-- Period observed: 2015–2020
-- Format: NetCDF
+- **Versions available:** v3.7a and v4.3a
+- **Retained candidate version:** v4.3a (v3.7a files are empty/corrupted)
+- **File pattern (v4.3a):** `raw/E_{YYYY}_GLEAM_v4.3a.nc`
+- **ET variable:** `E` (Actual evaporation)
+- **Units:** `mm.day-1`
+- **Native temporal frequency:** Daily (1 step per day, leap years supported)
+- **Available period:** 2015–2020
+- **Dimensions:** `time`, `lat` (1800), `lon` (3600)
+- **Spatial resolution:** 0.1 degree
+- **Lat/Lon range:** Latitude [-89.95, 89.95], Longitude [-179.95, 179.95]
+- **Missing-value convention:** `_FillValue: -999.0`
 
-| Item | Status |
-|------|--------|
-| Version to use | To confirm |
-| Native frequency | To confirm |
-| Units | To confirm |
-| Spatial resolution | To confirm |
-| Dimensions | To confirm |
-| Missing-value convention | To confirm |
+**Remaining unresolved preprocessing issues (Harmonization with Noah-MP):**
+- **Units:** GLEAM is `mm.day-1` (accumulated), Noah-MP is `kg m-2 s-1` (mean flux).
+- **Temporal support / Timestamp convention:** Both are daily, but exact timestamp bounds/alignment must be harmonized.
+- **Spatial grid/resolution:** GLEAM is 0.1° global, Noah-MP is 0.05° regional; requires spatial regridding.
 
 **WaPOR path:**
 `/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/data/validation/evapotranspiration/WaPOR/`
