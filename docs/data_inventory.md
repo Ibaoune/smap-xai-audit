@@ -190,7 +190,7 @@ MOD16 must be reprojected from the MODIS Sinusoidal grid and
 spatially aggregated to the Noah-MP 0.05-degree grid before
 pixel-wise comparison.
 
-## 9. In-Situ Precipitation
+## 9. In-Situ Observations
 
 **Source:**
 `/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/data/insitu_data/ABH_stations_plusziz_and_abhbc1.csv`
@@ -212,6 +212,26 @@ NOT usable for the current 2016–2020 SMAP-XAI analysis.
 **Note:**
 This dataset has been removed from the ACTIVE preprocessing inputs for the 2016–2020 workflow. A replacement in-situ precipitation dataset overlapping 2016–2020 would be required if station-based forcing diagnostics are retained in the study.
 
+### 9.1 Individual station files
+
+**Source directory:**
+`/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/data/insitu_data/`
+
+**Structure:**
+- **Format:** Plain text, space/tab delimited, no headers.
+- **Date representation:** Columns 1, 2, 3 correspond to Year, Month, Day.
+- **Missing value convention:** Sentinel value `-99.9`.
+
+| Station | Station ID | Variables | Units | Frequency | Period | Domain status | Metadata provenance |
+|---------|------------|-----------|-------|-----------|--------|---------------|---------------------|
+| Agadir-massira | Candidate: 60252 / GMAD | Col 4, 5, 6 | To confirm externally | Daily | 1992–2022 | Inside | Unknown source; coordinates from historical CSV |
+| Chefchaouen | Candidate: 60106 | Col 4, 5, 6 | To confirm externally | Daily | 1994–2022 | Inside | Unknown source; coordinates from historical CSV |
+| Guelmim | Candidate: 60280 | Col 4, 5, 6 | To confirm externally | Daily | 1992–2022 | Outside | Unknown source; coordinates from historical CSV |
+| Tiznit | Candidate: 60270 | Col 4, 5, 6 | To confirm externally | Daily | 1989–2022 | Outside | Unknown source; coordinates from historical CSV |
+
+**Active SMAP-XAI Station Inputs:**
+Pending external confirmation of variable names and units, **Agadir-massira** and **Chefchaouen** are potentially usable for the 2016–2020 study. Guelmim and Tiznit fall outside the model domain and will not be used.
+
 ## 10. Remaining Decisions
 
 | Item | Decision / metadata still needed |
@@ -222,3 +242,4 @@ This dataset has been removed from the ACTIVE preprocessing inputs for the 2016�
 | GLEAM/Noah-MP spatial harmonization | To confirm |
 | MOD16 temporal/spatial harmonization and QC handling | To confirm |
 | In-situ precipitation for 2016–2020 | replacement dataset currently unavailable |
+| Station column names and units | To confirm externally |
