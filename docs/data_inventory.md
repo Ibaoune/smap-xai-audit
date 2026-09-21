@@ -192,22 +192,25 @@ pixel-wise comparison.
 
 ## 9. In-Situ Precipitation
 
-**File:**
+**Source:**
 `/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/data/insitu_data/ABH_stations_plusziz_and_abhbc1.csv`
 
-**Known columns:**
-`Date`, `Station`, `Precipitation`, `Longitude`, `Latitude`
+**Status:**
+Historical in-situ precipitation dataset.
+NOT usable for the current 2016–2020 SMAP-XAI analysis.
 
-- Format: CSV
-- Precipitation is the only meteorological variable currently available in this file.
+**Dataset Metadata:**
+- **Stations:** 227
+- **Native frequency:** daily
+- **Full temporal coverage:** 1979-01-01 to 2014-12-31
+- **Overlap with SMAP-XAI 2016–2020:** none
+- **Coordinates:** available for all stations
+- **Precipitation units:** not documented / to confirm
+- **Negative precipitation values:** 10,390 records
+- **Interpretation of negative values:** unresolved
 
-| Item | Status |
-|------|--------|
-| Number of stations | To confirm |
-| Temporal frequency | To confirm |
-| Temporal coverage | To confirm |
-| Precipitation units | To confirm |
-| Missing-data characteristics | To confirm |
+**Note:**
+This dataset has been removed from the ACTIVE preprocessing inputs for the 2016–2020 workflow. A replacement in-situ precipitation dataset overlapping 2016–2020 would be required if station-based forcing diagnostics are retained in the study.
 
 ## 10. Remaining Decisions
 
@@ -218,4 +221,4 @@ pixel-wise comparison.
 | EnKF diagnostic units | To confirm |
 | GLEAM/Noah-MP spatial harmonization | To confirm |
 | MOD16 temporal/spatial harmonization and QC handling | To confirm |
-| In-situ precipitation metadata | To confirm |
+| In-situ precipitation for 2016–2020 | replacement dataset currently unavailable |
