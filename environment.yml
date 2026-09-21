@@ -8,3 +8,5 @@ channels:
 dependencies:
   - python=3.11
   - pip
+  - netcdf4
+  - netcdf-c

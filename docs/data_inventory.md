@@ -64,10 +64,10 @@ All paths are absolute on the Lustre filesystem.
 | Restart file pattern | `LIS_RST_NOAHMP401_YYYYMMDDHHMI.d01.nc` | Verified P1.2 |
 | Restart cadence | 2 per calendar month (end-of-month 23:45; first-of-next 00:00) | Verified P1.2 |
 | YYYYMM sub-partition | Each `YYYY-MM/SURFACEMODEL/` contains 2 `YYYYMM/` subdirs; first file of next month spills into current storage partition | Verified P1.2 |
-| Variable names in HIST | To verify in P1.3 | — |
-| Spatial resolution / grid | To verify in P1.3 | — |
-| Physical units | To verify in P1.3 | — |
-| Timestamp semantics (instantaneous vs. averaged) | To verify in P1.3 | — |
+| Variable names in HIST | 46 scientific variables (e.g., SoilMoist_tavg, Qle_tavg) | Verified P1.3a |
+| Spatial resolution / grid | 0.05 degrees (121×181 grid, lat 30.0-36.0, lon -10.0 to -1.0) | Verified P1.3a |
+| Physical units | Specified per-variable in NetCDF (e.g., W m-2, kg m-2 s-1) | Verified P1.3a |
+| Timestamp semantics (instantaneous vs. averaged) | Time-averaged output (`_tavg`) with 24-h interval (`time_increment=86400`) | Verified P1.3a |
 
 Internal structure (verified):
 ```
@@ -117,10 +117,10 @@ OPL_noirr_2016_2020/
 | DAPERT filename pattern | `LIS_DAPERT_YYYYMMDDHHMI.d01.bin` | Verified P1.2 |
 | DAPERT cadence | 2 per calendar month (end-of-month 23:45; first-of-next 00:00) | Verified P1.2 |
 | DAPERT total file count | 120 (60 months × 2) | Verified P1.2 |
-| Variable names in HIST | To verify in P1.3 | — |
-| Spatial resolution / grid | To verify in P1.3 | — |
-| Physical units | To verify in P1.3 | — |
-| Timestamp semantics | To verify in P1.3 | — |
+| Variable names in HIST | 46 scientific variables (e.g., SoilMoist_tavg, Qle_tavg) | Verified P1.3a |
+| Spatial resolution / grid | 0.05 degrees (121×181 grid, lat 30.0-36.0, lon -10.0 to -1.0) | Verified P1.3a |
+| Physical units | Specified per-variable in NetCDF (e.g., W m-2, kg m-2 s-1) | Verified P1.3a |
+| Timestamp semantics | Time-averaged output (`_tavg`) with 24-h interval (`time_increment=86400`) | Verified P1.3a |
 | `.1gs4r` format / content | To verify in P1.3 | — |
 
 Internal structure (verified):
@@ -159,10 +159,10 @@ DA_nocdf_noirr_2016_2020/
 | EnKF `_spread` count | 1,827 — 24 h cadence, identical to DA-NoCDF | Verified P1.2 |
 | EnKF total file count | 12,596 (`.nc`) | Verified P1.2 |
 | DAPERT file count | 120 — **identical** to DA-NoCDF | Verified P1.2 |
-| Variable names in HIST | To verify in P1.3 | — |
-| Spatial resolution / grid | To verify in P1.3 | — |
-| Physical units | To verify in P1.3 | — |
-| Timestamp semantics | To verify in P1.3 | — |
+| Variable names in HIST | 46 scientific variables (e.g., SoilMoist_tavg, Qle_tavg) | Verified P1.3a |
+| Spatial resolution / grid | 0.05 degrees (121×181 grid, lat 30.0-36.0, lon -10.0 to -1.0) | Verified P1.3a |
+| Physical units | Specified per-variable in NetCDF (e.g., W m-2, kg m-2 s-1) | Verified P1.3a |
+| Timestamp semantics | Time-averaged output (`_tavg`) with 24-h interval (`time_increment=86400`) | Verified P1.3a |
 
 Internal structure (verified): identical layout to DA-NoCDF above.
 
@@ -254,7 +254,30 @@ Internal structure (verified): identical layout to DA-NoCDF above.
 
 ---
 
-### 3.5 Auxiliary Experiment Directories
+### 3.5 NetCDF Structural Metadata (P1.3a)
+
+#### SURFACEMODEL (HIST)
+
+- **NetCDF Format**: NETCDF4
+- **Dimensions**: `east_west` (181), `north_south` (121), `time` (1, UNLIMITED), `SoilMoist_profiles` (4), `SoilTemp_profiles` (4).
+- **Spatial Grid**: `lat` (121) from 30.0 to 36.0, `lon` (181) from -10.0 to -1.0. Resolution is exactly 0.05 degrees. Identical grid used across OPL, DA-NoCDF, DA-CDF.
+- **Time Metadata**: `time` variable has units `minutes since YYYY-MM-DD 00:00:00` and `time_increment` = 86400 (24 hours). 
+- **Timestamp Semantics**: All 46 data variables have a `_tavg` suffix (e.g., `Swnet_tavg`, `Qle_tavg`, `TotalPrecip_tavg`, `SoilMoist_tavg`), indicating time-averaged output. The `time_increment = 86400` is consistent with a 24-h averaging/output interval. The 24-h cadence, `time_increment=86400`, and the 2016-01-02 → 2021-01-01 filename range are strongly consistent with end-of-period labeling, but the exact LIS timestamp convention still requires confirmation from LIS configuration/documentation or code.
+- **Variable Inventory**: Includes 46 scientific variables (e.g., `Swnet_tavg`, `Lwnet_tavg`, `Qle_tavg`, `Qh_tavg`, `Qg_tavg`, `Snowf_tavg`, `Rainf_tavg`, `Evap_tavg`, `SWE_tavg`, `SnowDepth_tavg`, `SoilMoist_tavg` (4 layers), `SoilTemp_tavg` (4 layers), `LAI_tavg`, `Greenness_tavg`, `TotalPrecip_tavg`, etc.). Units are explicitly defined in the file (e.g., `W m-2`, `kg m-2 s-1`).
+- **Schema Match**: The inspected representative files have matching schemas across OPL, DA-NoCDF, and DA-CDF.
+
+#### EnKF Products
+
+- **NetCDF Format**: NETCDF4
+- **Grid**: `east_west` (181), `north_south` (121). No `lat`, `lon`, or `time` coordinate variables are stored; indexing is purely by grid cell coordinates.
+- **Variables (_incr)**: 4 variables (`anlys_incr_Soil Moisture Layer 1_01` through `Layer 4_01`). Event-time DA diagnostic fields.
+- **Variables (_innov)**: 4 variables (`ninnov_01`, `innov_01`, `analysis_residual_01`, `forecast_sigma_01`). Event-time DA diagnostic fields.
+- **Variables (_spread)**: 4 variables (`ensspread_Soil Moisture Layer 1_01` through `Layer 4_01`). Event-time DA diagnostic fields.
+- **Schema Match**: The inspected representative files have matching schemas between DA-NoCDF and DA-CDF.
+
+---
+
+### 3.6 Auxiliary Experiment Directories
 
 These directories exist within `matrix_2016_2020/` but are **not part of the three main experiments
 currently targeted** by the audit.
@@ -411,31 +434,25 @@ GLEAM/
 
 The table below consolidates all items flagged **"To verify"** across this document.
 
-**Resolved in P1.2** (SURFACEMODEL / DAOBS / EnKF / DAPERT temporal organization — see §3.5)
+**Resolved in P1.2 / P1.3a** (SURFACEMODEL / EnKF temporal organization, schemas, spatial grid, and variables — see §3.4 and §3.5)
 
 | # | Dataset | Attribute | Target task |
 |---|---------|-----------|-------------|
-| 1 | OPL / DA-NoCDF / DA-CDF | Why first HIST timestamp is 2016-01-02, not 2016-01-01 (spin-up?) | P1.3 |
-| 2 | OPL / DA-NoCDF / DA-CDF | Variable names and dimensions in `LIS_HIST_*.nc` | P1.3 |
-| 3 | OPL / DA-NoCDF / DA-CDF | Spatial grid / resolution | P1.3 |
-| 4 | OPL / DA-NoCDF / DA-CDF | Physical units per variable | P1.3 |
-| 5 | OPL / DA-NoCDF / DA-CDF | Timestamp semantics: instantaneous vs. period-averaged | P1.3 |
-| 6 | DA-NoCDF / DA-CDF | Content and format of `.1gs4r` DAOBS files | P1.3 |
-| 7 | DA-NoCDF / DA-CDF | Content and format of `.bin` DAPERT files | P1.3 |
-| 8 | DA-NoCDF / DA-CDF | Variables in `LIS_DA_EnKF_*_incr/innov/spread.nc` | P1.3 |
-| 9 | DA-NoCDF / DA-CDF | Why DAOBS count differs (4,619 vs 4,411; 210-file diff) | P1.3 |
-| 10 | In-situ CSV | Unique station count | P1.3 |
-| 11 | In-situ CSV | Temporal frequency (daily / sub-daily) | P1.3 |
-| 12 | In-situ CSV | Temporal coverage (start / end dates) | P1.3 |
-| 13 | In-situ CSV | Missing-data rate and pattern | P1.3 |
-| 14 | In-situ CSV | Precipitation units | P1.3 |
-| 15 | In-situ CSV | Coordinate reference system | P1.3 |
-| 16 | In-situ CSV | Station networks (verify against file contents) | P1.3 |
-| 17 | `matrix_2016_2020/README.md` | Content — may contain experiment metadata | P1.3 |
-| 18 | GLEAM | Temporal frequency, spatial resolution, variable units | P1.3 |
-| 19 | WaPOR v2 | Exact year range, spatial resolution, units | P1.3 |
-| 20 | WaPOR v3 | Spatial resolution, units | P1.3 |
-| 21 | MOD16 | Variable names / HDF sub-datasets, spatial resolution, units | P1.3 |
+| 1 | DA-NoCDF / DA-CDF | Content and format of `.1gs4r` DAOBS files | P1.3 |
+| 2 | DA-NoCDF / DA-CDF | Content and format of `.bin` DAPERT files | P1.3 |
+| 3 | DA-NoCDF / DA-CDF | Why DAOBS count differs (4,619 vs 4,411; 210-file diff) | P1.3 |
+| 4 | In-situ CSV | Unique station count | P1.3 |
+| 5 | In-situ CSV | Temporal frequency (daily / sub-daily) | P1.3 |
+| 6 | In-situ CSV | Temporal coverage (start / end dates) | P1.3 |
+| 7 | In-situ CSV | Missing-data rate and pattern | P1.3 |
+| 8 | In-situ CSV | Precipitation units | P1.3 |
+| 9 | In-situ CSV | Coordinate reference system | P1.3 |
+| 10 | In-situ CSV | Station networks (verify against file contents) | P1.3 |
+| 11 | `matrix_2016_2020/README.md` | Content — may contain experiment metadata | P1.3 |
+| 12 | GLEAM | Temporal frequency, spatial resolution, variable units | P1.3 |
+| 13 | WaPOR v2 | Exact year range, spatial resolution, units | P1.3 |
+| 14 | WaPOR v3 | Spatial resolution, units | P1.3 |
+| 15 | MOD16 | Variable names / HDF sub-datasets, spatial resolution, units | P1.3 |
 
 ---
 
@@ -446,3 +463,4 @@ The table below consolidates all items flagged **"To verify"** across this docum
 | P1.1 | Directory-level data inventory completed. All three source paths validated. Experiment structure, ET observation directories, and in-situ CSV basic metadata recorded. | 2026-09-21 |
 | P1.1b | Validated P1.1 findings recorded in this living inventory document. | 2026-09-21 |
 | P1.2 | Noah-MP native temporal and file organization inventory completed. SURFACEMODEL cadence confirmed as 24 h at 00:00 UTC (1,827 files, perfectly regular, identical across OPL/DA-NoCDF/DA-CDF). DAOBS/EnKF-incr/innov cadence confirmed as irregular/event-driven. EnKF-spread and DAPERT cadences confirmed as 24 h and 2-per-month respectively. DA-NoCDF vs DA-CDF DAOBS difference (210 files) documented. Representative files for P1.3 selected. | 2026-09-21 |
+| P1.3a | Representative Noah-MP/LIS NetCDF metadata inventory completed. Confirmed 0.05 degree grid (121×181). SURFACEMODEL timestamps confirmed as 24-h averages ending at timestamp. Variables and schemas confirmed identical between OPL, DA-NoCDF, and DA-CDF. | 2026-09-21 |
