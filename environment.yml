@@ -1,0 +1,10 @@
+# Author: M. El Aabaribaoune (@um6p)
+
+name: smap-xai-audit
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.11
+  - pip

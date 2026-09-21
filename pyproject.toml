@@ -1,0 +1,20 @@
+# Author: M. El Aabaribaoune (@um6p)
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smap-xai-audit"
+version = "0.1.0"
+description = "Scientific software framework for auditing SMAP information propagation through Noah-MP/LIS data assimilation."
+authors = [
+    {name = "M. El Aabaribaoune"}
+]
+requires-python = ">=3.11"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

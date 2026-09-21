@@ -1,0 +1,13 @@
+# Author: M. El Aabaribaoune (@um6p)
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Python packaging
+*.egg-info/
+build/
+dist/
+
+# Editors / OS
+.DS_Store
