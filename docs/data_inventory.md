@@ -96,42 +96,99 @@ For a 24-h interval, multiplying by 86400 converts the mean rate to `kg m-2 day-
 
 ## 8. ET Observations
 
-**GLEAM path:**
-`/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/data/validation/evapotranspiration/GLEAM/`
+Primary independent ET reference:
+    GLEAM v4.3a
 
-- **Versions available:** v3.7a and v4.3a
-- **Retained candidate version:** v4.3a (v3.7a files are empty/corrupted)
-- **File pattern (v4.3a):** `raw/E_{YYYY}_GLEAM_v4.3a.nc`
-- **ET variable:** `E` (Actual evaporation)
-- **Units:** `mm.day-1`
-- **Native temporal frequency:** Daily (1 step per day, leap years supported)
-- **Available period:** 2015–2020
-- **Dimensions:** `time`, `lat` (1800), `lon` (3600)
-- **Spatial resolution:** 0.1 degree
-- **Lat/Lon range:** Latitude [-89.95, 89.95], Longitude [-179.95, 179.95]
-- **Missing-value convention:** `_FillValue: -999.0`
+Product:
+    GLEAM v4.3a
 
-**Remaining unresolved preprocessing issues (Harmonization with Noah-MP):**
-- **Units:** GLEAM is `mm.day-1` (accumulated), Noah-MP is `kg m-2 s-1` (mean flux).
-- **Temporal support / Timestamp convention:** Both are daily, but exact timestamp bounds/alignment must be harmonized.
-- **Spatial grid/resolution:** GLEAM is 0.1° global, Noah-MP is 0.05° regional; requires spatial regridding.
+Variable:
+    E
 
-**WaPOR path:**
-`/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/data/validation/evapotranspiration/WaPOR/`
+Units:
+    mm day-1
 
-- WaPOR v2 AETI
-- Dekadal organization
-- Format: GeoTIFF
-- WaPOR v3 material exists but covers only 2018–2020
+Native temporal resolution:
+    daily
 
-| Item | Status |
-|------|--------|
-| WaPOR product/version retained for the analysis | To confirm |
-| Exact coverage | To confirm |
-| Units | To confirm |
-| Spatial resolution | To confirm |
-| CRS | To confirm |
-| Nodata convention | To confirm |
+Coverage:
+    2015–2020
+
+Analysis overlap:
+    2016–2020
+
+Grid:
+    0.1 degree
+    1800 x 3600
+    global lat/lon
+
+Second independent ET reference:
+    MOD16A2GF Collection 6.1
+
+Root:
+    /home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/data/validation/evapotranspiration/MOD16/raw/
+
+Product:
+    MOD16A2GF Collection 6.1
+
+Tile:
+    h17v05
+
+File pattern:
+    MOD16A2GF.AYYYYDDD.h17v05.061.*.hdf
+
+ET subdataset:
+    ET_500m
+
+QC subdataset:
+    ET_QC_500m
+
+Raw type:
+    scaled integer
+
+Scale factor:
+    0.1
+
+Physical ET:
+    kg m-2 per composite
+    numerically equivalent to mm per composite
+
+Native temporal support:
+    8-day composite
+
+Coverage:
+    2015–2020
+    46 composites per year
+    full overlap with 2016–2020
+
+Spatial resolution:
+    500 m
+
+Projection:
+    MODIS Sinusoidal
+
+Tile coverage:
+    h17v05 covers the Noah-MP study domain
+
+Fill value:
+    32767
+
+### 8.1 Temporal Harmonization Note
+
+For MOD16 comparison, we will aggregate
+Noah-MP daily ET and GLEAM daily ET over the exact MOD16 composite
+periods.
+
+We will not treat MOD16 as native daily data.
+
+The duration of the final composite of each year must be handled
+explicitly because it may contain fewer than 8 days.
+
+### 8.2 Spatial Harmonization Note
+
+MOD16 must be reprojected from the MODIS Sinusoidal grid and
+spatially aggregated to the Noah-MP 0.05-degree grid before
+pixel-wise comparison.
 
 ## 9. In-Situ Precipitation
 
@@ -157,8 +214,8 @@ For a 24-h interval, multiplying by 86400 converts the mean rate to `kg m-2 day-
 | Item | Decision / metadata still needed |
 |------|----------------------------------|
 | Exact LIS HIST timestamp convention | To confirm |
-| Final RZSM depth/definition | To confirm |
-| EnKF increment/innovation units | To confirm |
-| GLEAM metadata and version retained | To confirm |
-| WaPOR metadata and product retained | To confirm |
+| Final RZSM definition | To confirm |
+| EnKF diagnostic units | To confirm |
+| GLEAM/Noah-MP spatial harmonization | To confirm |
+| MOD16 temporal/spatial harmonization and QC handling | To confirm |
 | In-situ precipitation metadata | To confirm |
