@@ -13,8 +13,7 @@ Its scope and guiding rules are:
 
 - Only **verified** information is recorded here. Verification source is noted for each entry.
 - Metadata that has not been explicitly checked is marked **"To verify"** — it is never inferred.
-- This document is **different from the future data contract** (P1.3): the inventory is a
-  factual record of what exists; the data contract will define what the pipeline expects.
+- This document is a factual record of what exists. The data contract will be created after Phase-1 source inventory is completed.
 - The document is updated progressively as Phase 1 tasks complete.
 
 ---
@@ -237,15 +236,15 @@ Internal structure (verified): identical layout to DA-NoCDF above.
 
 | Experiment | Family | Representative file path |
 |------------|--------|-------------------------|
-| OPL | SURFACEMODEL HIST | `…/OPL_noirr_2016_2020/output/2018-06/SURFACEMODEL/201806/LIS_HIST_201806010000.d01.nc` |
+| OPL | SURFACEMODEL HIST | `…/OPL_noirr_2016_2020/output/2018-06/SURFACEMODEL/201806/LIS_HIST_201806020000.d01.nc` |
 | OPL | SURFACEMODEL RST | `…/OPL_noirr_2016_2020/output/2018-06/SURFACEMODEL/201806/LIS_RST_NOAHMP401_201806302345.d01.nc` |
-| DA-NoCDF | SURFACEMODEL HIST | `…/DA_nocdf_noirr_2016_2020/output/2018-06/SURFACEMODEL/201806/LIS_HIST_201806010000.d01.nc` |
+| DA-NoCDF | SURFACEMODEL HIST | `…/DA_nocdf_noirr_2016_2020/output/2018-06/SURFACEMODEL/201806/LIS_HIST_201806020000.d01.nc` |
 | DA-NoCDF | DAOBS | `…/DA_nocdf_noirr_2016_2020/output/2018-06/DAOBS/201806/LISDAOBS_201806010600.a01.d01.1gs4r` |
 | DA-NoCDF | EnKF _incr | `…/DA_nocdf_noirr_2016_2020/output/2018-06/EnKF/201806/LIS_DA_EnKF_201806010600_incr.a01.d01.nc` |
 | DA-NoCDF | EnKF _innov | `…/DA_nocdf_noirr_2016_2020/output/2018-06/EnKF/201806/LIS_DA_EnKF_201806010600_innov.a01.d01.nc` |
 | DA-NoCDF | EnKF _spread | `…/DA_nocdf_noirr_2016_2020/output/2018-06/EnKF/201806/LIS_DA_EnKF_201806300000_spread.a01.d01.nc` |
 | DA-NoCDF | DAPERT | `…/DA_nocdf_noirr_2016_2020/output/2018-06/DAPERT/201806/LIS_DAPERT_201806302345.d01.bin` |
-| DA-CDF | SURFACEMODEL HIST | `…/DA_cdf_noirr_2016_2020/output/2018-06/SURFACEMODEL/201806/LIS_HIST_201806010000.d01.nc` |
+| DA-CDF | SURFACEMODEL HIST | `…/DA_cdf_noirr_2016_2020/output/2018-06/SURFACEMODEL/201806/LIS_HIST_201806020000.d01.nc` |
 | DA-CDF | DAOBS | `…/DA_cdf_noirr_2016_2020/output/2018-06/DAOBS/201806/LISDAOBS_201806010600.a01.d01.1gs4r` |
 | DA-CDF | EnKF _incr | `…/DA_cdf_noirr_2016_2020/output/2018-06/EnKF/201806/LIS_DA_EnKF_201806010600_incr.a01.d01.nc` |
 | DA-CDF | EnKF _innov | `…/DA_cdf_noirr_2016_2020/output/2018-06/EnKF/201806/LIS_DA_EnKF_201806010600_innov.a01.d01.nc` |
@@ -277,7 +276,56 @@ Internal structure (verified): identical layout to DA-NoCDF above.
 
 ---
 
-### 3.6 Auxiliary Experiment Directories
+### 3.6 Variables Retained for the SMAP-XAI Analysis (P1.4)
+
+Based on the scientific objectives, the following subset of variables is retained for downstream preprocessing and analysis. 
+
+#### Land-State and Hydrological Pathway (SURFACEMODEL HIST)
+
+| Scientific quantity | Exact LIS variable | Dimensions | Units | Temporal metadata |
+|---------------------|---------------------|------------|-------|-------------------|
+| Surface soil moisture (SSM) | `SoilMoist_tavg` (Layer 1) | `('SoilMoist_profiles', 'north_south', 'east_west')` | `m^3 m-3` | Time-averaged (`_tavg`) |
+| RZSM components | `SoilMoist_tavg` (Layers 1–4) | `('SoilMoist_profiles', 'north_south', 'east_west')` | `m^3 m-3` | Time-averaged (`_tavg`) |
+| Evapotranspiration (ET) | `Evap_tavg` | `('north_south', 'east_west')` | `kg m-2 s-1` | Time-averaged flux (`_tavg`) |
+| Surface runoff | `Qs_tavg` | `('north_south', 'east_west')` | `kg m-2 s-1` | Time-averaged flux (`_tavg`) |
+| Baseflow (subsurface runoff) | `Qsb_tavg` | `('north_south', 'east_west')` | `kg m-2 s-1` | Time-averaged flux (`_tavg`) |
+
+> **Flux Preprocessing Note**: The raw flux variables (`Evap_tavg`, `Qs_tavg`, `Qsb_tavg`) are mean rates (`kg m-2 s-1`), not accumulated quantities. Future preprocessing may convert the mean flux to a daily water amount by multiplying by the 86400 s output interval. Because 1 kg m-2 of water corresponds to approximately 1 mm water depth, the resulting daily amount can be expressed in mm/day.
+
+**Soil Moisture Layer Details:**
+- **Layer dimension**: `SoilMoist_profiles` (size = 4).
+- **Thicknesses**: Explicitly provided in the file's global attribute `SOIL_LAYER_THICKNESSES`: `[10.0, 30.0, 60.0, 100.0]` (cm). 
+- **Layer Depth Intervals**:
+  - Layer 1: 0–10 cm
+  - Layer 2: 10–40 cm
+  - Layer 3: 40–100 cm
+  - Layer 4: 100–200 cm
+- **Surface Soil Moisture (SSM)**: Corresponds to Layer 1.
+- **Root-Zone Soil Moisture (RZSM)**: The final root-zone depth used by SMAP-XAI remains a scientific preprocessing decision. Possible depth-weighted combinations will be defined later.
+
+#### Assimilation Diagnostics (EnKF)
+
+| Scientific quantity | Exact LIS variable | File family | Dimensions | Units | Temporal metadata |
+|---------------------|--------------------|-------------|------------|-------|-------------------|
+| Analysis increment | `anlys_incr_Soil Moisture Layer X_01` (where X=1,2,3,4) | EnKF `_incr` | `('north_south', 'east_west')` | Units to confirm from LIS/EnKF documentation before preprocessing. | Event-time DA diagnostic field |
+| Innovation | `innov_01` | EnKF `_innov` | `('north_south', 'east_west')` | Units to confirm from LIS/EnKF documentation before preprocessing. | Event-time DA diagnostic field |
+| Ensemble spread | `ensspread_Soil Moisture Layer X_01` (where X=1,2,3,4) | EnKF `_spread` | `('north_south', 'east_west')` | Units to confirm from LIS/EnKF documentation before preprocessing. | Event-time DA diagnostic field |
+
+> **Note**: Variables such as `ninnov_01` (normalized innovation), `analysis_residual_01`, and `forecast_sigma_01` are also present in `_innov` files but `innov_01` explicitly represents the innovation sequence. The `X` in increments/spread directly maps to the corresponding soil moisture layer.
+
+#### Availability Across Experiments
+
+| Quantity | OPL | DA-NoCDF | DA-CDF |
+|----------|-----|----------|--------|
+| ET, Surface Runoff, Baseflow | ✅ | ✅ | ✅ |
+| SSM & RZSM components | ✅ | ✅ | ✅ |
+| Analysis increment | ❌ (N/A) | ✅ | ✅ |
+| Innovation | ❌ (N/A) | ✅ | ✅ |
+| Ensemble spread | ❌ (N/A) | ✅ | ✅ |
+
+---
+
+### 3.7 Auxiliary Experiment Directories
 
 These directories exist within `matrix_2016_2020/` but are **not part of the three main experiments
 currently targeted** by the audit.
@@ -438,21 +486,20 @@ The table below consolidates all items flagged **"To verify"** across this docum
 
 | # | Dataset | Attribute | Target task |
 |---|---------|-----------|-------------|
-| 1 | DA-NoCDF / DA-CDF | Content and format of `.1gs4r` DAOBS files | P1.3 |
-| 2 | DA-NoCDF / DA-CDF | Content and format of `.bin` DAPERT files | P1.3 |
-| 3 | DA-NoCDF / DA-CDF | Why DAOBS count differs (4,619 vs 4,411; 210-file diff) | P1.3 |
-| 4 | In-situ CSV | Unique station count | P1.3 |
-| 5 | In-situ CSV | Temporal frequency (daily / sub-daily) | P1.3 |
-| 6 | In-situ CSV | Temporal coverage (start / end dates) | P1.3 |
-| 7 | In-situ CSV | Missing-data rate and pattern | P1.3 |
-| 8 | In-situ CSV | Precipitation units | P1.3 |
-| 9 | In-situ CSV | Coordinate reference system | P1.3 |
-| 10 | In-situ CSV | Station networks (verify against file contents) | P1.3 |
-| 11 | `matrix_2016_2020/README.md` | Content — may contain experiment metadata | P1.3 |
-| 12 | GLEAM | Temporal frequency, spatial resolution, variable units | P1.3 |
-| 13 | WaPOR v2 | Exact year range, spatial resolution, units | P1.3 |
-| 14 | WaPOR v3 | Spatial resolution, units | P1.3 |
-| 15 | MOD16 | Variable names / HDF sub-datasets, spatial resolution, units | P1.3 |
+| 1 | In-situ CSV | Unique station count | P1.3 |
+| 2 | In-situ CSV | Temporal frequency (daily / sub-daily) | P1.3 |
+| 3 | In-situ CSV | Temporal coverage (start / end dates) | P1.3 |
+| 4 | In-situ CSV | Missing-data rate and pattern | P1.3 |
+| 5 | In-situ CSV | Precipitation units | P1.3 |
+| 6 | In-situ CSV | Coordinate reference system | P1.3 |
+| 7 | In-situ CSV | Station networks (verify against file contents) | P1.3 |
+| 8 | `matrix_2016_2020/README.md` | Content — may contain experiment metadata | P1.3 |
+| 9 | GLEAM | Temporal frequency, spatial resolution, variable units | P1.3 |
+| 10 | WaPOR v2 | Exact year range, spatial resolution, units | P1.3 |
+| 11 | WaPOR v3 | Spatial resolution, units | P1.3 |
+| 12 | MOD16 | Variable names / HDF sub-datasets, spatial resolution, units | P1.3 |
+
+> **Note**: Requirements to inspect DAOBS `.1gs4r` and DAPERT `.bin` have been removed, as the NetCDF EnKF increment/innovation diagnostics are sufficient for the current SMAP-XAI workflow.
 
 ---
 
@@ -463,4 +510,5 @@ The table below consolidates all items flagged **"To verify"** across this docum
 | P1.1 | Directory-level data inventory completed. All three source paths validated. Experiment structure, ET observation directories, and in-situ CSV basic metadata recorded. | 2026-09-21 |
 | P1.1b | Validated P1.1 findings recorded in this living inventory document. | 2026-09-21 |
 | P1.2 | Noah-MP native temporal and file organization inventory completed. SURFACEMODEL cadence confirmed as 24 h at 00:00 UTC (1,827 files, perfectly regular, identical across OPL/DA-NoCDF/DA-CDF). DAOBS/EnKF-incr/innov cadence confirmed as irregular/event-driven. EnKF-spread and DAPERT cadences confirmed as 24 h and 2-per-month respectively. DA-NoCDF vs DA-CDF DAOBS difference (210 files) documented. Representative files for P1.3 selected. | 2026-09-21 |
-| P1.3a | Representative Noah-MP/LIS NetCDF metadata inventory completed. Confirmed 0.05 degree grid (121×181). SURFACEMODEL timestamps confirmed as 24-h averages ending at timestamp. Variables and schemas confirmed identical between OPL, DA-NoCDF, and DA-CDF. | 2026-09-21 |
+| P1.3a | Representative Noah-MP/LIS NetCDF metadata inventory completed. Confirmed 0.05 degree grid (121×181). SURFACEMODEL variables confirmed as _tavg outputs with time_increment=86400; exact timestamp labeling remains to be confirmed. Variables and schemas confirmed identical between OPL, DA-NoCDF, and DA-CDF. | 2026-09-21 |
+| P1.4 | Target scientific variables identified. Exact LIS names, dimensions, units, and availability mapped for SSM, RZSM, ET, Runoff, Baseflow, and EnKF diagnostics. | 2026-09-21 |
