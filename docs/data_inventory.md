@@ -56,12 +56,18 @@ All paths are absolute on the Lustre filesystem.
 | Monthly output dirs | 60 (2016-01 → 2020-12) | Verified P1.1 |
 | Output subfolders per month | `SURFACEMODEL/` | Verified P1.1 |
 | File format | NetCDF (`.nc`) | Verified P1.1 |
-| Output frequency (within month) | To verify in P1.2 | — |
-| Variable names | To verify in P1.2 | — |
-| Spatial resolution / grid | To verify in P1.2 | — |
-| Units | To verify in P1.2 | — |
-| Timestamp convention | To verify in P1.2 | — |
-| Completeness at daily level | To verify in P1.2 | — |
+| Storage partitions | 60 `YYYY-MM` dirs (2016-01 → 2020-12); all present, none missing | Verified P1.2 |
+| SURFACEMODEL filename pattern | `LIS_HIST_YYYYMMDDHHMI.d01.nc` | Verified P1.2 |
+| SURFACEMODEL native cadence | One file per 24 h at 00:00 UTC — perfectly regular | Verified P1.2 |
+| SURFACEMODEL timestamp range | 2016-01-02 00:00 → 2021-01-01 00:00 | Verified P1.2 |
+| SURFACEMODEL HIST file count | 1,827 — zero gaps, zero duplicates | Verified P1.2 |
+| Restart file pattern | `LIS_RST_NOAHMP401_YYYYMMDDHHMI.d01.nc` | Verified P1.2 |
+| Restart cadence | 2 per calendar month (end-of-month 23:45; first-of-next 00:00) | Verified P1.2 |
+| YYYYMM sub-partition | Each `YYYY-MM/SURFACEMODEL/` contains 2 `YYYYMM/` subdirs; first file of next month spills into current storage partition | Verified P1.2 |
+| Variable names in HIST | To verify in P1.3 | — |
+| Spatial resolution / grid | To verify in P1.3 | — |
+| Physical units | To verify in P1.3 | — |
+| Timestamp semantics (instantaneous vs. averaged) | To verify in P1.3 | — |
 
 Internal structure (verified):
 ```
@@ -70,8 +76,14 @@ OPL_noirr_2016_2020/
 ├── generated/        # configs/, jobs/
 ├── logs/             # subdirectories by MMYYYY (012016 … 122020)
 ├── output/
-│   └── YYYY-MM/      # 60 monthly dirs
-│       └── SURFACEMODEL/   # .nc files
+│   └── YYYY-MM/                         # 60 storage partitions
+│       └── SURFACEMODEL/
+│           ├── YYYYMM/                  # files for current month
+│           │   ├── LIS_HIST_YYYYMMDD0000.d01.nc   # daily at 00:00 UTC
+│           │   └── LIS_RST_NOAHMP401_YYYYMM312345.d01.nc
+│           └── YYYYMM+1/               # spillover: first file of next month
+│               ├── LIS_HIST_YYYYMM+101000000.d01.nc
+│               └── LIS_RST_NOAHMP401_YYYYMM+1010000.d01.nc
 ├── restarts/         # LIS restart .nc files
 ├── scripts/          # chain_da.py
 └── templates/        # lis_da.config.template
@@ -92,28 +104,35 @@ OPL_noirr_2016_2020/
 | Monthly output dirs | 60 (2016-01 → 2020-12) | Verified P1.1 |
 | Output subfolders per month | `SURFACEMODEL/`, `DAOBS/`, `DAPERT/`, `EnKF/` | Verified P1.1 |
 | File formats | NetCDF (`.nc`), `.1gs4r`, `.bin` | Verified P1.1 |
-| Output frequency (within month) | To verify in P1.2 | — |
-| Variable names | To verify in P1.2 | — |
-| Spatial resolution / grid | To verify in P1.2 | — |
-| Units | To verify in P1.2 | — |
-| Timestamp convention | To verify in P1.2 | — |
-| Completeness at daily level | To verify in P1.2 | — |
+| Storage partitions | 60 `YYYY-MM` dirs (2016-01 → 2020-12); all present, none missing | Verified P1.2 |
+| SURFACEMODEL native cadence | One `LIS_HIST_*` per 24 h at 00:00 UTC — identical to OPL | Verified P1.2 |
+| SURFACEMODEL HIST file count | 1,827 — identical set to OPL and DA-CDF | Verified P1.2 |
+| DAOBS filename pattern | `LISDAOBS_YYYYMMDDHHMI.a01.d01.1gs4r` | Verified P1.2 |
+| DAOBS cadence | Irregular/event-driven (observation-dependent); NOT uniform | Verified P1.2 |
+| DAOBS file count | 4,619 (2016-01-01 06:00 → 2020-12-31 18:00) | Verified P1.2 |
+| DAOBS time-of-day observed | 06:00, 07:00, 18:00, 19:00 UTC predominate | Verified P1.2 |
+| EnKF `_incr` / `_innov` files | 4,619 each; `LIS_DA_EnKF_YYYYMMDDHHMI_incr/innov.a01.d01.nc`; same timestamps as DAOBS | Verified P1.2 |
+| EnKF `_spread` files | 1,827; `LIS_DA_EnKF_YYYYMMDDHHMI_spread.a01.d01.nc`; 24 h cadence, same timestamps as SURFACEMODEL | Verified P1.2 |
+| EnKF total file count | 13,012 (`.nc`) | Verified P1.2 |
+| DAPERT filename pattern | `LIS_DAPERT_YYYYMMDDHHMI.d01.bin` | Verified P1.2 |
+| DAPERT cadence | 2 per calendar month (end-of-month 23:45; first-of-next 00:00) | Verified P1.2 |
+| DAPERT total file count | 120 (60 months × 2) | Verified P1.2 |
+| Variable names in HIST | To verify in P1.3 | — |
+| Spatial resolution / grid | To verify in P1.3 | — |
+| Physical units | To verify in P1.3 | — |
+| Timestamp semantics | To verify in P1.3 | — |
+| `.1gs4r` format / content | To verify in P1.3 | — |
 
 Internal structure (verified):
 ```
 DA_nocdf_noirr_2016_2020/
-├── config/           # experiment.ini
-├── generated/        # configs/, jobs/
-├── logs/             # subdirectories by MMYYYY
 ├── output/
-│   └── YYYY-MM/      # 60 monthly dirs
-│       ├── SURFACEMODEL/   # .nc files (soil/flux state)
-│       ├── DAOBS/          # observation files (.nc, .1gs4r)
-│       ├── DAPERT/         # perturbation files
-│       └── EnKF/           # ensemble Kalman filter outputs
-├── restarts/         # pert/, surf/ subdirs
-├── scripts/          # chain_da.py
-└── templates/        # lis_da.config.template
+│   └── YYYY-MM/                         # 60 storage partitions
+│       ├── SURFACEMODEL/YYYYMM/          # LIS_HIST_*.nc  +  LIS_RST_*.nc
+│       ├── DAOBS/YYYYMM/                 # LISDAOBS_*.1gs4r (irregular timestamps)
+│       ├── DAPERT/YYYYMM/               # LIS_DAPERT_*.bin (2 per month)
+│       └── EnKF/YYYYMM/                 # LIS_DA_EnKF_*_{incr,innov,spread}.*.nc
+├── config/ generated/ logs/ restarts/ scripts/ templates/
 ```
 
 ---
@@ -131,18 +150,111 @@ DA_nocdf_noirr_2016_2020/
 | Monthly output dirs | 60 (2016-01 → 2020-12) | Verified P1.1 |
 | Output subfolders per month | `SURFACEMODEL/`, `DAOBS/`, `DAPERT/`, `EnKF/` | Verified P1.1 |
 | File formats | NetCDF (`.nc`), `.1gs4r`, `.bin` | Verified P1.1 |
-| Output frequency (within month) | To verify in P1.2 | — |
-| Variable names | To verify in P1.2 | — |
-| Spatial resolution / grid | To verify in P1.2 | — |
-| Units | To verify in P1.2 | — |
-| Timestamp convention | To verify in P1.2 | — |
-| Completeness at daily level | To verify in P1.2 | — |
+| Storage partitions | 60 `YYYY-MM` dirs (2016-01 → 2020-12); all present, none missing | Verified P1.2 |
+| SURFACEMODEL native cadence | One `LIS_HIST_*` per 24 h at 00:00 UTC — identical to OPL and DA-NoCDF | Verified P1.2 |
+| SURFACEMODEL HIST file count | 1,827 — identical set to OPL and DA-NoCDF | Verified P1.2 |
+| DAOBS file count | 4,411 (vs 4,619 in DA-NoCDF; 209 fewer + 1 extra = 210-file symmetric difference) | Verified P1.2 |
+| DAOBS cadence | Irregular/event-driven — same overall character as DA-NoCDF | Verified P1.2 |
+| EnKF `_incr` / `_innov` count | 4,411 each (matched to DAOBS) | Verified P1.2 |
+| EnKF `_spread` count | 1,827 — 24 h cadence, identical to DA-NoCDF | Verified P1.2 |
+| EnKF total file count | 12,596 (`.nc`) | Verified P1.2 |
+| DAPERT file count | 120 — **identical** to DA-NoCDF | Verified P1.2 |
+| Variable names in HIST | To verify in P1.3 | — |
+| Spatial resolution / grid | To verify in P1.3 | — |
+| Physical units | To verify in P1.3 | — |
+| Timestamp semantics | To verify in P1.3 | — |
 
 Internal structure (verified): identical layout to DA-NoCDF above.
 
 ---
 
-### 3.4 Auxiliary Experiment Directories
+### 3.4 Native Temporal and File Organization — Cross-Experiment Summary (P1.2)
+
+> **CRITICAL NOTE:** `YYYY-MM` directory names are **storage partitions only**.
+> They do not define the scientific temporal resolution of model outputs.
+
+#### SURFACEMODEL — all three experiments
+
+| Property | OPL | DA-NoCDF | DA-CDF |
+|----------|-----|----------|--------|
+| Filename pattern | `LIS_HIST_YYYYMMDDHHMI.d01.nc` | same | same |
+| Cadence | 24 h at 00:00 UTC | same | same |
+| First timestamp | 2016-01-02 00:00 | same | same |
+| Last timestamp | 2021-01-01 00:00 | same | same |
+| HIST file count | 1,827 | 1,827 | 1,827 |
+| Gaps / duplicates | None | None | None |
+| Timestamp sets identical? | — | **Yes** (OPL = DA-NoCDF = DA-CDF) | **Yes** |
+
+> First HIST timestamp is 2016-01-02 (not Jan 1). Last HIST timestamp is 2021-01-01 (one day beyond the declared window).
+> The significance of this boundary behavior requires verification in P1.3.
+
+#### Restart files — all three experiments
+
+| Property | Value |
+|----------|-------|
+| Filename pattern | `LIS_RST_NOAHMP401_YYYYMMDDHHMI.d01.nc` |
+| Cadence | 2 per calendar month: last day of month at 23:45; first day of next month at 00:00 |
+| Total count (OPL) | 121 files (60 months × 2 + 1 extra at 2021-01-01) |
+
+#### DAOBS and EnKF (_incr / _innov) — DA experiments
+
+| Property | DA-NoCDF | DA-CDF |
+|----------|----------|--------|
+| Filename pattern | `LISDAOBS_YYYYMMDDHHMI.a01.d01.1gs4r` | same |
+| Cadence | **Irregular / event-driven** (observation-dependent) | same character |
+| Times-of-day observed | 06:00, 07:00, 18:00, 19:00 UTC predominate | same |
+| File count | 4,619 | 4,411 |
+| First timestamp | 2016-01-01 06:00 | 2016-01-01 06:00 |
+| Last timestamp | 2020-12-31 18:00 | 2020-12-31 18:00 |
+| Symmetric difference | 210 files (209 in NoCDF only; 1 in CDF only) | — |
+
+#### EnKF _spread files — DA experiments
+
+| Property | Value |
+|----------|-------|
+| Filename pattern | `LIS_DA_EnKF_YYYYMMDDHHMI_spread.a01.d01.nc` |
+| Cadence | 24 h at 00:00 UTC — same timestamps as SURFACEMODEL |
+| File count | 1,827 per experiment |
+
+#### DAPERT files — DA experiments
+
+| Property | Value |
+|----------|-------|
+| Filename pattern | `LIS_DAPERT_YYYYMMDDHHMI.d01.bin` |
+| Cadence | 2 per calendar month (end-of-month 23:45; first-of-next 00:00) |
+| File count | 120 per experiment — **identical** between DA-NoCDF and DA-CDF |
+| Format | Binary (`.bin`) — contents not inspected |
+
+#### File extension summary (across all three experiments)
+
+| Extension | Family | Count (total) |
+|-----------|--------|---------------|
+| `.nc` | SURFACEMODEL HIST + RST + EnKF _incr/_innov/_spread | 27,555 |
+| `.1gs4r` | DAOBS | 9,030 |
+| `.bin` | DAPERT | 240 |
+
+#### Representative files selected for P1.3 (around 2018-06)
+
+| Experiment | Family | Representative file path |
+|------------|--------|-------------------------|
+| OPL | SURFACEMODEL HIST | `…/OPL_noirr_2016_2020/output/2018-06/SURFACEMODEL/201806/LIS_HIST_201806010000.d01.nc` |
+| OPL | SURFACEMODEL RST | `…/OPL_noirr_2016_2020/output/2018-06/SURFACEMODEL/201806/LIS_RST_NOAHMP401_201806302345.d01.nc` |
+| DA-NoCDF | SURFACEMODEL HIST | `…/DA_nocdf_noirr_2016_2020/output/2018-06/SURFACEMODEL/201806/LIS_HIST_201806010000.d01.nc` |
+| DA-NoCDF | DAOBS | `…/DA_nocdf_noirr_2016_2020/output/2018-06/DAOBS/201806/LISDAOBS_201806010600.a01.d01.1gs4r` |
+| DA-NoCDF | EnKF _incr | `…/DA_nocdf_noirr_2016_2020/output/2018-06/EnKF/201806/LIS_DA_EnKF_201806010600_incr.a01.d01.nc` |
+| DA-NoCDF | EnKF _innov | `…/DA_nocdf_noirr_2016_2020/output/2018-06/EnKF/201806/LIS_DA_EnKF_201806010600_innov.a01.d01.nc` |
+| DA-NoCDF | EnKF _spread | `…/DA_nocdf_noirr_2016_2020/output/2018-06/EnKF/201806/LIS_DA_EnKF_201806300000_spread.a01.d01.nc` |
+| DA-NoCDF | DAPERT | `…/DA_nocdf_noirr_2016_2020/output/2018-06/DAPERT/201806/LIS_DAPERT_201806302345.d01.bin` |
+| DA-CDF | SURFACEMODEL HIST | `…/DA_cdf_noirr_2016_2020/output/2018-06/SURFACEMODEL/201806/LIS_HIST_201806010000.d01.nc` |
+| DA-CDF | DAOBS | `…/DA_cdf_noirr_2016_2020/output/2018-06/DAOBS/201806/LISDAOBS_201806010600.a01.d01.1gs4r` |
+| DA-CDF | EnKF _incr | `…/DA_cdf_noirr_2016_2020/output/2018-06/EnKF/201806/LIS_DA_EnKF_201806010600_incr.a01.d01.nc` |
+| DA-CDF | EnKF _innov | `…/DA_cdf_noirr_2016_2020/output/2018-06/EnKF/201806/LIS_DA_EnKF_201806010600_innov.a01.d01.nc` |
+| DA-CDF | EnKF _spread | `…/DA_cdf_noirr_2016_2020/output/2018-06/EnKF/201806/LIS_DA_EnKF_201806300000_spread.a01.d01.nc` |
+| DA-CDF | DAPERT | `…/DA_cdf_noirr_2016_2020/output/2018-06/DAPERT/201806/LIS_DAPERT_201806302345.d01.bin` |
+
+---
+
+### 3.5 Auxiliary Experiment Directories
 
 These directories exist within `matrix_2016_2020/` but are **not part of the three main experiments
 currently targeted** by the audit.
@@ -286,12 +398,12 @@ GLEAM/
 | Columns | `Date`, `Station`, `Precipitation`, `Longitude`, `Latitude` | Verified P1.1 |
 | Temperature column | Not identified in P1.1 | Verified P1.1 |
 | Station networks | ABH stations + Ziz basin + ABHBC1 (inferred from filename) | Filename only — to verify |
-| Station count (unique) | To verify in P1.2 | — |
-| Temporal frequency | To verify in P1.2 | — |
-| Temporal coverage (start/end dates) | To verify in P1.2 | — |
-| Missing-data rate | To verify in P1.2 | — |
-| Precipitation units | To verify in P1.2 | — |
-| Coordinate reference system | To verify in P1.2 | — |
+| Station count (unique) | To verify in P1.3 | — |
+| Temporal frequency | To verify in P1.3 | — |
+| Temporal coverage (start/end dates) | To verify in P1.3 | — |
+| Missing-data rate | To verify in P1.3 | — |
+| Precipitation units | To verify in P1.3 | — |
+| Coordinate reference system | To verify in P1.3 | — |
 
 ---
 
@@ -299,33 +411,31 @@ GLEAM/
 
 The table below consolidates all items flagged **"To verify"** across this document.
 
+**Resolved in P1.2** (SURFACEMODEL / DAOBS / EnKF / DAPERT temporal organization — see §3.5)
+
 | # | Dataset | Attribute | Target task |
 |---|---------|-----------|-------------|
-| 1 | OPL / DA-NoCDF / DA-CDF | Output frequency within each month | P1.2 |
-| 2 | OPL / DA-NoCDF / DA-CDF | Variable names in `SURFACEMODEL/` | P1.2 |
-| 3 | OPL / DA-NoCDF / DA-CDF | Spatial grid / resolution | P1.2 |
-| 4 | OPL / DA-NoCDF / DA-CDF | Physical units per variable | P1.2 |
-| 5 | OPL / DA-NoCDF / DA-CDF | Timestamp convention (start/end of interval) | P1.2 |
-| 6 | OPL / DA-NoCDF / DA-CDF | Output completeness at daily level | P1.2 |
-| 7 | In-situ CSV | Unique station count | P1.2 |
-| 8 | In-situ CSV | Temporal frequency (daily / sub-daily) | P1.2 |
-| 9 | In-situ CSV | Temporal coverage (start / end dates) | P1.2 |
-| 10 | In-situ CSV | Missing-data rate and pattern | P1.2 |
-| 11 | In-situ CSV | Precipitation units | P1.2 |
-| 12 | In-situ CSV | Coordinate reference system | P1.2 |
-| 13 | GLEAM | Temporal frequency | P1.3 |
-| 14 | GLEAM | Spatial resolution | P1.3 |
-| 15 | GLEAM | Variable dimensions / units | P1.3 |
-| 16 | GLEAM | Coverage completeness over 2015–2020 | P1.3 |
-| 17 | WaPOR v2 | Exact year range | P1.3 |
-| 18 | WaPOR v2/v3 | Spatial resolution / projection | P1.3 |
-| 19 | WaPOR v2/v3 | Units | P1.3 |
-| 20 | MOD16 | Variable names / HDF sub-datasets | P1.3 |
-| 21 | MOD16 | Spatial resolution | P1.3 |
-| 22 | MOD16 | Units | P1.3 |
-| 23 | MOD16 | Completeness (missing 8-day periods) | P1.3 |
-| 24 | In-situ CSV | Station networks (verify against file contents, not just filename) | P1.2 |
-| 25 | `matrix_2016_2020/README.md` | Content — may contain additional experiment metadata | P1.2 |
+| 1 | OPL / DA-NoCDF / DA-CDF | Why first HIST timestamp is 2016-01-02, not 2016-01-01 (spin-up?) | P1.3 |
+| 2 | OPL / DA-NoCDF / DA-CDF | Variable names and dimensions in `LIS_HIST_*.nc` | P1.3 |
+| 3 | OPL / DA-NoCDF / DA-CDF | Spatial grid / resolution | P1.3 |
+| 4 | OPL / DA-NoCDF / DA-CDF | Physical units per variable | P1.3 |
+| 5 | OPL / DA-NoCDF / DA-CDF | Timestamp semantics: instantaneous vs. period-averaged | P1.3 |
+| 6 | DA-NoCDF / DA-CDF | Content and format of `.1gs4r` DAOBS files | P1.3 |
+| 7 | DA-NoCDF / DA-CDF | Content and format of `.bin` DAPERT files | P1.3 |
+| 8 | DA-NoCDF / DA-CDF | Variables in `LIS_DA_EnKF_*_incr/innov/spread.nc` | P1.3 |
+| 9 | DA-NoCDF / DA-CDF | Why DAOBS count differs (4,619 vs 4,411; 210-file diff) | P1.3 |
+| 10 | In-situ CSV | Unique station count | P1.3 |
+| 11 | In-situ CSV | Temporal frequency (daily / sub-daily) | P1.3 |
+| 12 | In-situ CSV | Temporal coverage (start / end dates) | P1.3 |
+| 13 | In-situ CSV | Missing-data rate and pattern | P1.3 |
+| 14 | In-situ CSV | Precipitation units | P1.3 |
+| 15 | In-situ CSV | Coordinate reference system | P1.3 |
+| 16 | In-situ CSV | Station networks (verify against file contents) | P1.3 |
+| 17 | `matrix_2016_2020/README.md` | Content — may contain experiment metadata | P1.3 |
+| 18 | GLEAM | Temporal frequency, spatial resolution, variable units | P1.3 |
+| 19 | WaPOR v2 | Exact year range, spatial resolution, units | P1.3 |
+| 20 | WaPOR v3 | Spatial resolution, units | P1.3 |
+| 21 | MOD16 | Variable names / HDF sub-datasets, spatial resolution, units | P1.3 |
 
 ---
 
@@ -335,3 +445,4 @@ The table below consolidates all items flagged **"To verify"** across this docum
 |------|-------------|------|
 | P1.1 | Directory-level data inventory completed. All three source paths validated. Experiment structure, ET observation directories, and in-situ CSV basic metadata recorded. | 2026-09-21 |
 | P1.1b | Validated P1.1 findings recorded in this living inventory document. | 2026-09-21 |
+| P1.2 | Noah-MP native temporal and file organization inventory completed. SURFACEMODEL cadence confirmed as 24 h at 00:00 UTC (1,827 files, perfectly regular, identical across OPL/DA-NoCDF/DA-CDF). DAOBS/EnKF-incr/innov cadence confirmed as irregular/event-driven. EnKF-spread and DAPERT cadences confirmed as 24 h and 2-per-month respectively. DA-NoCDF vs DA-CDF DAOBS difference (210 files) documented. Representative files for P1.3 selected. | 2026-09-21 |
