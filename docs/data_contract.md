@@ -1,16 +1,24 @@
 # SMAP-XAI Data Contract
 
 ## 1. Purpose
-This data contract defines the standardized data representation expected by the SMAP-XAI preprocessing pipeline. It defines canonical variable names, units, temporal representation, spatial representation, required dimensions, missing-value handling, and alignment rules between the model, DA diagnostics, and observations. It describes what the preprocessing step must produce, separating raw/native data from standardized outputs and outlining decisions that remain unresolved.
+This data contract defines the standardized data representation expected by the SMAP-XAI preprocessing pipeline. It defines canonical variable names, units, temporal representation, spatial representation, required dimensions, missing-value handling, and alignment rules between the model, DA diagnostics, and observations. It describes what the preprocessing step must produce, separating raw/native data from standardized outputs.
 
-## 2. Analysis Grid
-The Noah-MP grid is defined as the main model-analysis grid.
+## 2. Spatial Representation
+
+The pipeline defines TWO spatial contexts.
+
+### A. Model / DA Analysis Grid
+- **Source**: Noah-MP native grid
 - **Resolution**: 0.05 degree
-- **Dimensions**: latitude = 121, longitude = 181
+- **Dimensions**: 121 x 181
 - **Latitude**: 30.0 to 36.0
 - **Longitude**: -10.0 to -1.0
 
 Geographic latitude/longitude coordinates must be used in standardized outputs. The original Noah-MP grid must not be altered.
+Used for: `ssm`, `soil_moisture_layer1` through `4`, `rzsm`, `et`, `surface_runoff`, `baseflow`, `increment`, `innovation`, `normalized_innovation`.
+
+### B. ET Evaluation Grid
+Use the GLEAM native 0.1-degree geographic grid subset covering the Noah-MP domain as the common ET evaluation grid. Harmonized ET-evaluation products must share this common 0.1-degree evaluation grid. The exact aggregation/reprojection algorithms will be documented in `docs/data_preprocessing.md`.
 
 ## 3. Temporal Representations
 Data sources will not be forced onto a single temporal frequency. The pipeline handles three distinct temporal representations.
@@ -20,7 +28,7 @@ For variables: SSM, RZSM components, ET, surface runoff, and baseflow.
 - **Native Noah-MP interval**: 24 h
 - **Target standardized dimension**: `time`
 - **Target temporal resolution**: daily
-*Important Note:* The LIS HIST timestamp represents the **end of the averaging interval**. The canonical date for daily standardization is the beginning/date of the represented daily interval. Therefore, when parsing filenames, raw timestamp `T` (e.g., `2016-01-02 00:00`) maps to canonical date `T - 1 day` (e.g., `2016-01-01`).
+`time` labels the beginning/calendar day of the represented 24-h interval.
 
 ### B. DA-event representation
 For variables: increment and innovation.
@@ -30,7 +38,6 @@ Native event timestamps must be retained. Do not prematurely aggregate increment
 ### C. MOD16 representation
 MOD16 is kept on its native composite temporal support.
 - **Target standardized dimension**: `composite_time`
-Do not create artificial daily MOD16 observations. Model and GLEAM data will be aggregated over the exact MOD16 composite windows when comparison is required.
 
 ## 4. Canonical Variables
 
@@ -41,12 +48,21 @@ Do not create artificial daily MOD16 observations. Model and GLEAM data will be 
 | `soil_moisture_layer2` | SoilMoist_tavg layer 2 | Noah-MP | m3 m-3 | daily |
 | `soil_moisture_layer3` | SoilMoist_tavg layer 3 | Noah-MP | m3 m-3 | daily |
 | `soil_moisture_layer4` | SoilMoist_tavg layer 4 | Noah-MP | m3 m-3 | daily |
-| `rzsm` | derived | Noah-MP | m3 m-3 | daily (definition pending) |
+| `rzsm` | derived | Noah-MP | m3 m-3 | daily |
 | `et` | Evap_tavg | Noah-MP | mm day-1 | daily |
 | `surface_runoff` | Qs_tavg | Noah-MP | mm day-1 | daily |
 | `baseflow` | Qsb_tavg | Noah-MP | mm day-1 | daily |
 | `increment` | anlys_incr_Soil Moisture Layer X_01 | EnKF | m3 m-3 | event_time |
 | `innovation` | innov_01 | EnKF | m3 m-3 | event_time |
+| `et_gleam` | E | GLEAM v4.3a | mm day-1 | daily |
+| `et_mod16` | ET_500m | MOD16A2GF C6.1 | mm per native composite | composite_time |
+
+## 4.1 Optional EnKF Diagnostics
+Document as available optional standardized diagnostics:
+- `normalized_innovation` (source: `ninnov_01`, units: dimensionless)
+- `forecast_variance` (source: `forecast_sigma_01`, units: `(m3 m-3)^2`)
+- `analysis_residual` (source: `analysis_residual_01`, units: `m3 m-3`)
+Keep `increment` and `innovation` as the core DA diagnostics.
 
 ## 5. Model Experiment Dimension
 Standardized model data must distinguish between OPL, DA-NoCDF, and DA-CDF experiments.
@@ -57,12 +73,9 @@ Preferred canonical experiment labels:
 
 Experiment identity must not be encoded solely in filenames. Where practical, preprocessing outputs should expose the experiment as an explicit metadata element or dimension.
 
-## 6. Flux Unit Conversion
+## 6. Canonical Flux Units
 Raw Noah-MP flux variables (`Evap_tavg`, `Qs_tavg`, `Qsb_tavg`) are output in `kg m-2 s-1`.
 - **Target standardized units**: `mm day-1`
-For a verified 24-h averaging interval, the conversion is:
-`target = raw * 86400`
-*(Based on the equivalence: 1 kg m-2 water = 1 mm water depth).*
 
 ## 7. RZSM
 All four standardized soil-moisture layers must be kept.
@@ -72,8 +85,13 @@ Layer depths:
 - **Layer 3**: 40–100 cm
 - **Layer 4**: 100–200 cm
 
-`rzsm_definition` = pending scientific decision
-Do not define the final RZSM product yet. The preprocessing implementation must make RZSM depth weighting configurable rather than hard-coded.
+**Canonical:** `rzsm`
+**Depth:** 0–100 cm
+**Units:** `m3 m-3`
+**Definition:**
+`rzsm = 0.10 * soil_moisture_layer1 + 0.30 * soil_moisture_layer2 + 0.60 * soil_moisture_layer3`
+
+Retain all native layers in standardized data.
 
 ## 8. GLEAM Contract
 - **Source**: GLEAM v4.3a
@@ -85,7 +103,7 @@ Do not define the final RZSM product yet. The preprocessing implementation must 
 - **Target standardized variable**: `et_gleam`
 - **Target unit**: mm day-1
 - **Target temporal representation**: daily
-- **Spatial preprocessing**: Align/regrid to the Noah-MP 0.05-degree analysis grid. The exact regridding method is a preprocessing-method decision and is not defined here.
+- **Spatial preprocessing**: Align to the common 0.1-degree ET evaluation grid.
 
 ## 9. MOD16 Contract
 - **Product**: MOD16A2GF Collection 6.1
@@ -97,12 +115,11 @@ Do not define the final RZSM product yet. The preprocessing implementation must 
 - **Projection**: MODIS Sinusoidal
 - **Native resolution**: 500 m
 - **Target standardized variable**: `et_mod16`
+- **Target unit**: mm per native composite
 
 Do not define it as daily. Preserve information describing each composite period.
-- **For model comparison**: Aggregate Noah-MP daily ET over exact MOD16 composite windows.
-- **For cross-reference comparison**: Aggregate GLEAM daily ET over the same windows.
-- **Spatial preprocessing**: Reproject and aggregate MOD16 to the Noah-MP analysis grid.
-- **QC**: `ET_QC_500m` must be retained or translated into a usable quality mask (exact QC acceptance rule remains a later decision).
+- **Spatial preprocessing**: Align to the common 0.1-degree ET evaluation grid.
+- **QC**: `ET_QC_500m` must be retained or translated into a usable quality mask.
 
 ## 10. In-Situ Station Contract
 In-situ files are not yet active quantitative inputs. 
@@ -112,10 +129,10 @@ In-situ files are not yet active quantitative inputs.
 Standardized station variables remain pending external metadata confirmation. Do not assign columns 4–6 to precipitation/Tmax/Tmin until confirmed. Historical CSV and stations outside the model domain are not active inputs for the current preprocessing pipeline.
 
 ## 11. Missing Values
-Standardized numeric outputs should use `NaN` for missing floating-point values. Raw source sentinel values (e.g., MOD16 FillValue = `32767`, station TXT sentinel = `-99.9`) must be converted to `NaN` during source-specific preprocessing. Do not apply this transformation yet.
+Standardized floating-point missing values = `NaN`.
+Do not retain source-specific transformation algorithms here. Source fill/sentinel values remain documented in `data_inventory.md`. Their conversion to `NaN` will be described in `data_preprocessing.md`.
 
-## 12. Standard Output Dimensions
-Recommended array dimensions for standardized outputs:
+## 12. Required standardized dimensions
 - **Daily model/reference arrays**: `time`, `lat`, `lon`
 - **Soil-moisture arrays**: `time`, `soil_layer`, `lat`, `lon`
 - **DA diagnostics**: `event_time`, `lat`, `lon` (or `event_time`, `soil_layer`, `lat`, `lon` when retaining layer-specific diagnostics)
@@ -133,12 +150,5 @@ Every standardized variable must retain:
 - Missing-value convention
 
 ## 14. Unresolved Contract Items
-These unresolved items will not block the creation of the data contract.
 
-| Item |
-|------|
-| 2. Final RZSM depth/weighting definition |
-| 3. GLEAM-to-Noah-MP regridding method |
-| 4. MOD16 spatial aggregation/reprojection method |
-| 5. MOD16 QC acceptance rule |
-| 6. Exact identities/units of individual station TXT columns |
+Source-specific preprocessing algorithms and QC choices are documented separately in `docs/data_preprocessing.md`.

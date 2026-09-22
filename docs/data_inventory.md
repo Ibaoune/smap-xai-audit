@@ -12,7 +12,7 @@ This document is the operational inventory of source data used by SMAP-XAI Audit
 - temporal resolution;
 - spatial resolution;
 - coverage;
-- unresolved preprocessing decisions.
+- unresolved source metadata.
 
 ## 2. Noah-MP / LIS Experiments
 
@@ -61,7 +61,8 @@ This document is the operational inventory of source data used by SMAP-XAI Audit
 
 SSM = Layer 1.
 
-Final RZSM depth and depth-weighted combination remain a preprocessing decision.
+Noah-MP stores four native soil-moisture layers.
+No native derived RZSM variable is stored in the source HIST files.
 
 ## 6. Assimilation Diagnostics
 
@@ -114,11 +115,9 @@ event-driven / irregular; timestamps encoded in filenames.
 
 *(Optional diagnostic: ensemble spread is available in `_spread.a01.d01.nc` files)*
 
-## 7. Flux Preprocessing Note
+## 7. Native Flux Characteristics
 
-`Evap_tavg`, `Qs_tavg` and `Qsb_tavg` are time-averaged flux rates in `kg m-2 s-1`.
-
-For a 24-h interval, multiplying by 86400 converts the mean rate to `kg m-2 day-1`, numerically equivalent to mm/day for water.
+`Evap_tavg`, `Qs_tavg` and `Qsb_tavg` are 24-h time-averaged flux rates in `kg m-2 s-1`.
 
 ## 8. ET Observations
 
@@ -199,23 +198,6 @@ Tile coverage:
 Fill value:
     32767
 
-### 8.1 Temporal Harmonization Note
-
-For MOD16 comparison, we will aggregate
-Noah-MP daily ET and GLEAM daily ET over the exact MOD16 composite
-periods.
-
-We will not treat MOD16 as native daily data.
-
-The duration of the final composite of each year must be handled
-explicitly because it may contain fewer than 8 days.
-
-### 8.2 Spatial Harmonization Note
-
-MOD16 must be reprojected from the MODIS Sinusoidal grid and
-spatially aggregated to the Noah-MP 0.05-degree grid before
-pixel-wise comparison.
-
 ## 9. In-Situ Observations
 
 **Source:**
@@ -236,7 +218,10 @@ NOT usable for the current 2016–2020 SMAP-XAI analysis.
 - **Interpretation of negative values:** unresolved
 
 **Note:**
-This dataset has been removed from the ACTIVE preprocessing inputs for the 2016–2020 workflow. A replacement in-situ precipitation dataset overlapping 2016–2020 would be required if station-based forcing diagnostics are retained in the study.
+This historical CSV is excluded from the active 2016–2020 workflow.
+Individual station files overlapping 2016–2020 are documented below,
+but their variable identities and units still require external
+confirmation.
 
 ### 9.1 Individual station files
 
@@ -258,12 +243,10 @@ This dataset has been removed from the ACTIVE preprocessing inputs for the 2016�
 **Active SMAP-XAI Station Inputs:**
 Pending external confirmation of variable names and units, **Agadir-massira** and **Chefchaouen** are potentially usable for the 2016–2020 study. Guelmim and Tiznit fall outside the model domain and will not be used.
 
-## 10. Remaining Decisions
+## 10. Unresolved Source Metadata
 
 | Item | Decision / metadata still needed |
 |------|----------------------------------|
-| Final RZSM definition | To confirm |
-| GLEAM/Noah-MP spatial harmonization | To confirm |
-| MOD16 temporal/spatial harmonization and QC handling | To confirm |
-| In-situ precipitation for 2016–2020 | replacement dataset currently unavailable |
-| Station column names and units | To confirm externally |
+| Individual station TXT variable identities | To confirm externally |
+| Individual station TXT physical units | To confirm externally |
+| Candidate station identities / coordinates | To confirm externally |
