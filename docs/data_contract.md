@@ -1,5 +1,7 @@
 # SMAP-XAI Data Contract
 
+**Project:** SMAP-XAI Audit
+**Author:** M. El Aabaribaoune (@um6p)
 ## 1. Purpose
 This data contract defines the standardized data representation expected by the SMAP-XAI preprocessing pipeline. It defines canonical variable names, units, temporal representation, spatial representation, required dimensions, missing-value handling, and alignment rules between the model, DA diagnostics, and observations. It describes what the preprocessing step must produce, separating raw/native data from standardized outputs.
 

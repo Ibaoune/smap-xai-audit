@@ -1,7 +1,7 @@
 # SMAP-XAI Data Requirements Specification
 
-**Project**: SMAP-XAI Audit
-**Author**: M. El Aabaribaoune (@um6p)
+**Project:** SMAP-XAI Audit
+**Author:** M. El Aabaribaoune (@um6p)
 
 ## 1. Purpose
 
@@ -177,7 +177,7 @@ Native standardized supports must remain:
 *   **MOD16**: native composite
 *   **static predictors**: static
 
-The final XAI sampling support may be pixel-month, pixel-day, event-day, or another derived view. This will be generated from standardized interim data. Note explicitly that the current manuscript draft describes a pixel-month analysis, but the preprocessing architecture must remain frequency-neutral enough to support alternative XAI views.
+The current XAI sample is a valid land pixel-day. No monthly aggregation is part of the current XAI design. (Historical note: earlier drafts considered a pixel-month analysis, but the architecture and current convention are now strictly daily).
 
 ## 12. Validation Support Variables
 

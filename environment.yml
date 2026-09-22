@@ -10,3 +10,7 @@ dependencies:
   - pip
   - netcdf4
   - netcdf-c
+  - xarray
+  - numpy
+  - pandas
+  - matplotlib

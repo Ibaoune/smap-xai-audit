@@ -1,5 +1,6 @@
 # SMAP-XAI Operational Data Inventory
 
+**Project:** SMAP-XAI Audit
 **Author:** M. El Aabaribaoune (@um6p)
 
 ## 1. Purpose
