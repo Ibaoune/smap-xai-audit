@@ -1,11 +1,12 @@
 import os
+import argparse
 import xarray as xr
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
 
 """
-SMAP-XAI: SM Layer 2 QC Plotting
+SMAP-XAI: SM Layer QC Plotting
 
 Purpose
 -------
@@ -14,7 +15,7 @@ Calculates spatial means and temporal means to quickly compare the raw data stat
 
 Inputs
 ------
-Annual SM Layer 2 interim NetCDF files for:
+Annual SM Layer (2, 3, or 4) interim NetCDF files for:
     OPL
     DA-NoCDF
     DA-CDF
@@ -26,19 +27,8 @@ Period
 Outputs
 -------
 daily spatial-mean comparison
-temporal-mean SM Layer 2 maps
+temporal-mean SM Layer maps
 temporal-mean DA-minus-OPL difference maps
-
-Color conventions
------------------
-absolute SM Layer 2:
-    discrete YlGnBu
-difference:
-    discrete BrBG centered at zero
-
-All experiments share the same normalization/boundaries for direct comparison.
-Positive DA-OPL difference = wetter DA state.
-Negative DA-OPL difference = drier DA state.
 
 Author
 ------
@@ -48,32 +38,45 @@ M. El Aabaribaoune (@um6p)
 __author__ = "M. El Aabaribaoune (@um6p)"
 
 def main():
+    parser = argparse.ArgumentParser(description="Plot QC for specific soil moisture layers.")
+    parser.add_argument("--layer", type=int, choices=[2, 3, 4], required=True, help="Soil layer (2, 3, or 4).")
+    args = parser.parse_args()
+    
+    layer_meta = {
+        2: {"depth": "10-40 cm", "canonical": "sm_layer2", "bounds": [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45]},
+        3: {"depth": "40-100 cm", "canonical": "sm_layer3", "bounds": [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45]},
+        4: {"depth": "100-200 cm", "canonical": "sm_layer4", "bounds": [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45]}
+    }
+    
+    meta = layer_meta[args.layer]
+    canonical_var = meta["canonical"]
+    
     experiments = ["opl", "da_nocdf", "da_cdf"]
     exp_labels = {"opl": "OPL", "da_nocdf": "DA-NoCDF", "da_cdf": "DA-CDF"}
     years = range(2016, 2021)
     
     base_dir = "data/interim/noahmp"
-    out_dir = "reports/qc/sm_layer2"
+    out_dir = f"reports/qc/{canonical_var}"
     os.makedirs(out_dir, exist_ok=True)
     
     ds_dict = {}
     temporal_means = {}
     
-    print("--- LOADING DATA ---")
+    print(f"--- LOADING DATA FOR LAYER {args.layer} ---")
     for exp in experiments:
-        paths = [f"{base_dir}/{exp}/sm_layer2/sm_layer2_{year}.nc" for year in years]
+        paths = [f"{base_dir}/{exp}/{canonical_var}/{canonical_var}_{year}.nc" for year in years]
         datasets = [xr.open_dataset(p) for p in paths]
         ds = xr.concat(datasets, dim='time')
-        ds_dict[exp] = ds['sm_layer2']
+        ds_dict[exp] = ds[canonical_var]
         
         # Calculate temporal mean
-        tm = ds['sm_layer2'].mean(dim="time")
+        tm = ds[canonical_var].mean(dim="time")
         temporal_means[exp] = tm
         
         print(f"[{exp_labels[exp]}]")
-        print(f"  temporal-mean sm_layer2 spatial min: {float(tm.min()):.4f}")
-        print(f"  temporal-mean sm_layer2 spatial max: {float(tm.max()):.4f}")
-        print(f"  overall 2016-2020 mean:      {float(ds['sm_layer2'].mean()):.4f}")
+        print(f"  temporal-mean {canonical_var} spatial min: {float(tm.min()):.4f}")
+        print(f"  temporal-mean {canonical_var} spatial max: {float(tm.max()):.4f}")
+        print(f"  overall 2016-2020 mean:      {float(ds[canonical_var].mean()):.4f}")
         
     diff_nocdf = temporal_means["da_nocdf"] - temporal_means["opl"]
     diff_cdf = temporal_means["da_cdf"] - temporal_means["opl"]
@@ -92,8 +95,7 @@ def main():
     print("Generating temporal mean maps...")
     fig, axes = plt.subplots(1, 3, figsize=(18, 5), constrained_layout=True)
     
-    # Sensible bounds for layer 2
-    boundaries = [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45]
+    boundaries = meta["bounds"]
     cmap = plt.get_cmap('YlGnBu').copy()
     cmap.set_bad('white', alpha=0.0)
     norm = mcolors.BoundaryNorm(boundaries, cmap.N, extend='max')
@@ -106,9 +108,9 @@ def main():
         ax.set_ylabel("Latitude")
         
     cbar = fig.colorbar(im, ax=axes.ravel().tolist(), orientation='vertical', shrink=0.8, extend='max')
-    cbar.set_label("SM Layer 2 (m³ m⁻³)")
-    plt.suptitle("Mean Soil Moisture Layer 2 (10-40 cm) (2016–2020)", fontsize=16)
-    plt.savefig(f"{out_dir}/sm_layer2_temporal_mean_map_2016_2020_all_experiments.png", dpi=200, bbox_inches='tight')
+    cbar.set_label(f"SM Layer {args.layer} (m³ m⁻³)")
+    plt.suptitle(f"Mean Soil Moisture Layer {args.layer} ({meta['depth']}) (2016–2020)", fontsize=16)
+    plt.savefig(f"{out_dir}/{canonical_var}_temporal_mean_map_2016_2020_all_experiments.png", dpi=200, bbox_inches='tight')
     plt.close()
     
     # C. Difference maps
@@ -131,9 +133,9 @@ def main():
     axes[1].set_ylabel("Latitude")
     
     cbar_diff = fig.colorbar(im1, ax=axes.ravel().tolist(), orientation='vertical', shrink=0.8, extend='both')
-    cbar_diff.set_label("ΔSM Layer 2 (m³ m⁻³)")
-    plt.suptitle("Mean SM Layer 2 Difference (2016–2020)", fontsize=16)
-    plt.savefig(f"{out_dir}/sm_layer2_temporal_mean_difference_maps_2016_2020.png", dpi=200, bbox_inches='tight')
+    cbar_diff.set_label(f"ΔSM Layer {args.layer} (m³ m⁻³)")
+    plt.suptitle(f"Mean SM Layer {args.layer} Difference (2016–2020)", fontsize=16)
+    plt.savefig(f"{out_dir}/{canonical_var}_temporal_mean_difference_maps_2016_2020.png", dpi=200, bbox_inches='tight')
     plt.close()
     
     # A. Spatial-mean time series
@@ -147,12 +149,12 @@ def main():
         color, ls = styles[exp]
         spatial_mean.plot(label=exp_labels[exp], color=color, linestyle=ls, linewidth=1.5)
         
-    plt.title("Daily Spatial-Mean SM Layer 2 (2016–2020)")
-    plt.ylabel("SM Layer 2 (m³ m⁻³)")
+    plt.title(f"Daily Spatial-Mean SM Layer {args.layer} (2016–2020)")
+    plt.ylabel(f"SM Layer {args.layer} (m³ m⁻³)")
     plt.xlabel("Time")
     plt.legend()
     plt.grid(True, alpha=0.5)
-    plt.savefig(f"{out_dir}/sm_layer2_spatial_mean_timeseries_2016_2020_all_experiments.png", dpi=200, bbox_inches='tight')
+    plt.savefig(f"{out_dir}/{canonical_var}_spatial_mean_timeseries_2016_2020_all_experiments.png", dpi=200, bbox_inches='tight')
     plt.close()
     
     print("All figures successfully updated.")

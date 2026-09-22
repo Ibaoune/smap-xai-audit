@@ -103,3 +103,65 @@ No monthly aggregation is part of the current XAI design.
 
 ### NOTES
 - Layer 1 is NOT duplicated here because its canonical representation already exists as SSM.
+
+## Noah-MP / Soil Moisture Layer 3
+
+### SOURCE
+- **canonical variable**: `sm_layer3`
+- **source variable**: `SoilMoist_tavg`
+- **layer**: layer 3 = 40–100 cm
+- **unit**: m3 m-3
+- **temporal support**: daily
+- **role**: required for canonical RZSM 0–100 cm calculation
+
+### PROCESSING
+- source index 2
+- filename timestamp - 1 day
+- standardized time/lat/lon coordinates
+- no numerical unit conversion
+- no regridding
+- no interpolation
+
+### OUTPUT
+- `data/interim/noahmp/<experiment>/sm_layer3/`
+
+### COVERAGE
+- OPL / DA-NoCDF / DA-CDF
+- 2016–2020
+- 1827 daily samples per experiment
+
+### QC
+- numerical validation passed
+- raw-vs-interim numerical identity strictly verified (max abs diff = 0.0)
+- comparative quicklooks generated and stored at `reports/qc/sm_layer3/`
+
+## Noah-MP / Soil Moisture Layer 4
+
+### SOURCE
+- **canonical variable**: `sm_layer4`
+- **source variable**: `SoilMoist_tavg`
+- **layer**: layer 4 = 100–200 cm
+- **unit**: m3 m-3
+- **temporal support**: daily
+- **role**: retained as an independent deep-layer XAI predictor / diagnostic. NOT included in RZSM 0–100 cm.
+
+### PROCESSING
+- source index 3
+- filename timestamp - 1 day
+- standardized time/lat/lon coordinates
+- no numerical unit conversion
+- no regridding
+- no interpolation
+
+### OUTPUT
+- `data/interim/noahmp/<experiment>/sm_layer4/`
+
+### COVERAGE
+- OPL / DA-NoCDF / DA-CDF
+- 2016–2020
+- 1827 daily samples per experiment
+
+### QC
+- numerical validation passed
+- raw-vs-interim numerical identity strictly verified (max abs diff = 0.0)
+- comparative quicklooks generated and stored at `reports/qc/sm_layer4/`
