@@ -38,7 +38,7 @@ This document is the operational inventory of source data used by SMAP-XAI Audit
 - **Available HIST timestamp range:** 2016-01-02 00:00 to 2021-01-01 00:00
 - **Number of HIST timestamps:** 1827
 
-> **Important unresolved note:** Variables are `_tavg` outputs with `time_increment=86400`. The exact interpretation of the filename timestamp as end-of-period labeling remains to confirm from LIS documentation/configuration.
+> **Important note:** Variables are `_tavg` outputs with `time_increment=86400`. The LIS filename timestamp corresponds to the **end of the averaging interval** (confirmed from LIS source code: `LIS_surfaceModelMod.F90`, `LIS_fileIOMod.F90`, `LIS_histDataMod.F90`, `LIS_historyMod.F90`). For example, `LIS_HIST_201601020000.d01.nc` represents the daily average over `[2016-01-01 00:00, 2016-01-02 00:00)`. Thus, its canonical model date is **2016-01-01**.
 
 ## 4. Variables Used by SMAP-XAI
 
@@ -236,7 +236,6 @@ Pending external confirmation of variable names and units, **Agadir-massira** an
 
 | Item | Decision / metadata still needed |
 |------|----------------------------------|
-| Exact LIS HIST timestamp convention | To confirm |
 | Final RZSM definition | To confirm |
 | EnKF diagnostic units | To confirm |
 | GLEAM/Noah-MP spatial harmonization | To confirm |

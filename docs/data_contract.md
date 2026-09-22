@@ -20,7 +20,7 @@ For variables: SSM, RZSM components, ET, surface runoff, and baseflow.
 - **Native Noah-MP interval**: 24 h
 - **Target standardized dimension**: `time`
 - **Target temporal resolution**: daily
-*Important Note:* The exact LIS filename timestamp convention is still unresolved. Do not implement date shifting until that convention is confirmed.
+*Important Note:* The LIS HIST timestamp represents the **end of the averaging interval**. The canonical date for daily standardization is the beginning/date of the represented daily interval. Therefore, when parsing filenames, raw timestamp `T` (e.g., `2016-01-02 00:00`) maps to canonical date `T - 1 day` (e.g., `2016-01-01`).
 
 ### B. DA-event representation
 For variables: increment and innovation.
@@ -137,7 +137,6 @@ These unresolved items will not block the creation of the data contract.
 
 | Item |
 |------|
-| 1. Exact LIS HIST timestamp convention |
 | 2. Final RZSM depth/weighting definition |
 | 3. EnKF increment units |
 | 4. EnKF innovation units |
