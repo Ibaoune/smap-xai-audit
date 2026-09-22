@@ -72,3 +72,34 @@ The canonical temporal resolution of the SMAP-XAI analysis is daily.
 The planned XAI sample is a valid land pixel-day.
 
 No monthly aggregation is part of the current XAI design.
+
+## Noah-MP / Soil Moisture Layer 2
+
+### SOURCE
+- **canonical variable**: `sm_layer2`
+- **source variable**: `SoilMoist_tavg`
+- **layer**: layer 2 = 10–40 cm
+
+### PROCESSING
+- source index 1
+- filename timestamp - 1 day
+- standardized time/lat/lon coordinates
+- no numerical unit conversion
+- no regridding
+- no interpolation
+
+### OUTPUT
+- `data/interim/noahmp/<experiment>/sm_layer2/`
+
+### COVERAGE
+- OPL / DA-NoCDF / DA-CDF
+- 2016–2020
+- 1827 daily samples per experiment
+
+### QC
+- numerical validation passed
+- raw-vs-interim numerical identity verified
+- comparative quicklooks generated
+
+### NOTES
+- Layer 1 is NOT duplicated here because its canonical representation already exists as SSM.
