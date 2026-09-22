@@ -45,8 +45,8 @@ Do not create artificial daily MOD16 observations. Model and GLEAM data will be 
 | `et` | Evap_tavg | Noah-MP | mm day-1 | daily |
 | `surface_runoff` | Qs_tavg | Noah-MP | mm day-1 | daily |
 | `baseflow` | Qsb_tavg | Noah-MP | mm day-1 | daily |
-| `increment` | anlys_incr_Soil Moisture Layer X_01 | EnKF | pending confirmation | event_time |
-| `innovation` | innov_01 | EnKF | pending confirmation | event_time |
+| `increment` | anlys_incr_Soil Moisture Layer X_01 | EnKF | m3 m-3 | event_time |
+| `innovation` | innov_01 | EnKF | m3 m-3 | event_time |
 
 ## 5. Model Experiment Dimension
 Standardized model data must distinguish between OPL, DA-NoCDF, and DA-CDF experiments.
@@ -138,9 +138,7 @@ These unresolved items will not block the creation of the data contract.
 | Item |
 |------|
 | 2. Final RZSM depth/weighting definition |
-| 3. EnKF increment units |
-| 4. EnKF innovation units |
-| 5. GLEAM-to-Noah-MP regridding method |
-| 6. MOD16 spatial aggregation/reprojection method |
-| 7. MOD16 QC acceptance rule |
-| 8. Exact identities/units of individual station TXT columns |
+| 3. GLEAM-to-Noah-MP regridding method |
+| 4. MOD16 spatial aggregation/reprojection method |
+| 5. MOD16 QC acceptance rule |
+| 6. Exact identities/units of individual station TXT columns |

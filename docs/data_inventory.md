@@ -73,18 +73,44 @@ DA-NoCDF, DA-CDF
 
 **Increment variables:**
 `anlys_incr_Soil Moisture Layer X_01` (X = 1,2,3,4)
+- **Canonical diagnostic:** `increment`
+- **Definition:** `analysis - forecast`
+- **Units:** `m3 m-3`
+- **Interpretation:** positive increment = analysis wetter than forecast
+- Computed independently for each Noah-MP soil-moisture layer.
 
 **Innovation file pattern:**
 `output/YYYY-MM/EnKF/YYYYMM/LIS_DA_EnKF_YYYYMMDDHHMI_innov.a01.d01.nc`
 
-**Innovation variable:**
+**Innovation variables:**
 `innov_01`
+- **Canonical diagnostic:** `innovation`
+- **Definition:** `observation - forecast` (`y - H(x_f)`)
+- **Units:** `m3 m-3`
+- **Interpretation:** positive innovation = SMAP observation wetter than model forecast. For CDF-matched experiments, the innovation refers to the observation representation actually passed to the filter after the configured rescaling/bias-treatment step.
+
+`ninnov_01`
+- **Definition:** `innovation / sqrt(HPH^T + R)`
+- **Units:** dimensionless
+
+`forecast_sigma_01`
+- **Definition:** Forecast error variance (`HPH^T`). **Important:** despite the variable name, this field stores forecast error variance, not forecast standard deviation.
+- **Units:** `(m3 m-3)^2`
+
+`analysis_residual_01`
+- **Definition:** `observation - analysis` (`y - H(x_a)`)
+- **Units:** `m3 m-3`
+- *(Optional DA diagnostic, not added to the core SMAP-XAI variable set yet)*
+
+**Observation type (`_01` suffix):**
+- **Observation:** SMAP(NASA) soil moisture
+- **Configured product:** SPL3SMP_E
+
+**Evidence:**
+Definitions were confirmed directly from LIS source code (`enkf_Mod.F90`, `enkf_general.F90`, `my_matrix_functions.F90`) and the experiment SMAP configuration.
 
 **Temporal organization:**
 event-driven / irregular; timestamps encoded in filenames.
-
-**Units:**
-To confirm from LIS/EnKF documentation.
 
 *(Optional diagnostic: ensemble spread is available in `_spread.a01.d01.nc` files)*
 
@@ -237,7 +263,6 @@ Pending external confirmation of variable names and units, **Agadir-massira** an
 | Item | Decision / metadata still needed |
 |------|----------------------------------|
 | Final RZSM definition | To confirm |
-| EnKF diagnostic units | To confirm |
 | GLEAM/Noah-MP spatial harmonization | To confirm |
 | MOD16 temporal/spatial harmonization and QC handling | To confirm |
 | In-situ precipitation for 2016–2020 | replacement dataset currently unavailable |
