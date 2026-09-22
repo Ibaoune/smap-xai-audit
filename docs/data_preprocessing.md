@@ -165,3 +165,37 @@ No monthly aggregation is part of the current XAI design.
 - numerical validation passed
 - raw-vs-interim numerical identity strictly verified (max abs diff = 0.0)
 - comparative quicklooks generated and stored at `reports/qc/sm_layer4/`
+
+## Noah-MP / Root-Zone Soil Moisture (0–100 cm)
+
+### SOURCE INPUTS
+- standardized interim ssm
+- standardized interim sm_layer2
+- standardized interim sm_layer3
+
+### DERIVATION
+- `rzsm = 0.10*ssm + 0.30*sm_layer2 + 0.60*sm_layer3`
+
+### RATIONALE
+- thickness-weighted volumetric soil moisture over 0–100 cm
+
+### EXCLUSION
+- `sm_layer4` is excluded because it represents 100–200 cm
+
+### OUTPUT
+- `data/processed/daily_model/<experiment>/rzsm/`
+
+### TEMPORAL SUPPORT
+- daily
+
+### COVERAGE
+- OPL / DA-NoCDF / DA-CDF
+- 2016–2020
+
+### QC
+- input alignment validated exactly
+- independent formula verification mathematically validated
+- physical convex-average check passed continuously
+- temporal continuity strictly verified (1827 valid days)
+- spatial consistency aligned strictly over the domain
+- quicklooks generated (time series, mean maps, difference maps)
