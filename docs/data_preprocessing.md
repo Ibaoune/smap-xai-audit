@@ -199,3 +199,40 @@ No monthly aggregation is part of the current XAI design.
 - temporal continuity strictly verified (1827 valid days)
 - spatial consistency aligned strictly over the domain
 - quicklooks generated (time series, mean maps, difference maps)
+
+## Noah-MP / Total Precipitation
+
+### SOURCE
+- **source variable**: `TotalPrecip_tavg`
+- **unit**: kg m-2 s-1
+- **support**: 24-hour mean rate
+
+### CANONICAL VARIABLE
+- `precipitation`
+
+### CONVERSION
+- `precipitation = TotalPrecip_tavg * 86400`
+
+### CANONICAL UNIT
+- mm day-1
+
+### TIME
+- LIS_HIST timestamp - 1 day
+
+### STORAGE
+- **Decision**: All experiments originate from the identical MERRA2 + GPM IMERG forcing dataset. OPL is deterministic and unperturbed. DA runs use 20-member GMAO forcing perturbations. DA-NoCDF and DA-CDF precipitation outputs are mathematically identical to each other but differ from OPL specifically because of these stochastic forcing perturbations.
+- **Canonical Predictor**: To ensure the XAI model learns from true environmental conditions rather than the DA internal random noise generator, canonical XAI precipitation utilizes exclusively OPL `TotalPrecip_tavg`. Only one standardized, shared precipitation dataset is stored.
+
+### OUTPUT
+- `data/interim/noahmp/forcing/precipitation/`
+
+### COVERAGE
+- 2016–2020
+- 1827 daily samples
+
+### QC
+- cross-experiment equality rigorously verified (confirmed DA forcing perturbations vs OPL)
+- unit-conversion identity mathematically confirmed
+- range checks passed (no negative precipitation)
+- annual accumulated precipitation computed properly
+- spatial/temporal quicklooks generated
