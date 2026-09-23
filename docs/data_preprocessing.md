@@ -600,3 +600,42 @@ Since the quantity represents a variance, values must be strictly nonnegative.
 
 **RELATION TO INNOVATION**:
 For QC purposes, the correlation between absolute innovation and forecast variance was computed. The correlation is extremely weak (DA-CDF Spearman: 0.121, DA-NoCDF Spearman: 0.019), indicating that the magnitude of the model-observation mismatch is not strongly coupled to the model's internal ensemble spread at the time of observation.
+
+## EnKF / Normalized Innovation
+
+**SOURCE**:
+`LIS_DA_EnKF_YYYYMMDDHHMM_innov.a01.d01.nc`
+
+**RAW VARIABLE**:
+`ninnov_01`
+
+**DEFINITION**:
+Normalized innovation represents the raw observation-model mismatch scaled by the total expected theoretical uncertainty. It is rigorously confirmed from source code (`enkf_Mod.F90` line 439) and independent numerical reconstruction to be exactly:
+`normalized_innovation = innovation / sqrt(forecast_variance + R)`
+
+**UNITS**:
+Dimensionless (`1`). Both the numerator (innovation) and the denominator (standard deviation of total innovation variance) have units of $m^3/m^3$, canceling out perfectly.
+
+**R VALUE**:
+The observation error variance $R$ is confirmed to be $0.0016$ $(m^3 m^{-3})^2$, derived from the `std = 0.04` parameter in `smap_pertattribs.txt`. Because $R > 0$, the denominator is unconditionally strictly positive, guaranteeing numerical safety against divide-by-zero errors.
+
+**SUPPORT**:
+Finite values strictly align with `assimilation_update_mask`. There are exactly 0 mismatches between finite normalized innovation, finite raw innovation, and finite forecast variance across all 197 million combined 2016-2020 event-grid positions.
+
+**TIME**:
+Assimilation event (instantaneous, `YYYYMMDDHHMM`).
+
+**CDF VS NoCDF**:
+- **DA-CDF**: mean: `-0.218`, median: `-0.105`, std: `0.666`. Exceedance |ninnov| > 2: `2.6%`.
+- **DA-NoCDF**: mean: `-0.093`, median: `-0.087`, std: `0.639`. Exceedance |ninnov| > 2: `1.5%`.
+*Note*: The normalized innovation distributions are roughly centered near zero with variance $< 1$, typical for conservative DA configurations. Because DA-CDF normalizes against CDF-matched observations while DA-NoCDF normalizes against unscaled observations, they evaluate fundamentally different representation spaces. A smaller normalized innovation variance does *not* intrinsically imply better assimilation skill.
+
+**MISSING SEMANTICS**:
+- Missing `normalized_innovation` strictly corresponds to missing `innovation` (no observation assimilated).
+- `normalized_innovation = 0` strictly corresponds to `innovation = 0`.
+
+**RECONSTRUCTION VALIDATION**:
+Independent mathematical reconstruction of the normalized innovation field using the extracted interim `innovation`, `forecast_variance`, and the constant $R = 0.0016$ reproduced the raw LIS outputs with a worst-case full-period error of exactly `0.000e+00`.
+
+**XAI ROLE**:
+Normalized innovation serves as a critical XAI-Source diagnostic. While raw innovation measures the absolute magnitude of the observation-model mismatch, normalized innovation measures that mismatch *relative to the expected combined model and observation uncertainty*. This normalization is central to interpreting dynamic EnKF observation weighting.
