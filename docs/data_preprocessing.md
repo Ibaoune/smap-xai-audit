@@ -270,3 +270,48 @@ No monthly aggregation is part of the current XAI design.
 - range checks passed (Morocco domain normal limits verified in K and °C)
 - mask checks passed (identically matches SSM and precipitation missing values)
 - quicklooks generated (time series, mean maps)
+
+## Noah-MP / Evapotranspiration
+
+### PHYSICAL DEFINITION
+- `Evap_tavg` represents total land-surface evapotranspiration. It aggregates bare soil evaporation, transpiration, canopy interception evaporation, and snow sublimation.
+
+### SIGN CONVENTION
+- Positive values denote upward water-mass flux from land to atmosphere. Negative values represent condensation/deposition (dew/frost) and are physically valid.
+
+### SOURCE
+- **source variable**: `Evap_tavg`
+- **unit**: kg m-2 s-1
+
+### CANONICAL VARIABLE
+- `et`
+
+### CANONICAL UNIT
+- mm day-1
+
+### CONVERSION
+- `et = Evap_tavg * 86400`
+- Values are strictly multiplied by seconds per day without absolute value or clipping, faithfully retaining physical dew formation.
+
+### TIME
+- LIS_HIST timestamp - 1 day
+
+### STORAGE
+- **Decision**: Unlike meteorological forcing, evapotranspiration is an experiment-dependent prognostic model response driven by assimilation logic. Therefore, it is extracted independently for each experiment.
+
+### OUTPUT
+- `data/interim/noahmp/opl/et/`
+- `data/interim/noahmp/da_nocdf/et/`
+- `data/interim/noahmp/da_cdf/et/`
+
+### COVERAGE
+- OPL, DA-NoCDF, DA-CDF
+- 2016–2020 (1827 daily samples each)
+
+### QC
+- raw-vs-interim unit conversion check passed precisely.
+- range/sign diagnostics executed (minor negative fraction validated as condensation).
+- annual accumulated ET reported successfully by experiment.
+- grid/mask perfectly aligns with SSM and RZSM missing values.
+- cross-experiment diagnostics and quicklooks (DA - OPL differences) mapped and documented.
+- **Note**: The banded spatial structure visible in some DA-minus-OPL ET quicklooks is present in the underlying daily standardized fields and is not introduced by preprocessing or plotting.
