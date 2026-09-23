@@ -62,12 +62,13 @@ This document serves as the scientific requirements specification that answers: 
     *   **Units**: m3 m-3
     *   **Support**: daily pixel-day
     *   **Status**: ready
-*   **`innovation`**
-    *   **Source**: `innov_01`
+*   **`daily_innovation`**
+    *   **Source**: derived from `innov_01`
     *   **Definition**: observation - forecast
     *   **Units**: m3 m-3
-    *   **Role**: DA diagnostic
-    *   **Native support**: event_time
+    *   **Role**: pre-analysis DA diagnostic (predictor)
+    *   **Support**: daily pixel-day, assimilation-conditional
+    *   **Status**: ready
 *   **`normalized_innovation`**
     *   **Source**: `ninnov_01`
     *   **Units**: dimensionless

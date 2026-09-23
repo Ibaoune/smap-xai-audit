@@ -41,6 +41,30 @@ def main():
     valid_cdf = inv_cdf[~np.isnan(inv_cdf)]
     valid_nocdf = inv_nocdf[~np.isnan(inv_nocdf)]
     
+    # 0. EVENT-BASED STATISTICS (FINITE, POSITIVE, NEGATIVE, EXACT ZERO)
+    print("================ DA-CDF ===============")
+    finite_cdf = len(valid_cdf)
+    pos_cdf = np.sum(valid_cdf > 0)
+    neg_cdf = np.sum(valid_cdf < 0)
+    zero_cdf = np.sum(valid_cdf == 0.0)
+    print(f"finite count: {finite_cdf}")
+    print(f"negative count: {neg_cdf}")
+    print(f"exact-zero count: {zero_cdf}")
+    print(f"positive count: {pos_cdf}")
+    assert neg_cdf + zero_cdf + pos_cdf == finite_cdf, "CDF count mismatch!"
+    
+    print("\n================ DA-NoCDF =============")
+    finite_nocdf = len(valid_nocdf)
+    pos_nocdf = np.sum(valid_nocdf > 0)
+    neg_nocdf = np.sum(valid_nocdf < 0)
+    zero_nocdf = np.sum(valid_nocdf == 0.0)
+    print(f"finite count: {finite_nocdf}")
+    print(f"negative count: {neg_nocdf}")
+    print(f"exact-zero count: {zero_nocdf}")
+    print(f"positive count: {pos_nocdf}")
+    assert neg_nocdf + zero_nocdf + pos_nocdf == finite_nocdf, "NoCDF count mismatch!"
+    print("\n")
+    
     # A. INNOVATION DISTRIBUTION
     plt.figure(figsize=(10, 6))
     plt.hist(valid_cdf, bins=100, alpha=0.5, density=True, label='DA-CDF', range=(-0.15, 0.15))

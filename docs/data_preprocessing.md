@@ -492,7 +492,7 @@ Assimilation event (instantaneous, `YYYYMMDDHHMM`).
 **OBSERVATION TYPE**:
 The `_01` suffix refers to the `SMAP NASA SPL3SMP_E` observation stream.
 - **DA-CDF**: The observation representation entering $y$ is the CDF-matched SMAP observation, which has been rescaled to the model's native climatology.
-- **DA-NoCDF**: The observation representation entering $y$ is the raw, unscaled SMAP observation.
+- **DA-NoCDF**: The observation representation entering $y$ is the non-CDF-matched observation representation used by that experiment.
 Therefore, CDF matching strictly modifies the observation used in the innovation calculation. DA-CDF innovation is NOT directly comparable to NoCDF innovation as a skill score since they operate in different observation spaces.
 
 **EVENT COUNTS**:
@@ -628,7 +628,7 @@ Assimilation event (instantaneous, `YYYYMMDDHHMM`).
 **CDF VS NoCDF**:
 - **DA-CDF**: mean: `-0.218`, median: `-0.105`, std: `0.666`. Exceedance |ninnov| > 2: `2.6%`.
 - **DA-NoCDF**: mean: `-0.093`, median: `-0.087`, std: `0.639`. Exceedance |ninnov| > 2: `1.5%`.
-*Note*: The normalized innovation distributions are roughly centered near zero with variance $< 1$, typical for conservative DA configurations. Because DA-CDF normalizes against CDF-matched observations while DA-NoCDF normalizes against unscaled observations, they evaluate fundamentally different representation spaces. A smaller normalized innovation variance does *not* intrinsically imply better assimilation skill.
+*Note*: The normalized innovation distributions are roughly centered near zero with variance $< 1$, typical for conservative DA configurations. Because DA-CDF normalizes against CDF-matched observations while DA-NoCDF normalizes against the non-CDF-matched observation representation used by that experiment, they evaluate fundamentally different representation spaces. A smaller normalized innovation variance does *not* intrinsically imply better assimilation skill.
 
 **MISSING SEMANTICS**:
 - Missing `normalized_innovation` strictly corresponds to missing `innovation` (no observation assimilated).
@@ -656,7 +656,7 @@ Source-code inspection (`enkf_Mod.F90` line 541) confirms this is calculated by 
 **SIGN**:
 - `> 0`: Assimilated observation is wetter than the analysis equivalent.
 - `< 0`: Assimilated observation is drier than the analysis equivalent.
-*(Note: For DA-CDF, $y$ is the CDF-matched observation. For DA-NoCDF, $y$ is the unscaled observation.)*
+*(Note: For DA-CDF, $y$ is the CDF-matched observation. For DA-NoCDF, $y$ is the non-CDF-matched observation representation used by that experiment.)*
 
 **UNITS**:
 $m^3 m^{-3}$
@@ -676,7 +676,7 @@ Finite values strictly align with `assimilation_update_mask`. There are 0 mismat
   - `mean |innovation|`: 0.0270
   - `mean |analysis_residual|`: 0.0126
   - **98.4%** of assimilated observations showed a reduced absolute mismatch after DA.
-*Note: The DA-NoCDF residual lives in an unscaled observation space. Direct magnitude comparison against DA-CDF must account for this.*
+*Note: The DA-NoCDF residual lives in the non-CDF-matched observation representation used by that experiment. Direct magnitude comparison against DA-CDF must account for this.*
 
 **RELATION TO INNOVATION**:
 The analysis residual is highly correlated with the pre-assimilation innovation (Spearman: `0.978` for DA-CDF, `0.984` for DA-NoCDF). Larger initial mismatches predictably leave larger remaining residuals. Conditioning by normalized innovation magnitude confirms this: for $|ninnov| \ge 2$, the median mismatch reduction is large ($\sim 0.04$ $m^3/m^3$), but larger initial normalized mismatches tend to retain larger absolute residuals after assimilation.
@@ -817,3 +817,49 @@ The final XAI design may utilize both as complementary analyses.
 
 **STORAGE**:
 `data/processed/daily_enkf/da_[no]cdf/daily_absolute_increment/daily_absolute_increment_YYYY.nc`
+
+## EnKF / Daily Innovation
+
+**SOURCE**:
+Derived directly from the validated native event-based `innovation`.
+
+**DEFINITION**:
+`assimilated observation minus forecast observation equivalent` ($y - H(x_f)$).
+
+**SIGN**:
+- `> 0`: Assimilated observation is wetter than the model forecast equivalent.
+- `< 0`: Assimilated observation is drier than the model forecast equivalent.
+- `= 0`: Exact observation-forecast agreement (rare but theoretically possible; exactly 0 for DA-CDF and 1 for DA-NoCDF in this dataset).
+
+**UNITS**:
+m3 m-3
+
+**EVENT-TO-DAY MAPPING**:
+Each valid event is uniquely mapped to its UTC calendar day without averaging or temporal shifting. Because maximum multiplicity is 1, no events overwrite each other.
+
+**NO-ASSIMILATION = NaN**:
+Unlike the increments, no-assimilation days are strictly `NaN`. Innovation does not exist when no observation was assimilated.
+
+**LAND-MASK SEMANTICS**:
+`NaN` exists for two distinct structural reasons: no assimilation on valid land, and outside valid-land/model support. These must be distinguished using the `observation_frequency` mask.
+
+**COUNT & VALUE CONSERVATION**:
+The mapping perfectly conserves the finite count and the value sum relative to the native event-based variables up to float32 precision limits.
+
+**CDF VS NoCDF**:
+DA-CDF uses the CDF-matched SMAP representation, while DA-NoCDF uses the non-CDF-matched observation representation used by that experiment. Thus, they cannot be interpreted as directly comparable independent model-skill metrics.
+
+**RELATION TO DAILY INCREMENT**:
+The relationship between daily innovation and daily signed increment remains remarkably strong (Pearson $\approx$ 0.91 to 0.95, Spearman $\approx$ 0.97 to 0.98) with a 100% sign agreement fraction, matching the validated event-space behavior.
+
+**2019 OUTAGE**:
+During the 19 June to 23 July 2019 SMAP outage, the daily innovation correctly maps to `NaN` everywhere on valid land. This explicitly contrasts with `daily_signed_increment` and `daily_absolute_increment`, which map to `0.0` over the same period.
+
+**XAI-SOURCE ROLE**:
+Candidate predictor representing the pre-analysis observation-model mismatch. Since it is only defined conditionally on assimilation, it naturally supports the future assimilation-conditional XAI analysis.
+
+**PRE-ANALYSIS STATUS**:
+**Data Leakage Note**: `daily_innovation` is a pre-analysis diagnostic and can be considered as a valid candidate explanatory variable for the increment. This contrasts with post-analysis residuals, which may contain downstream target information.
+
+**STORAGE**:
+`data/processed/daily_enkf/da_[no]cdf/daily_innovation/daily_innovation_YYYY.nc`
