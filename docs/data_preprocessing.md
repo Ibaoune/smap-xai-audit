@@ -236,3 +236,37 @@ No monthly aggregation is part of the current XAI design.
 - range checks passed (no negative precipitation)
 - annual accumulated precipitation computed properly
 - spatial/temporal quicklooks generated
+
+## Noah-MP / Near-Surface Air Temperature
+
+### SOURCE
+- **source variable**: `Tair_f_tavg`
+- **unit**: K
+- **support**: 24-hour mean temperature
+
+### CANONICAL VARIABLE
+- `air_temperature`
+
+### CANONICAL UNIT
+- K
+
+### TIME
+- LIS_HIST timestamp - 1 day
+
+### STORAGE
+- **Decision**: Analysis confirmed that near-surface air temperature is not stochastically perturbed in the DA experiments (unlike precipitation). However, owing to DA ensemble averaging (N=20 members) over identical values, infinitesimal floating-point arithmetic artifacts (~1e-5 K) are introduced in DA outputs. To strictly retain the unperturbed environmental forcing without arithmetic noise, the OPL representation is retained as the single canonical dataset.
+- **Canonical Predictor**: Canonical XAI air temperature utilizes exclusively OPL `Tair_f_tavg`. Only one standardized, shared air temperature dataset is stored.
+
+### OUTPUT
+- `data/interim/noahmp/forcing/air_temperature/`
+
+### COVERAGE
+- 2016–2020
+- 1827 daily samples
+
+### QC
+- cross-experiment diagnostic (identity verification)
+- raw-vs-interim identity (exact float32 precision match)
+- range checks passed (Morocco domain normal limits verified in K and °C)
+- mask checks passed (identically matches SSM and precipitation missing values)
+- quicklooks generated (time series, mean maps)
