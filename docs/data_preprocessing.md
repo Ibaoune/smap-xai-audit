@@ -416,3 +416,51 @@ No monthly aggregation is part of the current XAI design.
 - detailed investigation is documented in:
 
     docs/model_diagnostics.md
+
+## EnKF / Signed Analysis Increment — Soil Moisture Layer 1
+
+**SOURCE**:
+`LIS_DA_EnKF_YYYYMMDDHHMM_incr.a01.d01.nc`
+
+**RAW VARIABLE**:
+`anlys_incr_Soil Moisture Layer 1_01`
+
+**PHYSICAL DEFINITION**:
+`analysis - forecast` (increment = $x_a - x_f$)
+
+**SIGN**:
+- Positive = wetter analysis (model was too dry)
+- Negative = drier analysis (model was too wet)
+
+**LAYER**:
+0–10 cm (Noah-MP Layer 1)
+
+**UNIT**:
+$m^3/m^3$ (volumetric water content)
+
+**TEMPORAL SUPPORT**:
+Assimilation event (instantaneous)
+
+**EVENT COUNTS**:
+- **DA-CDF**: 4,411 total events (2016: 872, 2017: 867, 2018: 912, 2019: 838, 2020: 922)
+- **DA-NoCDF**: 4,619 total events (2016: 944, 2017: 945, 2018: 929, 2019: 860, 2020: 941)
+- *2019 Observation Gap*: A known SMAP observation outage occurred from 19 June to 23 July 2019 after the satellite entered safe mode. This explains the pronounced June-July 2019 reduction in available assimilation events.
+
+**TIME**:
+Exact event-time semantics based on the filename timestamp (`YYYYMMDDHHMM`). Does NOT apply the daily `filename_time - 1 day` convention used for LIS_HIST.
+
+**OBSERVATION TYPE**:
+The `_01` suffix refers precisely to the `SMAP NASA SPL3SMP_E` observation stream as configured in LIS DA parameters.
+
+**MISSING/ZERO**:
+- **Missing (`NaN`)**: Inherited from `-9999.0`, strictly corresponding to masked/non-land grid cells.
+- **Zero (`0.0`)**: Raw zero increments are preserved. Many zeros correspond to land pixels not updated at that event (e.g., outside the SMAP swath or failing QC). Zero must not automatically be interpreted as an exact physical analysis correction of zero. Future XAI construction must use an observation/update mask (`assimilation_update_mask`) to distinguish actual assimilation support, which will be constructed during innovation preprocessing using the strongest available assimilation-use diagnostic. (Note: `increment_signed != 0` serves as a `nonzero_increment_mask` useful for current QC).
+
+**STORAGE**:
+`data/interim/enkf/<experiment>/increment_signed/increment_signed_<YYYY>.nc`
+
+**XAI ROLE**:
+Primary Source target describing where and how strongly SMAP assimilation modifies the modeled surface soil-moisture state. (Note: absolute increment will be derived later).
+
+**ROW-WISE STRUCTURE**:
+No obvious row-wise structure is visible in the signed analysis increment maps. This is consistent with, but does not independently prove, the perturbation-variance mechanism documented in `model_diagnostics.md`.
