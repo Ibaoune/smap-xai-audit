@@ -639,3 +639,58 @@ Independent mathematical reconstruction of the normalized innovation field using
 
 **XAI ROLE**:
 Normalized innovation serves as a critical XAI-Source diagnostic. While raw innovation measures the absolute magnitude of the observation-model mismatch, normalized innovation measures that mismatch *relative to the expected combined model and observation uncertainty*. This normalization is central to interpreting dynamic EnKF observation weighting.
+
+## EnKF / Analysis Residual
+
+**SOURCE**:
+`LIS_DA_EnKF_YYYYMMDDHHMM_innov.a01.d01.nc`
+
+**RAW VARIABLE**:
+`analysis_residual_01`
+
+**DEFINITION**:
+The remaining mismatch in observation space *after* the assimilation step. It is derived from the final EnKF analysis ensemble:
+`analysis_residual = observation - analysis_equivalent = y - H(x_a)`
+Source-code inspection (`enkf_Mod.F90` line 541) confirms this is calculated by subtracting the mean of the updated ensemble observation-predictions from the unperturbed observation value.
+
+**SIGN**:
+- `> 0`: Assimilated observation is wetter than the analysis equivalent.
+- `< 0`: Assimilated observation is drier than the analysis equivalent.
+*(Note: For DA-CDF, $y$ is the CDF-matched observation. For DA-NoCDF, $y$ is the unscaled observation.)*
+
+**UNITS**:
+$m^3 m^{-3}$
+
+**TIME**:
+Assimilation event (instantaneous, `YYYYMMDDHHMM`).
+
+**SUPPORT**:
+Finite values strictly align with `assimilation_update_mask`. There are 0 mismatches between missing analysis residual and missing innovation across 2016-2020.
+
+**CDF VS NoCDF & BEFORE/AFTER MISMATCH QC**:
+- **DA-CDF**:
+  - `mean |innovation|`: 0.0258
+  - `mean |analysis_residual|`: 0.0132
+  - **96.4%** of assimilated observations showed a reduced absolute mismatch after DA.
+- **DA-NoCDF**:
+  - `mean |innovation|`: 0.0270
+  - `mean |analysis_residual|`: 0.0126
+  - **98.4%** of assimilated observations showed a reduced absolute mismatch after DA.
+*Note: The DA-NoCDF residual lives in an unscaled observation space. Direct magnitude comparison against DA-CDF must account for this.*
+
+**RELATION TO INNOVATION**:
+The analysis residual is highly correlated with the pre-assimilation innovation (Spearman: `0.978` for DA-CDF, `0.984` for DA-NoCDF). Larger initial mismatches predictably leave larger remaining residuals. Conditioning by normalized innovation magnitude confirms this: for $|ninnov| \ge 2$, the median mismatch reduction is large ($\sim 0.04$ $m^3/m^3$), but larger initial normalized mismatches tend to retain larger absolute residuals after assimilation.
+
+**RELATION TO INCREMENT**:
+The assumption `analysis_residual == innovation - increment_signed` (which implies $H(x_a) - H(x_f) == x_{a,1} - x_{f,1}$) is **approximately valid but theoretically inexact**. Numerical tests over 2016-2020 show a mean absolute error of $\sim 4.5 \times 10^{-4}$ $m^3/m^3$, but a maximum absolute error up to $\sim 0.1$ $m^3/m^3$. The identity analysis_residual = innovation - Layer-1 increment is not exact in these outputs. The observation-space update H(x_a)-H(x_f) must therefore not be assumed identical to the stored Layer-1 state increment. The exact diagnostic/operator pathway should be traced before attributing the discrepancy to a specific mechanism.
+
+**ZERO/MISSING SEMANTICS**:
+- Missing values mean no observation was assimilated, identical to `innovation`.
+- Exactly zero residuals (perfect analysis-observation agreement) are vanishingly rare ($\approx 0.0\%$) due to floating-point precision and EnKF variance maintenance. Missing values must *never* be replaced with zero.
+
+**XAI ROLE**:
+Analysis residual completes the XAI-Source diagnostic pathway:
+1. `innovation`: Mismatch before assimilation.
+2. `normalized_innovation`: Mismatch relative to expected uncertainty.
+3. `increment`: Resulting model-state correction.
+4. `analysis_residual`: Mismatch remaining after assimilation.
