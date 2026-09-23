@@ -464,3 +464,92 @@ Primary Source target describing where and how strongly SMAP assimilation modifi
 
 **ROW-WISE STRUCTURE**:
 No obvious row-wise structure is visible in the signed analysis increment maps. This is consistent with, but does not independently prove, the perturbation-variance mechanism documented in `model_diagnostics.md`.
+
+## EnKF / Innovation — SMAP Surface Soil Moisture
+
+**SOURCE**:
+`LIS_DA_EnKF_YYYYMMDDHHMM_innov.a01.d01.nc`
+
+**RAW VARIABLE**:
+`innov_01`
+
+**PHYSICAL DEFINITION**:
+`observation - forecast equivalent` ($y - H(x_f)$). This exact mathematical definition is explicitly confirmed in the Noah-MP EnKF source code (`enkf_Mod.F90`: `innov = Observations(i)%value - sum(Obs_pred(i,:))/real(LIS_rc%nensem(n))`).
+
+**SIGN**:
+- Positive: Observation representation is wetter than the forecast equivalent.
+- Negative: Observation representation is drier than the forecast equivalent.
+
+**LAYER**:
+0–10 cm (Noah-MP Layer 1, implicit for `_01` SMAP surface soil moisture)
+
+**UNIT**:
+$m^3/m^3$ (volumetric water content)
+
+**TEMPORAL SUPPORT**:
+Assimilation event (instantaneous, `YYYYMMDDHHMM`).
+
+**OBSERVATION TYPE**:
+The `_01` suffix refers to the `SMAP NASA SPL3SMP_E` observation stream.
+- **DA-CDF**: The observation representation entering $y$ is the CDF-matched SMAP observation, which has been rescaled to the model's native climatology.
+- **DA-NoCDF**: The observation representation entering $y$ is the raw, unscaled SMAP observation.
+Therefore, CDF matching strictly modifies the observation used in the innovation calculation. DA-CDF innovation is NOT directly comparable to NoCDF innovation as a skill score since they operate in different observation spaces.
+
+**EVENT COUNTS**:
+- **DA-CDF**: 4,411 total events (Matches DA-CDF signed increment precisely: 4,411 increment events. Intersection: 4,411. Innovation-only: 0. Increment-only: 0).
+- **DA-NoCDF**: 4,619 total events (Matches DA-NoCDF signed increment precisely: 4,619 increment events. Intersection: 4,619. Innovation-only: 0. Increment-only: 0).
+- *2019 Observation Gap*: Consistent with the increment behavior, the June-July 2019 SMAP hardware safe-mode outage is correctly reproduced in the innovation availability.
+
+**RAW-TO-INTERIM IDENTITY**:
+Verification of 3 representative 2016 events confirmed:
+- Max absolute difference: 0.0
+- Mean absolute difference: 0.0
+- Unequal finite pixels: 0
+- Missing-mask differences: 0
+
+**MISSING/ZERO/REJECTED SEMANTICS**:
+Based on `enkf_Mod.F90` logic (`if(Observations(i)%assim) then ... else ... LIS_rc%udef`):
+- **Valid and assimilated**: Finite innovation value is computed and written.
+- **Rejected by DA QC**: Written as missing (`LIS_rc%udef`, translated to `-9999.0` then `NaN`).
+- **No observation exists**: Written as missing.
+- **Point is masked/non-land**: Written as missing.
+- **Exactly zero**: Represents a mathematically exact zero innovation (meaning the observation perfectly matched the forecast equivalent).
+
+**FINAL ASSIMILATION-SUPPORT MASK**:
+Because the source code confirms a finite innovation is written *only* after the observation passes all DA QC and is actually assimilated (`Observations(i)%assim`), we formally define:
+`assimilation_update_mask = isfinite(innovation)`
+
+**INCREMENT CROSS-CHECK**:
+Validating the `assimilation_update_mask` against 2016 increment files:
+- **DA-CDF 2016**:
+  - finite innov + nonzero inc: 345,488
+  - finite innov + zero inc: 0
+  - missing innov + zero inc: 13,632,672
+  - missing innov + nonzero inc: 0
+- **DA-NoCDF 2016**:
+  - finite innov + nonzero inc: 1,515,413
+  - finite innov + zero inc: 0
+  - missing innov + zero inc: 13,616,907
+  - missing innov + nonzero inc: 0
+This proves that finite innovation perfectly controls where an assimilation update occurs.
+
+**INNOVATION STATISTICS**:
+- **DA-CDF**:
+  - min: -0.2913, max: 0.2305, mean: -0.0131, median: -0.0061, std: 0.0362
+  - p05: -0.0869, p25: -0.0265, p75: 0.0087, p95: 0.0302
+  - fractions: 60.5% negative, 0.0% exactly zero, 39.5% positive
+- **DA-NoCDF**:
+  - min: -0.2538, max: 0.3343, mean: -0.0061, median: -0.0053, std: 0.0371
+  - p05: -0.0659, p25: -0.0263, p75: 0.0124, p95: 0.0516
+  - fractions: 57.9% negative, 0.0% exactly zero, 42.1% positive
+- **CDF vs NoCDF Interpretation**: DA-CDF innovation is slightly more concentrated around zero, while DA-NoCDF has broader tails. However, this does NOT mean smaller innovation is "better" or "more accurate", because they use completely different observation representations.
+
+**INNOVATION VS INCREMENT NUMERICS**:
+- **DA-CDF**: Pearson: 0.916, Spearman: 0.977, same sign: 100.0%, opposite sign: 0.0%, exact-zero inc: 0.0%
+- **DA-NoCDF**: Pearson: 0.954, Spearman: 0.983, same sign: 100.0%, opposite sign: 0.0%, exact-zero inc: 0.0%
+
+**ROW-WISE STRUCTURE**:
+Innovation maps show no obvious row-wise structure. This supports (but does not independently prove) that the striping artifact originates downstream in the perturbation/propagation steps rather than the observation space.
+
+**XAI ROLE**:
+Primary indicator of the direction and magnitude of the incoming observational signal, and the definitive source for the true `assimilation_update_mask`.
