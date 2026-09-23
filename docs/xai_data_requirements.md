@@ -81,6 +81,13 @@ This document serves as the scientific requirements specification that answers: 
     *   **Role**: pre-analysis DA diagnostic (predictor)
     *   **Support**: daily pixel-day, assimilation-conditional
     *   **Status**: ready
+*   **`daily_analysis_residual`**
+    *   **Source**: derived from `analysis_residual`
+    *   **Definition**: `y - H(x_a)`
+    *   **Units**: m3 m-3
+    *   **Role**: post-analysis diagnostic (NOT a pre-analysis predictor)
+    *   **Support**: daily pixel-day, assimilation-conditional
+    *   **Status**: ready
 *   **`observation_frequency`**
     *   **Derived from**: EnKF/SMAP assimilation-event occurrence
     *   **Role**: predictor

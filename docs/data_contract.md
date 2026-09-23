@@ -61,6 +61,7 @@ MOD16 is kept on its native composite temporal support.
 
 ## 4.1 Optional EnKF Diagnostics
 Document as available optional standardized diagnostics:
+- `daily_analysis_residual` (source: derived from `analysis_residual`, units: `m3 m-3`, temporal representation: `time` (daily, assimilation-conditional), role: `post-analysis diagnostic`)
 - `daily_forecast_variance` (source: derived from `forecast_variance`, units: `(m3 m-3)^2`, temporal representation: `time` (daily, assimilation-conditional))
 - `daily_normalized_innovation` (source: derived from `normalized_innovation`, units: `1`, temporal representation: `time` (daily, assimilation-conditional))
 - `daily_innovation` (source: derived from `innovation`, units: `m3 m-3`, temporal representation: `time` (daily, assimilation-conditional))

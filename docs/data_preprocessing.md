@@ -971,3 +971,64 @@ Because `daily_normalized_innovation` is mathematically derived from `daily_inno
 
 **STORAGE**:
 `data/processed/daily_enkf/da_[no]cdf/daily_forecast_variance/daily_forecast_variance_YYYY.nc`
+
+## EnKF / Daily Analysis Residual
+
+**SOURCE**:
+Derived directly from the validated native event-based `analysis_residual`.
+
+**DEFINITION**:
+`y - H(x_a)` (Assimilated observation minus analysis equivalent in observation space).
+
+**SIGN**:
+- `> 0`: assimilated observation is wetter than the analysis equivalent
+- `< 0`: assimilated observation is drier than the analysis equivalent
+- `= 0`: exact agreement at numerical precision
+
+**UNITS**:
+`m3 m-3`
+
+**EVENT-TO-DAY MAPPING**:
+Unique valid event mapped to UTC calendar day without averaging (maximum multiplicity is 1). The canonical UTC daily calendar is complete over 1827 days; daily_analysis_residual remains assimilation-conditional and is NaN on no-assimilation pixel-days.
+
+**NaN SEMANTICS**:
+`NaN` exists where no assimilation occurred (`observation_frequency == 0`) or outside canonical model support. Zero is NOT used to mean no assimilation.
+
+**CDF VS NoCDF**:
+DA-CDF uses the CDF-matched observation representation. DA-NoCDF uses the non-CDF-matched observation representation used by that experiment. Residuals between the two experiments should NOT be interpreted directly as independent skill metrics; smaller residual does not causally equate to a superior experiment without independent verification.
+
+**COUNT/VALUE CONSERVATION**:
+Matches the exact number of finite assimilation events perfectly (DA-CDF: 2,456,233; DA-NoCDF: 7,507,641). The daily mapping exhibits 0 absolute value differences across all matched samples.
+
+**BEFORE VS AFTER MISMATCH**:
+Observation-space mismatch is typically reduced after assimilation:
+- DA-CDF: reduced in ~96.36% of samples. (mean |before| = 0.0258, mean |after| = 0.0132)
+- DA-NoCDF: reduced in ~98.41% of samples. (mean |before| = 0.0270, mean |after| = 0.0126)
+
+**MISMATCH REDUCTION**:
+`|daily_innovation| - |daily_analysis_residual|`
+- DA-CDF mean reduction: 0.0126 m3 m-3
+- DA-NoCDF mean reduction: 0.0144 m3 m-3
+
+**OBSERVATION-SPACE UPDATE**:
+`daily_innovation - daily_analysis_residual` (Algebraically equal to `H(x_a) - H(x_f)`). This represents the actual analysis change in observation space.
+- DA-CDF mean: -0.0067
+- DA-NoCDF mean: -0.0035
+
+**RELATION TO STATE INCREMENT**:
+The observation-space update correlates very strongly with the `daily_signed_increment` (Spearman ~ 0.99 for both experiments), but it is NOT identical (RMSE ~ 0.001 - 0.0014). The analysis residual is strictly `y - H(x_a)`.
+
+**2019 OUTAGE**:
+During the documented SMAP observation outage from 19 June to 23 July 2019, `observation_frequency = 0` and `daily_analysis_residual = NaN` universally across valid land. This contrasts with the daily increment which is legitimately 0 on no-assimilation days.
+
+**ZERO SEMANTICS**:
+Exact finite residual zeros exist but are very rare (DA-CDF: 2 exact zeros; DA-NoCDF: 2 exact zeros), meaning observation and analysis equivalent agree exactly at stored numerical precision. 
+
+**POST-ANALYSIS STATUS / XAI LEAKAGE WARNING**:
+`daily_analysis_residual` is a post-analysis diagnostic. For an XAI model explaining `daily_signed_increment` or `daily_absolute_increment`, `daily_analysis_residual` is excluded from the pre-analysis predictor set because it contains information generated after the update. It may still be used as a post-analysis audit variable, secondary response, or diagnostic outcome.
+
+**SPATIAL DIAGNOSTICS**:
+The spatial diagnostics show structured variability, with no obvious rigid row-wise striping comparable to the previously diagnosed flux pattern.
+
+**STORAGE**:
+`data/processed/daily_enkf/da_[no]cdf/daily_analysis_residual/daily_analysis_residual_YYYY.nc`
