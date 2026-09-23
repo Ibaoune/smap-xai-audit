@@ -1032,3 +1032,47 @@ The spatial diagnostics show structured variability, with no obvious rigid row-w
 
 **STORAGE**:
 `data/processed/daily_enkf/da_[no]cdf/daily_analysis_residual/daily_analysis_residual_YYYY.nc`
+
+# Static Predictors
+
+## Elevation
+
+**SOURCE**:
+Extracted from static LIS input: `lis_input_NorthMor_5km.nc`.
+
+**RAW VARIABLE**:
+`ELEVATION` is selected as the canonical elevation source based on its metadata (`GTOPO30 (Native) elevation`), metre units, grid dimensions, and spatial field. `ELEVFGRD` was inspected separately and is not used as the canonical elevation predictor. `ELEVFGRD` represents "Elevation Area Fraction" with dimensionless units ("-"), consisting entirely of values equal to 1.0.
+
+**UNITS**:
+`m` (meters).
+
+**GRID**:
+Native spatial support is exactly aligned with the canonical Noah-MP model grid (Max coordinate difference = 0.0). No regridding or rotation is required. Latitude and longitude are both monotonically increasing.
+
+**LAND MASK**:
+The processed mask is aligned with the established canonical Noah-MP valid-land mask (16,030 valid pixels, 5,871 masked pixels; 26.8% masked fraction). Missing values inside canonical support count: 0.
+
+**RAW SOURCE STATISTICS (Unmasked)**:
+Before masking, the native `ELEVATION` array inherently matches the canonical mask exactly:
+- Finite count: 16,030
+- Missing count: 5,871
+- Min: 3.0556
+- Max: 3549.8057
+- Mean: 927.0696
+- Median: 833.9166
+- Percentiles: p01 = 26.611, p05 = 129.510, p25 = 534.868, p75 = 1254.028, p95 = 1979.960, p99 = 2616.527
+
+**VALUE PRESERVATION**:
+Source valid land values are preserved exactly (0 differences).
+- Min: 3.06 m (at 35.6 N, -5.3 E)
+- Max: 3549.81 m (at 31.5 N, -6.45 E)
+- Median: 833.92 m
+
+**NO TIME DIMENSION**:
+Elevation is static and does NOT contain a time dimension. It should only be joined/broadcast to pixel-days during the final XAI table construction to avoid unnecessary data replication.
+
+**XAI ROLE**:
+`elevation` is a static physiographic predictor. Elevation is a static pre-existing physiographic variable and contains no post-analysis information. It is therefore eligible as a candidate explanatory predictor, subject to the spatial cross-validation design used later.
+
+**OUTPUT PATH**:
+`data/processed/static/elevation/elevation.nc`

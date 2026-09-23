@@ -32,7 +32,7 @@ This document serves as the scientific requirements specification that answers: 
 | `et_opl` | OPL evapotranspiration | Noah-MP OPL | `Evap_tavg` | daily | predictor | ready |
 | `surface_runoff_opl` | OPL surface runoff | Noah-MP OPL | `Qs_tavg` | daily | predictor | ready |
 | `baseflow_opl` | OPL baseflow | Noah-MP OPL | `Qsb_tavg` | daily | predictor | ready |
-| `elevation` | static elevation | lis_input_NorthMor_5km.nc | `ELEVFGRD` | static | predictor | ready |
+| `elevation` | static elevation | lis_input_NorthMor_5km.nc | `ELEVATION` | static lat-lon | predictor | ready |
 | `soil_texture` | fractional soil texture | lis_input_NorthMor_5km.nc | `TEXTURE` | static | predictor | ready |
 | `land_cover` | fractional land cover | lis_input_NorthMor_5km.nc | `LANDCOVER` | static | predictor | ready |
 | `irrigation_fraction` | irrigated area fraction | lis_input_NorthMor_5km.nc | `IRRIGFRAC` | static | N/A (current) | constant zero |
