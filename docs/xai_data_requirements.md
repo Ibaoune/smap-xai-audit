@@ -56,6 +56,12 @@ This document serves as the scientific requirements specification that answers: 
     *   **Units**: m3 m-3
     *   **Support**: daily pixel-day
     *   **Status**: ready
+*   **`daily_absolute_increment`**
+    *   **Source**: derived from `daily_signed_increment`
+    *   **Definition**: `abs(daily_signed_increment)`
+    *   **Units**: m3 m-3
+    *   **Support**: daily pixel-day
+    *   **Status**: ready
 *   **`innovation`**
     *   **Source**: `innov_01`
     *   **Definition**: observation - forecast
@@ -76,8 +82,8 @@ This document serves as the scientific requirements specification that answers: 
 **Scientific question**: What controls the generation of the SMAP correction?
 
 **Targets**:
-*   `increment_signed` = `increment`
-*   `increment_absolute` = `abs(increment)`
+*   `daily_signed_increment`
+*   `daily_absolute_increment`
 
 **Separate models**:
 *   DA-NoCDF

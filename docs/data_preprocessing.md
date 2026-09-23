@@ -770,3 +770,50 @@ This is the foundational XAI-Source target variable representing the absolute st
 
 **STORAGE**:
 `data/processed/daily_enkf/da_[no]cdf/daily_signed_increment/daily_signed_increment_YYYY.nc`
+
+## EnKF / Daily Absolute Analysis Increment
+
+**SOURCE**:
+Derived directly from the processed `daily_signed_increment`.
+
+**DERIVATION**:
+`daily_absolute_increment = abs(daily_signed_increment)`.
+No thresholding, clipping, or standardizing is applied.
+
+**UNITS**:
+m3 m-3
+
+**ZERO SEMANTICS**:
+Because the dataset strictly possesses 0 zero-valued valid event increments, `daily_absolute_increment == 0` exactly corresponds to no assimilation on valid land.
+
+**LAND MASK**:
+`NaN` remains strictly reserved for grid cells outside the canonical valid-land/model support.
+
+**TIME SUPPORT**:
+Full daily time axis spanning 1,827 days from `2016-01-01` to `2020-12-31`. Day $D$ corresponds to the UTC calendar day.
+
+**UNCONDITIONAL STATISTICS**:
+Because the majority of valid land pixel-days receive no update (0.0), unconditional statistics describe the *domain-average daily correction magnitude including no-update pixel-days*.
+- **DA-CDF**: Mean $\approx 0.0011$ m3 m-3 (91.6% zero)
+- **DA-NoCDF**: Mean $\approx 0.0037$ m3 m-3 (74.4% zero)
+
+**CONDITIONAL STATISTICS**:
+When restricted to assimilated pixel-days only (`observation_frequency == 1`), the magnitude describes the correction size *conditional on an actual DA event*.
+- **DA-CDF**: Mean $\approx 0.0129$ m3 m-3, median $\approx 0.0079$
+- **DA-NoCDF**: Mean $\approx 0.0145$ m3 m-3, median $\approx 0.0100$
+Interestingly, while DA-CDF's signed mean strongly skews negative (drying), its absolute correction magnitude is slightly smaller overall than DA-NoCDF's. DA-CDF shows a larger contrast between drying and wetting correction magnitudes than DA-NoCDF in these experiments.
+
+**CDF VS NoCDF**:
+DA-NoCDF possesses both a much wider assimilation support and slightly larger typical absolute updates conditionally. DA-NoCDF has a larger unconditional mean absolute increment because the unconditional statistic combines assimilation frequency and update magnitude. Differences in magnitude should not be used to conclude which assimilation is "better" without referencing independent state validation.
+
+**XAI-SOURCE ROLE**:
+Candidate PRIMARY TARGET for XAI models asking: "How strongly does SMAP assimilation modify surface soil moisture?"
+
+**FUTURE SAMPLING STRATEGIES**:
+Two distinct ML modeling approaches are possible for the XAI dataset:
+- **Strategy A (All pixel-days)**: Uses the unconditional distribution. Explains where/when DA activity and magnitude occur jointly.
+- **Strategy B (Assimilated pixel-days only)**: Uses the conditional distribution. Explains correction magnitude given an actual DA event.
+The final XAI design may utilize both as complementary analyses.
+
+**STORAGE**:
+`data/processed/daily_enkf/da_[no]cdf/daily_absolute_increment/daily_absolute_increment_YYYY.nc`
