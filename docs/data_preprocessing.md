@@ -913,3 +913,61 @@ Because `daily_normalized_innovation` explicitly combines `daily_innovation`, `d
 
 **STORAGE**:
 `data/processed/daily_enkf/da_[no]cdf/daily_normalized_innovation/daily_normalized_innovation_YYYY.nc`
+
+## EnKF / Daily Forecast Variance
+
+**SOURCE**:
+Derived directly from the validated native event-based `forecast_variance`.
+
+**RAW VARIABLE NAME**:
+`forecast_sigma_01`
+
+**LIS SOURCE-CODE MEANING**:
+Despite the raw LIS variable name (`forecast_sigma_01`), source code inspection demonstrates the stored quantity is exactly `HPH^T` (variance), not standard deviation.
+
+**HPH^T DEFINITION**:
+`HPH^T`, the forecast-error variance projected into observation space. 
+
+**VARIANCE VS STANDARD DEVIATION**:
+The raw variable represents *variance*. The expected innovation standard deviation used as the denominator for normalized innovation is `sqrt(HPH^T + R)`.
+
+**UNITS**:
+`(m3 m-3)^2`
+
+**EVENT-TO-DAY MAPPING**:
+Unique finite event mapped to UTC calendar day without averaging. Because maximum multiplicity is 1, events are conserved exactly. The canonical daily calendar is complete over 1827 days; forecast variance remains assimilation-conditional and is NaN on no-assimilation pixel-days.
+
+**NaN SEMANTICS**:
+`NaN` exists where no assimilation occurred (`observation_frequency == 0`) or outside canonical model support. Zero is never used for imputation.
+
+**ZERO SEMANTICS**:
+An exact zero represents zero stored forecast observation-space variance at numerical precision. (Found in 7 CDF samples and 5 NoCDF samples). `forecast_variance > 0` must NOT be used as an assimilation-support criterion. 
+
+**COUNT/VALUE CONSERVATION**:
+Matches the exact number of finite assimilation events perfectly (DA-CDF: 2,456,233; DA-NoCDF: 7,507,641). The daily mapping exhibits 0 absolute value differences across all matched samples.
+
+**RELATION TO S**:
+`S = daily_forecast_variance + R` (where `R = 0.0016 (m3 m-3)^2`). `S` is the innovation variance.
+
+**RELATION TO NORMALIZED INNOVATION**:
+Independent reconstruction using matched event-based samples verified `daily_innovation / sqrt(daily_forecast_variance + 0.0016)` yields bit-for-bit exact identity (`Max abs diff = 0.0`) relative to `daily_normalized_innovation`. 
+Descriptively, there is a weak negative rank correlation between daily forecast variance and absolute normalized innovation (Spearman: ~ -0.02 for DA-CDF, ~ -0.12 for DA-NoCDF).
+
+**QUARTILE DIAGNOSTIC**:
+Across forecast-variance quartiles, absolute normalized innovation is non-monotonic. In both experiments it decreases toward the middle/high-middle variance classes and increases again in Q4. DA-NoCDF has its largest median |NI| in Q1, whereas DA-CDF has comparable Q1 and Q4 values, with Q4 slightly larger.
+Median |innovation| is non-monotonic across Q1-Q4 in both experiments, although Q4 has the largest median value.
+It is valid to state descriptively that median absolute increment generally increases across forecast-variance quartiles:
+- DA-CDF: 0.002420, 0.008020, 0.008846, 0.014522
+- DA-NoCDF: 0.006598, 0.009068, 0.010640, 0.015408
+
+**XAI ROLE**:
+Candidate pre-analysis observation-space forecast-variance predictor. Conceptually models the forecast uncertainty context prior to assimilation.
+
+**PRE-ANALYSIS STATUS**:
+**Data Leakage Note**: `daily_forecast_variance` is a pre-analysis DA diagnostic available before the analysis state is generated. It is a legitimate explanatory variable for the increment.
+
+**FEATURE-DEPENDENCE WARNING**:
+Because `daily_normalized_innovation` is mathematically derived from `daily_innovation`, `daily_forecast_variance`, and constant `R`, using all three in the same ML model introduces deterministic feature dependence. XAI feature selection must carefully assess multicollinearity.
+
+**STORAGE**:
+`data/processed/daily_enkf/da_[no]cdf/daily_forecast_variance/daily_forecast_variance_YYYY.nc`

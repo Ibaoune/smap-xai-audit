@@ -75,6 +75,12 @@ This document serves as the scientific requirements specification that answers: 
     *   **Role**: pre-analysis DA diagnostic (predictor)
     *   **Support**: daily pixel-day, assimilation-conditional
     *   **Status**: ready
+*   **`daily_forecast_variance`**
+    *   **Source**: derived from `forecast_sigma_01` (variance)
+    *   **Units**: (m3 m-3)^2
+    *   **Role**: pre-analysis DA diagnostic (predictor)
+    *   **Support**: daily pixel-day, assimilation-conditional
+    *   **Status**: ready
 *   **`observation_frequency`**
     *   **Derived from**: EnKF/SMAP assimilation-event occurrence
     *   **Role**: predictor
