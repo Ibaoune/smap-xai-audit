@@ -68,7 +68,7 @@ This document serves as the scientific requirements specification that answers: 
 *   **`observation_frequency`**
     *   **Derived from**: EnKF/SMAP assimilation-event occurrence
     *   **Role**: predictor
-    *   **Status**: derivable (aggregation window not yet defined)
+    *   **Status**: ready (daily calendar UTC, based on finite innovation)
 
 ## 4. XAI-Source
 

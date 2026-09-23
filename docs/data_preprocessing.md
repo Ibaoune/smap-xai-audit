@@ -694,3 +694,45 @@ Analysis residual completes the XAI-Source diagnostic pathway:
 2. `normalized_innovation`: Mismatch relative to expected uncertainty.
 3. `increment`: Resulting model-state correction.
 4. `analysis_residual`: Mismatch remaining after assimilation.
+
+## EnKF / Daily Observation Frequency
+
+**SOURCE**:
+Derived from event-based EnKF innovation output.
+
+**DERIVATION**:
+Observation frequency is the number of assimilation events with a valid assimilated observation at the model grid cell falling within a UTC calendar day.
+`observation_frequency(d, p) = sum(isfinite(innovation(event, p)))` over all events in day `d`.
+
+**DAILY TIME INTERVAL**:
+Full 1827-day sequence from `2016-01-01` to `2020-12-31`. Day $D$ corresponds precisely to the half-open interval $[D \text{ 00:00 UTC}, D+1 \text{ 00:00 UTC})$. Event times are mapped natively without applying any artificial LIS_HIST "-1 day" shift. This accurately models the physical timeframe of the assimilated observation and natively matches the canonical Noah-MP model day boundaries (which run 00:00 to 00:00 UTC).
+
+**ASSIMILATION MASK & COUNT CONSERVATION**:
+The valid assimilation support is defined rigorously as `isfinite(innovation)`. Across both DA-CDF and DA-NoCDF over all 5 years, the domain-total daily aggregated counts match the domain-total event-based finite counts perfectly (e.g., DA-CDF 2016: 345,488 valid event pixels = 345,488 aggregated daily valid pixels; difference exactly 0).
+
+**LAND MASK**:
+An independent, static land mask (derived from the valid canonical model SSM support) was applied to the daily arrays. Therefore:
+- Valid land pixels with no assimilated observation during the day are explicitly `0`.
+- Pixels outside the canonical land mask remain `NaN`.
+
+**MISSING & ZERO SEMANTICS**:
+- `observation_frequency = 0`: valid land, no assimilated observation that day.
+- `observation_frequency = NaN`: outside canonical valid-land/model support.
+The verified daily multiplicity result is `maximum observation_frequency = 1` for both experiments over 2016-2020. This confirms no valid land pixel receives more than one assimilated SMAP observation within the same UTC calendar day in these experiments. An important consequence is that future event-to-daily conversion of EnKF diagnostics does not require combining multiple valid events at a single pixel-day for this dataset.
+
+**CDF VS NoCDF**:
+- **DA-CDF**: Mean land coverage fraction per day is `8.4%`. 91.6% of valid land pixel-days have 0 observations.
+- **DA-NoCDF**: Mean land coverage fraction per day is `25.6%`. 74.4% of valid land pixel-days have 0 observations.
+DA-CDF exhibits substantially lower assimilation support than DA-NoCDF. This is consistent with differences introduced by the CDF-matching and associated DA/QC pathway, but the precise reason for individual rejected observations has not yet been isolated.
+
+**2019 OUTAGE BEHAVIOR**:
+The metric perfectly isolates the documented SMAP observation outage from 19 June to 23 July 2019. During the outage (19 June - 23 July 2019), the mean daily total of assimilated observations fell to exactly `0.0`. Before and after the outage, domain totals averaged $\sim 1,200 - 3,500$ depending on the experiment. These `0`s are valid zero-update days, not missing data.
+
+**XAI ROLE**:
+Observation frequency is the foundational support mask for all daily EnKF diagnostics. It enables an XAI model to robustly differentiate between:
+- "No assimilation occurred here today" (`frequency = 0`)
+- "An assimilation occurred here today" (`frequency = 1`)
+This provides the discrete logical switch for XAI attribution, preventing models from interpreting 0-valued increments (no update) as a perfect 0-error state.
+
+**STORAGE**:
+`data/processed/daily_enkf/da_[no]cdf/observation_frequency/observation_frequency_YYYY.nc`
