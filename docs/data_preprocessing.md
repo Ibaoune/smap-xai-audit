@@ -553,3 +553,50 @@ Innovation maps show no obvious row-wise structure. This supports (but does not 
 
 **XAI ROLE**:
 Primary indicator of the direction and magnitude of the incoming observational signal, and the definitive source for the true `assimilation_update_mask`.
+
+## EnKF / Forecast Uncertainty
+
+**SOURCE**:
+`LIS_DA_EnKF_YYYYMMDDHHMM_innov.a01.d01.nc`
+
+**RAW VARIABLE**:
+`forecast_sigma_01`
+
+**EXACT DEFINITION**:
+Despite the "sigma" naming convention in the NetCDF output, source-code inspection (`enkf_Mod.F90` line 434) rigorously confirms that this variable stores the **forecast error variance in observation space** ($HPH^T$), NOT standard deviation. The code calculates `row_variance(1,LIS_rc%nensem(n),Obs_pred(i,:),std_innov(1))` and saves it directly to `enkf_struc(n,k)%forecast_var(i)`.
+
+**CANONICAL VARIABLE**:
+`forecast_variance` (the raw variable name `forecast_sigma_01` is preserved as a metadata attribute to prevent future confusion).
+
+**UNIT**:
+$(m^3 m^{-3})^2$
+
+**TIME**:
+Assimilation event (instantaneous, `YYYYMMDDHHMM`).
+
+**SUPPORT**:
+Finite values strictly align with `assimilation_update_mask`.
+- Intersection of finite variance and finite innovation: 2,456,233 (DA-CDF)
+- Finite variance + missing innovation: 0
+- Missing variance + finite innovation: 0
+- Therefore, the assimilation-support masks are identical.
+
+**OBSERVATION TYPE**:
+SMAP NASA SPL3SMP_E (`_01`).
+
+**OBSERVATION ERROR DEFINITION ($R$)**:
+The observation error standard deviation is configured as a spatially constant value in `smap_pertattribs.txt`: `std = 0.04` $m^3/m^3$.
+Thus, the observation error variance $R$ is a constant $0.0016$ $(m^3 m^{-3})^2$.
+Both DA-CDF and DA-NoCDF use the exact same $R$ definition.
+
+**XAI ROLE**:
+Describes the model uncertainty in observation space before the update. Essential for calculating normalized innovation and understanding dynamic observation weighting.
+
+**STATISTICS**:
+Since the quantity represents a variance, values must be strictly nonnegative.
+- **DA-CDF**: min: `0.0`, mean: `0.00196`, max: `0.0141`, p95: `0.00397`. Negative values: `0`.
+- **DA-NoCDF**: min: `0.0`, mean: `0.00224`, max: `0.0189`, p95: `0.00423`. Negative values: `0`.
+- The cross-experiment comparison shows that DA-NoCDF exhibits slightly higher ensemble spread (forecast variance) on average than DA-CDF. This variance depends entirely on assimilation feedbacks through the state integration; neither should be intrinsically considered "better".
+
+**RELATION TO INNOVATION**:
+For QC purposes, the correlation between absolute innovation and forecast variance was computed. The correlation is extremely weak (DA-CDF Spearman: 0.121, DA-NoCDF Spearman: 0.019), indicating that the magnitude of the model-observation mismatch is not strongly coupled to the model's internal ensemble spread at the time of observation.
