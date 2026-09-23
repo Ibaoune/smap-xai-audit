@@ -50,11 +50,12 @@ This document serves as the scientific requirements specification that answers: 
 
 ## 3. Assimilation Information
 
-*   **`increment`**
+*   **`daily_signed_increment`**
     *   **Source**: EnKF `anlys_incr_Soil Moisture Layer X_01`
     *   **Definition**: analysis - forecast
     *   **Units**: m3 m-3
-    *   **Native support**: event_time
+    *   **Support**: daily pixel-day
+    *   **Status**: ready
 *   **`innovation`**
     *   **Source**: `innov_01`
     *   **Definition**: observation - forecast

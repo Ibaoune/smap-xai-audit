@@ -61,6 +61,7 @@ MOD16 is kept on its native composite temporal support.
 
 ## 4.1 Optional EnKF Diagnostics
 Document as available optional standardized diagnostics:
+- `daily_signed_increment` (source: derived from `increment_signed`, units: `m3 m-3`, temporal representation: `time` (daily))
 - `observation_frequency` (source: derived from `isfinite(innovation)`, units: `1`, temporal representation: `time` (daily))
 - `normalized_innovation` (source: `ninnov_01`, units: dimensionless)
 - `forecast_variance` (source: `forecast_sigma_01`, units: `(m3 m-3)^2`)

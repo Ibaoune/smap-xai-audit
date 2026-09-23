@@ -736,3 +736,37 @@ This provides the discrete logical switch for XAI attribution, preventing models
 
 **STORAGE**:
 `data/processed/daily_enkf/da_[no]cdf/observation_frequency/observation_frequency_YYYY.nc`
+
+## EnKF / Daily Signed Analysis Increment
+
+**SOURCE**:
+Derived from the native event-based `increment_signed` NetCDF output, using `observation_frequency` to establish strict assimilation support.
+
+**DERIVATION**:
+- `daily_signed_increment(d, p)`: the unique valid native `increment_signed` assigned during UTC calendar day `d`.
+- **MAX DAILY MULTIPLICITY = 1**: Verified exactly across all 2016-2020 valid land pixel-days. No single pixel received $>1$ valid update per day.
+- **ZERO SEMANTICS**: If `observation_frequency == 0`, `daily_signed_increment = 0.0`. This precisely encodes "no DA correction occurred during that pixel-day". It must not be conflated with numerical NaN.
+- **LAND MASK**: `NaN` is strictly reserved for grid cells outside the canonical valid-land/model support.
+
+**TIME MAPPING**:
+Native assimilation `event_time`s were cleanly floored to the UTC calendar day `[D 00:00 UTC, D+1 00:00 UTC)`. No time-shifting, averaging, or summing was necessary due to the unit multiplicity.
+
+**VALUE CONSERVATION**:
+The derivation preserves total update magnitudes exactly. The domain-total sum of all native valid event increments identically matches the sum of the daily pixel-day increments (e.g., DA-CDF 2016 absolute difference: $1.36 \times 10^{-12}$, reflecting only IEEE 754 float32 precision limits). The number of assigned daily updates matches the number of valid event innovations exactly.
+
+**CDF VS NoCDF**:
+Because `DA-CDF` has a fraction of valid pixel-days $\approx 8.4\%$ compared to `DA-NoCDF` $\approx 25.6\%$, the distribution unconditional on observation requires care.
+- **Unconditional Mean**: Over all valid land days (including 0s for no-update), the net daily effect is near zero (DA-CDF: $-6.0 \times 10^{-4}$ m3/m3, DA-NoCDF: $-9.7 \times 10^{-4}$ m3/m3).
+- **Conditional Mean**: Over assimilated pixel-days only, the DA correction is much larger and strongly skewed to drying (DA-CDF: $-7.2 \times 10^{-3}$ m3/m3, DA-NoCDF: $-3.8 \times 10^{-3}$ m3/m3).
+
+**UNCONDITIONAL VS CONDITIONAL STATISTICS**:
+The daily dataset represents a sparse time-series at each pixel. Descriptive statistics or aggregation must explicitly specify whether they include $0.0$ no-update days (`observation_frequency == 0`) or condition strictly on assimilated days (`observation_frequency == 1`).
+
+**XAI ROLE**:
+This is the foundational XAI-Source target variable representing the absolute state correction applied by EnKF.
+- `> 0`: EnKF made Layer-1 soil moisture wetter.
+- `< 0`: EnKF made Layer-1 soil moisture drier.
+- `= 0` (where `observation_frequency == 0`): No assimilation update occurred.
+
+**STORAGE**:
+`data/processed/daily_enkf/da_[no]cdf/daily_signed_increment/daily_signed_increment_YYYY.nc`
