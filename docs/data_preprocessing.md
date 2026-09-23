@@ -1132,3 +1132,77 @@ For future XAI design, note:
 
 **OUTPUT PATH**:
 `data/processed/static/soil_texture/soil_texture_fraction.nc`
+
+## Land Cover
+
+**SOURCE**:
+Extracted from static LIS input: `lis_input_NorthMor_5km.nc`.
+
+**RAW VARIABLE**:
+`LANDCOVER` (Standard name: `MODIS-IGBP (NCEP-modified) landcover map`).
+
+**VARIABLE STRUCTURE**:
+A stack of 20 class fractions with dimensions `(sfctypes, north_south, east_west)`. 
+
+**CLASS-ID PROVENANCE**:
+The source contains a 20-element `sfctypes` dimension without an explicit class-coordinate variable. Canonical `land_cover_class` IDs 1...20 are assigned for indexing only, with mapping source positional index 0 -> canonical `land_cover_class` 1, ..., source positional index 19 -> canonical `land_cover_class` 20.
+
+**CLASS LABELS IF AVAILABLE**:
+No explicit semantic class names are provided in the NetCDF beyond the global `MODIS-IGBP (NCEP-modified)` designation. Therefore, canonical numeric identifiers (1-20) are strictly retained without inventing semantic names.
+
+**UNITS**:
+Fraction `[0,1]`.
+
+**GRID**:
+Native spatial support exactly matches the canonical Noah-MP grid (Max coordinate difference = 0.0). No regridding is required.
+
+**LAND MASK**:
+The canonical valid-land mask is applied exactly (16,030 valid pixels, 5,871 masked pixels). Missing values inside canonical support count: 0.
+
+**FRACTION CONVENTION**:
+Values are natively fractions in `[0,1]`. Values were not modified, clipped, or renormalized. No fractions were < 0 or > 1.
+
+**COMPOSITION SUM**:
+The processed fractions close to unity at float32 precision, with maximum |sum - 1| = 1.19e-07 and zero pixels exceeding 1e-6. The native source sums ranged from ~0.99999994 to ~1.0000001.
+
+**MIXTURE / ONE-HOT STRUCTURE**:
+Unlike soil texture, LANDCOVER contains substantial sub-grid fractional mixing in the LIS input representation. Out of 16,030 valid land pixels, the number of active classes per pixel is:
+- exactly 1 active class: 3,769
+- exactly 2 active classes: 5,486
+- exactly 3 active classes: 3,175
+- >3 active classes: 3,600
+These counts sum exactly to 16,030. The spatial QC shows heterogeneous fractional land-cover patterns, with no obvious missing stripes, duplicated rows/columns, checkerboard artifacts, transposition, or grid-orientation errors.
+
+**DOMINANT-CLASS QC**:
+Classes 7 (35.16%) and 16 (52.09%) are the most dominant. 
+Dominant maximum fractions have the following distribution:
+- max_fraction == 1.0: 3,769
+- max_fraction >= 0.95: 4,647
+- max_fraction >= 0.90: 6,014
+- max_fraction >= 0.75: 9,391
+- max_fraction >= 0.50: 14,465
+- max_fraction < 0.50: 1,565
+Statistics of the dominant fraction: min: 0.1429, mean: 0.7740, median: 0.8056, p05: 0.4167, p25: 0.6111, p75: 0.9722, p95: 1.0000.
+There are exactly 241 pixels with tied maximum fractions. For QC-only dominant-class summaries, ties are resolved deterministically by the first maximum along source positional order, corresponding to the lowest canonical `land_cover_class` ID among tied components. Dominant-class counts depend on this QC tie-breaking convention for those 241 pixels.
+
+**ZERO-VARIANCE COMPONENTS**:
+Classes 15, 17, 18, 19, and 20 are exactly zero on all valid land pixels. These components have zero variance over the current valid-land domain and therefore provide no variation for model fitting. They should be filtered or otherwise handled during feature-matrix construction according to the modeling pipeline.
+
+**VALUE PRESERVATION**:
+Source valid land fractions are preserved exactly (mean absolute difference = 0.0, 0 exactly unequal pixels).
+
+**NO TIME DIMENSION**:
+Land cover is static and contains no time dimension. It will be joined by spatial index during final XAI table construction.
+
+**COMPOSITIONAL DEPENDENCE & IMPORTANT XAI NOTE**:
+Because `sum(class fractions) = 1`, the 20 components are compositionally constrained. Using all 20 fractions directly as independent linear predictors creates deterministic redundancy. The canonical variable preserves all 20 fractions.
+Crucially, LANDCOVER differs fundamentally from TEXTURE. TEXTURE is an exact one-hot representation with no sub-grid mixing. LANDCOVER represents a genuine fractional mixture; only 23.51% of valid land pixels have exactly one active class, and many contain multiple active classes. Therefore, the canonical fractional representation retains information that would be lost by reducing LANDCOVER to only the dominant class.
+
+**XAI ROLE**:
+`land_cover_fraction` is a static pre-existing land-surface property and contains no post-analysis information. It is eligible as a candidate contextual predictor for explaining spatial heterogeneity, subject to later spatial cross-validation design.
+
+**IRRIGATION INVENTORY**:
+During inventory, `IRRIGFRAC` was identified (standard_name = "User Derived Irrig gridcell fraction"). It has not been preprocessed or merged with land cover in this pipeline.
+
+**OUTPUT PATH**:
+`data/processed/static/land_cover/land_cover_fraction.nc`
