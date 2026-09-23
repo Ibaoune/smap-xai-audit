@@ -315,3 +315,47 @@ No monthly aggregation is part of the current XAI design.
 - grid/mask perfectly aligns with SSM and RZSM missing values.
 - cross-experiment diagnostics and quicklooks (DA - OPL differences) mapped and documented.
 - **Note**: The banded spatial structure visible in some DA-minus-OPL ET quicklooks is present in the underlying daily standardized fields and is not introduced by preprocessing or plotting.
+
+## Noah-MP / Surface Runoff
+
+### PHYSICAL DEFINITION
+- `Qs_tavg` represents explicitly surface runoff (overland flow). It fundamentally differs from subsurface runoff (baseflow, `Qsb_tavg`).
+
+### SIGN CONVENTION
+- Positive values indicate water mass leaving the land column via the surface. Negative values are generally non-physical for this flux in Noah-MP and do not occur.
+
+### SOURCE
+- **source variable**: `Qs_tavg`
+- **unit**: kg m-2 s-1
+
+### CANONICAL VARIABLE
+- `surface_runoff`
+
+### CANONICAL UNIT
+- mm day-1
+
+### CONVERSION
+- `surface_runoff = Qs_tavg * 86400`
+
+### TIME
+- LIS_HIST timestamp - 1 day
+
+### STORAGE
+- **Decision**: Surface runoff is an experiment-dependent prognostic model response driven by assimilation and soil moisture state. Therefore, it is extracted independently for each experiment.
+
+### OUTPUT
+- `data/interim/noahmp/opl/surface_runoff/`
+- `data/interim/noahmp/da_nocdf/surface_runoff/`
+- `data/interim/noahmp/da_cdf/surface_runoff/`
+
+### COVERAGE
+- OPL, DA-NoCDF, DA-CDF
+- 2016–2020 (1827 daily samples each)
+
+### QC
+- raw-vs-interim unit conversion precisely matched (float32 tolerance).
+- zero diagnostics: correctly features a large fraction of zero runoff pixels (~38% in OPL, ~5% in DA runs).
+- negative diagnostics: 0 negative values found, honoring physical constraints.
+- annual accumulated surface runoff aggregated and reported as spatial means.
+- cross-experiment difference maps created (`DA - OPL`) avoiding any physical interpretation of observational benefit. Note: Small magnitude spatial row-structures mirroring the ET banding were observed in difference metrics, verifying their origin in the underlying DA grid response.
+- `delta_surface_runoff` will be created in future targets but was not derived here.
