@@ -498,7 +498,7 @@ Therefore, CDF matching strictly modifies the observation used in the innovation
 **EVENT COUNTS**:
 - **DA-CDF**: 4,411 total events (Matches DA-CDF signed increment precisely: 4,411 increment events. Intersection: 4,411. Innovation-only: 0. Increment-only: 0).
 - **DA-NoCDF**: 4,619 total events (Matches DA-NoCDF signed increment precisely: 4,619 increment events. Intersection: 4,619. Innovation-only: 0. Increment-only: 0).
-- *2019 Observation Gap*: Consistent with the increment behavior, the June-July 2019 SMAP hardware safe-mode outage is correctly reproduced in the innovation availability.
+- *2019 Observation Gap*: Consistent with the increment behavior, the documented SMAP observation outage from 19 June to 23 July 2019 is correctly reproduced in the innovation availability.
 
 **RAW-TO-INTERIM IDENTITY**:
 Verification of 3 representative 2016 events confirmed:
@@ -863,3 +863,53 @@ Candidate predictor representing the pre-analysis observation-model mismatch. Si
 
 **STORAGE**:
 `data/processed/daily_enkf/da_[no]cdf/daily_innovation/daily_innovation_YYYY.nc`
+
+## EnKF / Daily Normalized Innovation
+
+**SOURCE**:
+Derived directly from the validated native event-based `normalized_innovation`.
+
+**FORMULA**:
+`normalized_innovation = innovation / sqrt(forecast_variance + R)`
+where `R` is the observation error variance.
+
+**UNITS**:
+Dimensionless (`1`).
+
+**R & S**:
+`R = 0.0016 (m3 m-3)^2`
+`S = forecast_variance + R` (the innovation variance). The denominator is `sqrt(S)`, which is the expected innovation standard deviation.
+
+**EVENT-TO-DAY MAPPING**:
+Unique finite event mapped to UTC calendar day without averaging. Because maximum multiplicity is 1, events are conserved exactly. The canonical daily calendar is complete over 1827 days; normalized innovation remains assimilation-conditional and is NaN on no-assimilation pixel-days.
+
+**NaN SEMANTICS**:
+`NaN` exists where no assimilation occurred (`observation_frequency == 0`) or outside canonical model support. Zero is never used for imputation.
+
+**CDF VS NoCDF**:
+DA-CDF uses the CDF-matched SMAP representation; DA-NoCDF uses the non-CDF-matched observation representation used by that experiment. The distributions differ substantially but a smaller magnitude does not intrinsically imply better DA skill.
+
+**COUNT/VALUE CONSERVATION**:
+Matches the exact number of finite assimilation events perfectly (DA-CDF: 2,456,233; DA-NoCDF: 7,507,641). The daily mapping exhibits 0 absolute value differences across all 10 million matched samples.
+
+**FORMULA RECONSTRUCTION**:
+An independent reconstruction using matched EVENT-BASED samples verified `innovation / sqrt(forecast_variance + 0.0016)` yields bit-for-bit exact identity (`Max abs diff = 0.0`) relative to the stored native `normalized_innovation`.
+
+**EXCEEDANCE SEMANTICS**:
+Magnitude thresholds:
+- $|NI| > 1$: $\approx 10.3\%$ (CDF), $10.6\%$ (NoCDF)
+- $|NI| > 2$: $\approx 2.66\%$ (CDF), $1.51\%$ (NoCDF)
+- $|NI| > 3$: $\approx 0.68\%$ (CDF), $0.18\%$ (NoCDF)
+These are strictly descriptive standardized thresholds and must not automatically label observations as "bad" without additional diagnostics.
+
+**XAI ROLE**:
+Candidate predictor representing pre-analysis mismatch standardized by the expected innovation uncertainty. Tests whether scaled observation-model mismatch relates to the final correction magnitude (`daily_absolute_increment`). In these descriptive QC relationships, absolute dimensional innovation shows a higher correlation with absolute increment than absolute normalized innovation. This result is retained for later XAI feature-design analysis and is not used here for feature selection.
+
+**PRE-ANALYSIS STATUS**:
+**Data Leakage Note**: `daily_normalized_innovation` is exclusively pre-analysis and is safely computable before the updated soil-moisture state is obtained. 
+
+**FEATURE REDUNDANCY NOTE**:
+Because `daily_normalized_innovation` explicitly combines `daily_innovation`, `daily_forecast_variance`, and `R`, XAI feature selection must carefully assess multicollinearity and redundancy if multiple terms of the analytical formula are presented simultaneously.
+
+**STORAGE**:
+`data/processed/daily_enkf/da_[no]cdf/daily_normalized_innovation/daily_normalized_innovation_YYYY.nc`

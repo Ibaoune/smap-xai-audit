@@ -69,10 +69,12 @@ This document serves as the scientific requirements specification that answers: 
     *   **Role**: pre-analysis DA diagnostic (predictor)
     *   **Support**: daily pixel-day, assimilation-conditional
     *   **Status**: ready
-*   **`normalized_innovation`**
-    *   **Source**: `ninnov_01`
+*   **`daily_normalized_innovation`**
+    *   **Source**: derived from `ninnov_01`
     *   **Units**: dimensionless
-    *   **Role**: optional DA diagnostic
+    *   **Role**: pre-analysis DA diagnostic (predictor)
+    *   **Support**: daily pixel-day, assimilation-conditional
+    *   **Status**: ready
 *   **`observation_frequency`**
     *   **Derived from**: EnKF/SMAP assimilation-event occurrence
     *   **Role**: predictor
