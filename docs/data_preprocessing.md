@@ -406,3 +406,13 @@ No monthly aggregation is part of the current XAI design.
 - annual accumulated baseflow aggregated and reported.
 - mask equality verified perfectly with SSM, RZSM, ET, and Surface Runoff.
 - `delta_baseflow` will be created in future targets but was not derived here. Note: Small magnitude spatial row-structures were observed in difference metrics (similar to ET and surface runoff), confirming the raw DA response origin.
+
+### Known DA numerical structure
+
+- row-wise structures occur in some DA-minus-OPL flux fields;
+- they are already present in raw LIS output;
+- preprocessing does not create or remove them;
+- no smoothing/filtering is applied;
+- detailed investigation is documented in:
+
+    docs/model_diagnostics.md
