@@ -24,6 +24,7 @@ Use the GLEAM native 0.1-degree geographic grid subset covering the Noah-MP doma
 
 ## 2.3 Static Physiographic Predictors
 - `elevation` (source: `lis_input_NorthMor_5km.nc`, units: `m`, temporal representation: `static lat-lon`)
+- `soil_texture` (source: `lis_input_NorthMor_5km.nc`, units: `1` (fraction), temporal representation: `static lat-lon`)
 
 ## 3. Temporal Representations
 Data sources will not be forced onto a single temporal frequency. The pipeline handles three distinct temporal representations.

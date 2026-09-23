@@ -1076,3 +1076,59 @@ Elevation is static and does NOT contain a time dimension. It should only be joi
 
 **OUTPUT PATH**:
 `data/processed/static/elevation/elevation.nc`
+
+## Soil Texture
+
+**SOURCE**:
+Extracted from static LIS input: `lis_input_NorthMor_5km.nc`.
+
+**RAW VARIABLE**:
+`TEXTURE` (Standard name: `(NCAR) STATSGO+FAO blended soil texture map`).
+
+**VARIABLE STRUCTURE**:
+A stack of 16 class fractions with dimensions `(soiltypes, north_south, east_west)`. 
+
+**CLASS/BIN SEMANTICS**:
+The source provides a 16-element `soiltypes` dimension without explicit semantic class identifiers. Canonical `texture_class` IDs are assigned for indexing only. Mapping: source positional index 0 -> canonical `texture_class` 1, ..., source positional index 15 -> canonical `texture_class` 16.
+
+**UNITS**:
+Fraction `[0,1]`.
+
+**GRID**:
+Native spatial support exactly matches the canonical Noah-MP grid (Max coordinate difference = 0.0). No regridding is required.
+
+**LAND MASK**:
+The canonical valid-land mask is applied exactly (16,030 valid pixels, 5,871 masked pixels). Missing values inside canonical support count: 0.
+
+**FRACTION CONVENTION**:
+Fractions are stored inherently as `[0,1]`. Values were not modified, clipped, or renormalized. No fractions were < 0 or > 1.
+
+**COMPOSITION SUM**:
+The sum of the 16 fractions is mathematically 1.0 (maximum \|sum - 1\| = 0.0) for every valid land pixel.
+
+**MIXTURE STRUCTURE**:
+The representation is functionally one-hot soil-texture class fractions. Exactly 100% of valid land pixels (16,030) contain exactly 1 active class with a maximum fraction exactly equal to 1.0. The spatial QC shows no obvious missing stripes, duplicated rows/columns, checkerboard artifacts, or grid-orientation errors.
+
+**DOMINANT-CLASS QC**:
+Because it is perfectly one-hot, the dominant class perfectly captures all information. Classes 1, 3, 4, 6, 7, 9, 12 are present. Class 6 is the overwhelming dominant class (75.15%). No ties occurred. The sum over all 16 classes is perfectly conserved at 16,030 valid land pixels.
+
+**VALUE PRESERVATION**:
+Source valid land fractions are preserved exactly (mean absolute difference = 0.0, 0 exactly unequal pixels).
+
+**NO TIME DIMENSION**:
+Soil texture is static and contains no time dimension. It is broadcasted dynamically during final XAI table construction.
+
+**COMPOSITIONAL DEPENDENCE & XAI REPRESENTATION**:
+In this dataset the fractions are exactly one-hot, so the canonical 16-component representation contains the same categorical information as a single soil-texture class label. 
+Because `sum(texture fractions) = 1`, using all 16 fractions directly as independent linear predictors creates deterministic redundancy. The canonical variable preserves all 16 fractions.
+For future XAI design, note:
+- integer class coding may introduce artificial ordinality in models that treat integers as continuous;
+- one-hot representation avoids that issue;
+- models with native categorical handling may instead use the class label;
+- for linear models, all 16 one-hot components plus an intercept are exactly redundant, so one level would normally be omitted.
+
+**XAI ROLE**:
+`soil_texture_fraction` is a static pre-existing land-surface property and contains no post-analysis information. It is eligible as a candidate contextual predictor for explaining spatial heterogeneity, subject to later spatial cross-validation design.
+
+**OUTPUT PATH**:
+`data/processed/static/soil_texture/soil_texture_fraction.nc`
