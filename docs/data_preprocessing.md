@@ -359,3 +359,50 @@ No monthly aggregation is part of the current XAI design.
 - annual accumulated surface runoff aggregated and reported as spatial means.
 - cross-experiment difference maps created (`DA - OPL`) avoiding any physical interpretation of observational benefit. Note: Small magnitude spatial row-structures mirroring the ET banding were observed in difference metrics, verifying their origin in the underlying DA grid response.
 - `delta_surface_runoff` will be created in future targets but was not derived here.
+
+## Noah-MP / Baseflow
+
+### PHYSICAL DEFINITION
+- `Qsb_tavg` represents subsurface runoff amount. In standard Noah-MP terminology, this is baseflow or deep drainage leaving the bottom of the soil column or discharging laterally.
+
+### RELATION TO Qs
+- `Qsb_tavg` (subsurface runoff/baseflow) is strictly distinct from `Qs_tavg` (surface runoff). They represent independent hydrological fluxes.
+
+### SIGN CONVENTION
+- Positive values indicate water mass leaving the soil column via the subsurface. Negative values are unphysical and do not occur.
+
+### SOURCE
+- **source variable**: `Qsb_tavg`
+- **unit**: kg m-2 s-1
+
+### CANONICAL VARIABLE
+- `baseflow`
+
+### CANONICAL UNIT
+- mm day-1
+
+### CONVERSION
+- `baseflow = Qsb_tavg * 86400`
+
+### TIME
+- LIS_HIST timestamp - 1 day
+
+### STORAGE
+- **Decision**: Baseflow is an experiment-dependent prognostic model response driven by assimilation and soil moisture state. Therefore, it is extracted independently for each experiment.
+
+### OUTPUT
+- `data/interim/noahmp/opl/baseflow/`
+- `data/interim/noahmp/da_nocdf/baseflow/`
+- `data/interim/noahmp/da_cdf/baseflow/`
+
+### COVERAGE
+- OPL, DA-NoCDF, DA-CDF
+- 2016–2020 (1827 daily samples each)
+
+### QC
+- raw-vs-interim unit conversion matched exactly (max absolute diff 0.0).
+- negative diagnostics: 0 negative values found, honoring physical constraints.
+- zero diagnostics: correctly features 0 absolute zero pixels, as baseflow is a continuous slow-draining process (unlike intermittent surface runoff).
+- annual accumulated baseflow aggregated and reported.
+- mask equality verified perfectly with SSM, RZSM, ET, and Surface Runoff.
+- `delta_baseflow` will be created in future targets but was not derived here. Note: Small magnitude spatial row-structures were observed in difference metrics (similar to ET and surface runoff), confirming the raw DA response origin.
