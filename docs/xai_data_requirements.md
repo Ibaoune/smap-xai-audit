@@ -232,3 +232,8 @@ Do not generate blocks here.
 | Season/month | Derivable |
 | Drought phase | Definition pending |
 | Station forcing discrepancies | Optional / pending station metadata |
+
+---
+
+## Further Reading
+For a complete cross-target audit and implications for ML feature engineering, please refer to the dedicated [Transfer Target Audit](transfer_target_audit.md).

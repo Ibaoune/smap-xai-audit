@@ -531,7 +531,7 @@ Validating the `assimilation_update_mask` against 2016 increment files:
   - finite innov + zero inc: 0
   - missing innov + zero inc: 13,616,907
   - missing innov + nonzero inc: 0
-This proves that finite innovation perfectly controls where an assimilation update occurs.
+This demonstrates that finite innovation perfectly controls where an assimilation update occurs.
 
 **INNOVATION STATISTICS**:
 - **DA-CDF**:
@@ -1514,4 +1514,8 @@ For future XAI prediction of `delta_baseflow`, feature timing must be designed e
 - `data/processed/transfer/da_cdf/delta_baseflow/delta_baseflow_YYYY.nc`
 - `data/processed/transfer/da_nocdf/delta_baseflow/delta_baseflow_YYYY.nc`
 
+---
+
+## Further Reading
+For a complete cross-target audit, numerical diagnostics, and implications for ML feature engineering, please refer to the dedicated [Transfer Target Audit](transfer_target_audit.md).
 
