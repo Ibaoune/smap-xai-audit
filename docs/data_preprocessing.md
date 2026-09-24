@@ -1251,4 +1251,55 @@ Neither statement is logically inferred solely from the other; both were indepen
 **FUTURE IRRIGATION-AWARE RELEVANCE**:
 Future XAI experiments that contrast irrigation-ON vs irrigation-OFF configurations may require revisiting this dataset or establishing a dedicated irrigation-aware predictor block. For the current experiments, it is strictly excluded.
 
+## Transfer Targets / Delta RZSM
+
+**SOURCE PRODUCTS**:
+Derived exclusively from validated canonical RZSM targets:
+- `data/processed/daily_model/opl/rzsm/rzsm_YYYY.nc`
+- `data/processed/daily_model/da_cdf/rzsm/rzsm_YYYY.nc`
+- `data/processed/daily_model/da_nocdf/rzsm/rzsm_YYYY.nc`
+
+**DEFINITION**:
+The daily 24-h-mean DA-minus-OPL root-zone soil-moisture difference target:
+`delta_rzsm = daily 24-h-mean RZSM_DA - RZSM_OPL`
+
+**SIGN**:
+- `> 0`: DA daily-mean RZSM is wetter than OPL
+- `< 0`: DA daily-mean RZSM is drier than OPL
+- `= 0`: Equality at stored numerical precision.
+
+**UNITS**:
+$m^3 m^{-3}$
+
+**ROOT-ZONE DEPTH**:
+0-100 cm (derived from Noah-MP Layers 1-3). Layer 4 is explicitly excluded.
+
+**GRID/TIME IDENTITY**:
+Exact coordinate equality (max diff = 0.0) between OPL and DA experiments was verified prior to subtraction for all annual arrays.
+
+**MASK**:
+Maintains the exact canonical model valid-land mask (16,030 valid pixels). Missing values (`NaN`) on valid land count is exactly 0.
+
+**ALL-DAY SUPPORT**:
+Support is the complete canonical model calendar (1,827 days, 2016-01-01 through 2020-12-31). `delta_rzsm` remains fully defined on no-assimilation pixel-days whenever model RZSM exists.
+
+**DIFFERENCE FROM ENKF INCREMENT**:
+`delta_rzsm` is a daily model-state difference, NOT an instantaneous EnKF event diagnostic. It reflects accumulated and persistent differences from previous updates and subsequent Noah-MP dynamics, rather than just the effect of a single day's assimilation event. The correlations are modest in these descriptive comparisons (Pearson $\sim 0.07 - 0.28$), proving it is not a mere renaming of the increment.
+
+**NO-ASSIMILATION PERSISTENCE**:
+On valid-land pixel-days where no assimilation occurred (`observation_frequency == 0`), `delta_rzsm` continues to persist robustly. >99.9% of these no-assimilation days maintain a persistent absolute difference `> 1e-6` from OPL. This demonstrates that the DA-OPL RZSM difference is not restricted to same-day assimilation support and is consistent with persistence of the altered DA trajectory between assimilation events.
+
+**2019 OUTAGE BEHAVIOR**:
+During the SMAP observation outage (19 June - 23 July 2019), `observation_frequency` was zero, yet `delta_rzsm` remained fully populated and finite. This reflects persistent DA-OPL trajectory differences during a documented period without assimilated SMAP observations (e.g., >97% of valid pixels maintained an absolute difference `> 1e-4`), reflecting memory rather than new assimilation updates.
+
+**CDF VS NOCDF CAUTION**:
+The two experiments differ in observation representation, assimilation support frequency, and DA trajectory. Therefore, raw `delta_rzsm` differences between CDF and NoCDF conflate multiple aspects of the DA configuration. They should not be used to directly rank one experiment as "better" than the other.
+
+**XAI TRANSFER ROLE**:
+`delta_rzsm` is a Transfer block target describing the propagation of the assimilation-induced model trajectory into the 0-100 cm root zone. For future predictive models, variables mathematically containing the target or future information must be excluded to prevent leakage.
+
+**OUTPUT PATH**:
+- `data/processed/transfer/da_cdf/delta_rzsm/delta_rzsm_YYYY.nc`
+- `data/processed/transfer/da_nocdf/delta_rzsm/delta_rzsm_YYYY.nc`
+
 
