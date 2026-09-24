@@ -237,3 +237,5 @@ Do not generate blocks here.
 
 ## Further Reading
 For a complete cross-target audit and implications for ML feature engineering, please refer to the dedicated [Transfer Target Audit](transfer_target_audit.md).
+
+For independent evaluation reference preparation, please refer to [Value Data Preparation](value_data_preparation.md).
