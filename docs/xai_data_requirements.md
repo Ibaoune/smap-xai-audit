@@ -35,7 +35,7 @@ This document serves as the scientific requirements specification that answers: 
 | `elevation` | static elevation | lis_input_NorthMor_5km.nc | `ELEVATION` | static lat-lon | predictor | ready |
 | `soil_texture` | fractional soil texture | lis_input_NorthMor_5km.nc | `TEXTURE` | static lat-lon | predictor | ready |
 | `land_cover` | fractional land cover | lis_input_NorthMor_5km.nc | `LANDCOVER` | static lat-lon | predictor | ready |
-| `irrigation_fraction` | irrigated area fraction | lis_input_NorthMor_5km.nc | `IRRIGFRAC` | static | N/A (current) | constant zero |
+| `irrigation_fraction` | irrigated area fraction | lis_input_NorthMor_5km.nc | `IRRIGFRAC` | static | excluded from current feature matrix due zero variance | audited; excluded from current XAI due zero variance |
 
 ### Land State Definitions
 *   `rzsm_opl = 0.10 * sm_layer1_opl + 0.30 * sm_layer2_opl + 0.60 * sm_layer3_opl`

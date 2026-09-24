@@ -1206,3 +1206,49 @@ During inventory, `IRRIGFRAC` was identified (standard_name = "User Derived Irri
 
 **OUTPUT PATH**:
 `data/processed/static/land_cover/land_cover_fraction.nc`
+
+## Irrigation Fraction Audit
+
+**SOURCE**:
+`lis_input_NorthMor_5km.nc`
+
+**RAW VARIABLE**:
+`IRRIGFRAC`
+
+**METADATA**:
+- `standard_name`: "User Derived Irrig gridcell fraction"
+- `units`: "-"
+
+**GRID**:
+Native spatial support exactly matches the canonical Noah-MP grid (Max coordinate difference = 0.0).
+
+**LAND MASK**:
+The canonical valid-land mask was explicitly applied for the audit (16,030 valid land pixels).
+
+**VALUE DISTRIBUTION**:
+Over all 16,030 valid land pixels, the variable is exactly 0.0.
+- Count > 0: 0
+- Count == 0: 16,030
+
+**ZERO-VARIANCE STATUS**:
+`IRRIGFRAC` has zero variance over the current valid-land domain. There is exactly 1 unique finite value (0.0) on valid land.
+
+**EXPERIMENT CONFIGURATION**:
+An exhaustive census of LIS configuration files was conducted across all three experiments (`OPL_noirr_2016_2020`, `DA_nocdf_noirr_2016_2020`, `DA_cdf_noirr_2016_2020`). Exactly 60 `.config` files were inspected per experiment (180 total). Every file was checked for the following keys, with 0 missing and 0 mismatches:
+- `Irrigation scheme:` (180 files matched exactly `"none"`)
+- `Noah-MP.4.0.1 crop model option:` (180 files matched exactly `0  # Irrigation OFF`)
+No configuration file disagreed with these settings.
+
+**STATIC-FIELD VS PROCESS-ACTIVATION DISTINCTION**:
+There are two distinct and independent findings:
+1. Static input: `IRRIGFRAC = 0` everywhere on canonical valid land.
+2. Process configuration: irrigation is disabled in the current Noah-MP experiments.
+Neither statement is logically inferred solely from the other; both were independently verified.
+
+**CURRENT XAI ELIGIBILITY**:
+`IRRIGFRAC` is constant zero over the current valid-land domain and therefore contains no sample-to-sample variation for the current XAI dataset. It is excluded from the current feature matrix due to zero variance.
+
+**FUTURE IRRIGATION-AWARE RELEVANCE**:
+Future XAI experiments that contrast irrigation-ON vs irrigation-OFF configurations may require revisiting this dataset or establishing a dedicated irrigation-aware predictor block. For the current experiments, it is strictly excluded.
+
+
