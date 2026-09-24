@@ -64,6 +64,7 @@ MOD16 is kept on its native composite temporal support.
 | `et_gleam` | E | GLEAM v4.3a | mm day-1 | daily |
 | `et_mod16` | ET_500m | MOD16A2GF C6.1 | mm per native composite | composite_time |
 | `delta_rzsm` | derived | derived | m3 m-3 | daily |
+| `delta_et` | derived | derived | mm day-1 | daily |
 
 ## 4.1 Optional EnKF Diagnostics
 Document as available optional standardized diagnostics:

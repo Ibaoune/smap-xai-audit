@@ -1302,4 +1302,64 @@ The two experiments differ in observation representation, assimilation support f
 - `data/processed/transfer/da_cdf/delta_rzsm/delta_rzsm_YYYY.nc`
 - `data/processed/transfer/da_nocdf/delta_rzsm/delta_rzsm_YYYY.nc`
 
+## Transfer Targets / Delta ET
+
+**SOURCE PRODUCTS**:
+Derived exclusively from validated canonical ET targets:
+- `data/interim/noahmp/opl/et/et_YYYY.nc`
+- `data/interim/noahmp/da_cdf/et/et_YYYY.nc`
+- `data/interim/noahmp/da_nocdf/et/et_YYYY.nc`
+
+**DEFINITION**:
+The daily DA-minus-OPL evapotranspiration difference target:
+`delta_et = et_DA - et_OPL`
+
+**SIGN**:
+- `> 0`: DA experiment has higher daily-mean ET than OPL
+- `< 0`: DA experiment has lower daily-mean ET than OPL
+- `= 0`: DA and OPL ET agree at stored numerical precision.
+
+**UNITS**:
+`mm/day`
+
+**24-H MEAN FLUX SEMANTICS**:
+Canonical daily ET is derived from the 24-h mean Noah-MP Evap_tavg flux using Evap_tavg * 86400 and expressed in mm/day. `delta_et` accordingly represents the daily DA-minus-OPL evapotranspiration difference derived from the corresponding 24-h mean flux products.
+
+**GRID/TIME SUPPORT**:
+Exact coordinate equality (max diff = 0.0) between OPL and DA experiments was verified prior to subtraction for all annual arrays.
+
+**NEGATIVE ET PRESERVATION**:
+The upstream ET preprocessing retained original negative flux values without clipping or converting to NaN. These negative values are faithfully preserved and propagated into `delta_et`.
+
+**ALL-DAY SUPPORT**:
+Support is the complete canonical model calendar (1,827 days, 2016-01-01 through 2020-12-31). `delta_et` is defined on the DAILY MODEL support, not just on assimilation-event pixel-days.
+
+**ASSIMILATION VS NO-ASSIMILATION QC**:
+On no-assimilation days (`observation_frequency == 0`), DA-minus-OPL flux differences persistently occur outside same-day assimilation support. This reflects the difference between the complete DA experiment trajectory and the OPL trajectory, rather than an instantaneous assimilation correction.
+
+**OUTAGE BEHAVIOR**:
+During the SMAP observation outage (19 June - 23 July 2019), `observation_frequency` was zero, yet `delta_et` remains populated with persistent DA-minus-OPL ET differences during a documented period without assimilated SMAP observations.
+
+**RELATION TO DELTA_RZSM**:
+Correlations are descriptive comparisons. `delta_et` and `delta_rzsm` exhibit expected statistical relationships, but this does not imply unique causality from individual assimilation events.
+
+**RELATION TO SURFACE INCREMENT**:
+The relationship between `delta_et` and the instantaneous EnKF Layer-1 surface increment is weak/modest, as they represent different stages (instantaneous EnKF correction vs daily model ET flux difference).
+
+**ROW-WISE NUMERICAL STRUCTURE**:
+A critical numerical diagnostic: `delta_et` exhibits a known row-wise numerical structure (alternating magnitudes along latitude rows). This row-wise structure is inherited from the DA model outputs and was previously verified in the raw LIS flux diagnostics; it is not introduced by `delta_et` preprocessing (see `docs/model_diagnostics.md`).
+
+**CDF VS NOCDF CAUTION**:
+The two experiments differ in observation representation, assimilation support frequency, and DA trajectory. Descriptive comparisons should not be used to rank one experiment as "better" or "worse" than the other based solely on raw `delta_et`.
+
+**XAI TRANSFER ROLE**:
+`delta_et` is a DA-minus-OPL Transfer response describing the evapotranspiration difference associated with the DA experiment trajectory. Conceptually: DA trajectory -> altered land states -> altered daily ET flux. This represents a difference between complete DA and OPL experiment trajectories, not a pure causal SMAP-assimilation effect.
+
+**TARGET-TIMING WARNING**:
+For future `delta_et` predictive models, predictor timing must be explicitly defined. Future information (e.g., same-day post-analysis variables, future RZSM, future ET, analysis residual) MUST NOT be used automatically as predictors.
+
+**OUTPUT PATH**:
+- `data/processed/transfer/da_cdf/delta_et/delta_et_YYYY.nc`
+- `data/processed/transfer/da_nocdf/delta_et/delta_et_YYYY.nc`
+
 
