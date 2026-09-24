@@ -1362,4 +1362,78 @@ For future `delta_et` predictive models, predictor timing must be explicitly def
 - `data/processed/transfer/da_cdf/delta_et/delta_et_YYYY.nc`
 - `data/processed/transfer/da_nocdf/delta_et/delta_et_YYYY.nc`
 
+## Transfer Targets / Delta Surface Runoff
+
+**SOURCE PRODUCTS**:
+Derived exclusively from validated canonical surface runoff targets:
+- `data/interim/noahmp/opl/surface_runoff/surface_runoff_YYYY.nc`
+- `data/interim/noahmp/da_cdf/surface_runoff/surface_runoff_YYYY.nc`
+- `data/interim/noahmp/da_nocdf/surface_runoff/surface_runoff_YYYY.nc`
+
+**DEFINITION**:
+The daily DA-minus-OPL surface-runoff difference target:
+`delta_surface_runoff = surface_runoff_DA - surface_runoff_OPL`
+
+**SIGN**:
+- `> 0`: DA experiment has greater daily surface runoff than OPL
+- `< 0`: DA experiment has lower daily surface runoff than OPL
+- `= 0`: DA and OPL surface runoff are equal at stored numerical precision.
+(Note: `delta_surface_runoff` can be negative even though each individual surface-runoff field is non-negative).
+
+**UNITS**:
+`mm/day`
+
+**24-H FLUX SEMANTICS**:
+Canonical surface runoff is the daily surface-runoff amount/rate-equivalent derived from the 24-h mean Qs_tavg flux and expressed in mm/day. `delta_surface_runoff` accordingly represents the daily difference between the two experiment trajectories.
+
+**GRID/TIME SUPPORT**:
+Exact coordinate equality (max diff = 0.0) between OPL and DA experiments was verified prior to subtraction for all annual arrays.
+
+**SOURCE ZERO STRUCTURE**:
+Surface runoff is strongly zero-inflated (the majority of valid model land pixel-days are exactly 0.0).
+
+**ALL-DAY SUPPORT**:
+Support is the complete canonical model calendar (1,827 days, 2016-01-01 through 2020-12-31). `delta_surface_runoff` is defined on the DAILY MODEL support, not just on assimilation-event pixel-days.
+
+**RUNOFF-ACTIVE SUPPORT**:
+Runoff-active subset is defined where `(surface_runoff_OPL > 0) OR (surface_runoff_DA > 0)`.
+*Caveat*: If tiny positive floating-point/model runoff values are widespread, then `runoff_active` may approach 100% even when hydrologically meaningful surface runoff is extremely small. Therefore, `runoff_active` is a numerical non-zero support diagnostic, not automatically a hydrologically significant runoff-event mask.
+
+**ZERO-DELTA DECOMPOSITION**:
+A large mass of exact zeros exists in `delta_surface_runoff`. These correspond primarily to days where both OPL and DA surface runoff are exactly zero, and a small minority where both are non-zero but perfectly equal.
+
+**ASSIMILATION / NO-ASSIMILATION QC**:
+On no-assimilation days (`observation_frequency == 0`), DA-minus-OPL runoff differences can still be non-zero due to persistence. The target represents a difference between complete DA and OPL trajectories, not a pure causal SMAP-assimilation effect.
+
+**OUTAGE BEHAVIOR**:
+DA-minus-OPL runoff differences during the documented period without assimilated SMAP observations (19 June - 23 July 2019) reflect the behavior of the DA-trajectory relative to OPL in a season generally dominated by no-runoff.
+
+**RELATION TO DELTA_RZSM**:
+Correlations are descriptive comparisons. Associations between `delta_rzsm` and `delta_surface_runoff` do not establish that the root-zone response exclusively causes the runoff response.
+
+**RELATION TO DELTA_ET**:
+Correlations between `delta_et` and `delta_surface_runoff` are descriptive associations only.
+
+**RELATION TO SURFACE INCREMENT**:
+The relationship between `delta_surface_runoff` and the EnKF Layer-1 surface increment is assessed descriptively on the subset of runoff-active days to prevent zero-dominated suppression of correlation signals.
+
+**SEASONAL BEHAVIOR**:
+The relative frequency and magnitude of active-runoff responses vary strongly by season, being generally highest in DJF/MAM and minimal in JJA.
+
+**ROW-WISE NUMERICAL STRUCTURE**:
+A critical numerical diagnostic: `delta_surface_runoff` preserves a row-dependent numerical structure. This structure is inherited from the DA runoff outputs and is consistent with the implementation-dependent numerical structure previously documented in the raw LIS flux diagnostics.
+
+**CDF VS NOCDF CAUTION**:
+The DA experiments differ from OPL in observation representation, assimilation frequency, DA trajectory, and potentially perturbed forcing. Therefore, `delta_surface_runoff` raw amplitudes should not be used to rank experiments against each other.
+
+**XAI TRANSFER ROLE**:
+`delta_surface_runoff` is a Transfer target describing the surface-runoff flux response associated with the DA experiment trajectory. Conceptually: altered DA experiment trajectory -> altered land-state evolution -> altered surface runoff.
+
+**TIMING / LEAKAGE CAUTION**:
+For future predictive models, predictor timing must be explicitly defined. Future model states, future runoff, or same-day information generated after the target interval MUST NOT be used automatically as predictors.
+
+**OUTPUT PATH**:
+- `data/processed/transfer/da_cdf/delta_surface_runoff/delta_surface_runoff_YYYY.nc`
+- `data/processed/transfer/da_nocdf/delta_surface_runoff/delta_surface_runoff_YYYY.nc`
+
 
