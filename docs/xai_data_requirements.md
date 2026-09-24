@@ -122,7 +122,7 @@ This document serves as the scientific requirements specification that answers: 
 *   `delta_rzsm` = `rzsm_DA` - `rzsm_OPL` (support: daily valid-model pixel-day, status: ready)
 *   `delta_et` = `et_DA` - `et_OPL` (support: daily valid-model pixel-day, status: ready; known row-wise DA numerical structure documented)
 *   `delta_surface_runoff` = `surface_runoff_DA` - `surface_runoff_OPL` (support: daily valid-model pixel-day, status: ready; known row-wise DA numerical structure documented)
-*   `delta_baseflow` = `baseflow_DA` - `baseflow_OPL`
+*   `delta_baseflow` = `baseflow_DA` - `baseflow_OPL` (support: daily valid-model pixel-day, status: ready; known row-wise DA numerical structure documented)
 
 **Predictor Configurations**:
 

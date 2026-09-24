@@ -1436,4 +1436,82 @@ For future predictive models, predictor timing must be explicitly defined. Futur
 - `data/processed/transfer/da_cdf/delta_surface_runoff/delta_surface_runoff_YYYY.nc`
 - `data/processed/transfer/da_nocdf/delta_surface_runoff/delta_surface_runoff_YYYY.nc`
 
+## Transfer Targets / Delta Baseflow
+
+**SOURCE PRODUCTS**:
+Derived exclusively from validated canonical baseflow targets:
+- `data/interim/noahmp/opl/baseflow/baseflow_YYYY.nc`
+- `data/interim/noahmp/da_cdf/baseflow/baseflow_YYYY.nc`
+- `data/interim/noahmp/da_nocdf/baseflow/baseflow_YYYY.nc`
+
+**Qsb_tavg PROVENANCE**:
+The canonical baseflow target is derived directly from the Noah-MP Qsb_tavg model output. The provenance as subsurface runoff / baseflow flux is preserved explicitly.
+
+**DEFINITION**:
+The daily DA-minus-OPL subsurface-runoff/baseflow difference target:
+`delta_baseflow = baseflow_DA - baseflow_OPL`
+
+**SIGN**:
+- `> 0`: DA experiment has greater Noah-MP Qsb/baseflow flux than OPL
+- `< 0`: DA experiment has lower Noah-MP Qsb/baseflow flux than OPL
+- `= 0`: DA and OPL baseflow agree at stored numerical precision.
+
+**UNITS**:
+`mm/day`
+
+**24-H FLUX SEMANTICS**:
+Canonical daily baseflow is derived from the 24-h mean Noah-MP Qsb_tavg flux using Qsb_tavg * 86400 and expressed in mm/day. `delta_baseflow` is the daily DA-minus-OPL difference derived from the corresponding 24-h mean subsurface-runoff/baseflow flux products.
+
+**DISTINCTION FROM STREAMFLOW / GROUNDWATER STORAGE**:
+`delta_baseflow` is exactly the Noah-MP Qsb_tavg flux expressed as mm/day. It is NOT routed streamflow, HyMAP discharge, observed baseflow, groundwater storage, or groundwater-table depth.
+
+**GRID / TIME SUPPORT**:
+Exact coordinate equality (max diff = 0.0) between OPL and DA experiments was verified prior to subtraction for all annual arrays.
+
+**SOURCE SIGN / ZERO STRUCTURE**:
+Source baseflow is strictly non-negative. Zero diagnostics reveal that baseflow is essentially non-zero everywhere across the canonical land mask for the 2016-2020 period (non-zero fraction is 100.00%). Therefore, no artificial numerical active/inactive threshold is forced. Exact zeros in `delta_baseflow` occur only where DA precisely equals OPL.
+
+**ALL-DAY SUPPORT**:
+Support is the complete canonical model calendar (1,827 days, 2016-01-01 through 2020-12-31). `delta_baseflow` is defined on all valid daily model pixel-days, not just on assimilation-support days.
+
+**ASSIMILATION VS NO-ASSIMILATION QC**:
+On no-assimilation days (`observation_frequency == 0`), DA-minus-OPL baseflow differences continue to persist at substantial magnitudes, reflecting differences between the complete integrated DA and OPL experiment trajectories rather than instantaneous assimilation corrections.
+
+**OUTAGE BEHAVIOR**:
+During the SMAP observation outage (19 June - 23 July 2019), `observation_frequency` was exactly zero everywhere. However, `delta_baseflow` remained fully populated, quantifying the DA-minus-OPL baseflow differences during a documented period without assimilated SMAP observations.
+
+**TEMPORAL PERSISTENCE**:
+The aggregated daily `delta_baseflow` diagnostics exhibit strong temporal persistence.
+
+**RELATION TO DELTA_RZSM**:
+Correlations are descriptive comparisons only. `delta_baseflow` exhibits expected positive associations with `delta_rzsm`, but this does not state that RZSM exclusively causes baseflow from correlation alone.
+
+**RELATION TO DELTA_ET**:
+Correlations between `delta_et` and `delta_baseflow` are descriptive associations.
+
+**RELATION TO DELTA_SURFACE_RUNOFF**:
+Associations compare the two runoff pathways descriptively and must not be interpreted as direct partition causality.
+
+**RELATION TO SURFACE INCREMENT**:
+The relationship between `delta_baseflow` and the EnKF Layer-1 surface increment is weak/negligible on assimilation days, reflecting the different stages and quantities (instantaneous surface EnKF update vs daily Noah-MP Qsb flux difference).
+
+**SEASONAL BEHAVIOR**:
+Responses occur year-round. Given baseflow is continuously active across the domain, seasonal stratifications summarize varying mean magnitude differences without requiring zero-support adjustments.
+
+**ROW-WISE NUMERICAL STRUCTURE**:
+A critical numerical diagnostic: `delta_baseflow` preserves a row-dependent numerical structure. This row-dependent structure in `delta_baseflow` is inherited from the DA Qsb/baseflow outputs and is consistent with the row-dependent implementation-related structure previously documented in the raw LIS flux diagnostics (see `docs/model_diagnostics.md`).
+
+**CDF VS NOCDF CAUTION**:
+The DA experiments differ in observation representation, assimilation support frequency, and their complete DA and ensemble/forcing trajectories. Descriptive comparisons should not be used to rank experiments against each other based on raw `delta_baseflow`.
+
+**XAI TRANSFER ROLE**:
+`delta_baseflow` is a Transfer target describing the DA-minus-OPL subsurface-runoff/baseflow flux difference. It represents the difference between complete DA and OPL experiment trajectories, conceptually summarizing the sequence: altered DA trajectory -> altered subsurface/root-zone evolution -> altered Noah-MP Qsb/baseflow flux. It is not labeled as a pure causal SMAP assimilation impact.
+
+**TARGET-TIMING / LEAKAGE CAUTION**:
+For future XAI prediction of `delta_baseflow`, feature timing must be designed explicitly. Future model states, future fluxes, post-analysis residuals, or information produced after the target interval MUST NOT be used automatically as predictors. Future XAI models may also learn the implementation-dependent spatial numerical structure in addition to physically meaningful hydrological relationships.
+
+**OUTPUT PATH**:
+- `data/processed/transfer/da_cdf/delta_baseflow/delta_baseflow_YYYY.nc`
+- `data/processed/transfer/da_nocdf/delta_baseflow/delta_baseflow_YYYY.nc`
+
 
