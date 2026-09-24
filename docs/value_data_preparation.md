@@ -72,6 +72,8 @@ It is critical to distinguish basic data availability from the final representat
 
 **IMPORTANT**: Neither 4,110 nor 3,871 are selected as the final XAI-Value training support at this stage. That decision is explicitly deferred to the future Value-target design milestone, avoiding the conflation of raw data availability with strict scientific representativeness.
 
+*Status Update*: Value candidates have been derived and audited. The final canonical target is still undecided.
+
 ## Quantitative Conservation Test
 Absolute volume conservation was preserved. For every day, the target reconstructed integral `I_target = sum(ET_target_j * valid_overlap_area_j)` was numerically verified against the exact source integral `I_source = sum(ET_source_i * exact_overlap_area_i)` over the valid land coverage. 
 Maximum relative error across all 1827 days and all three experiments was `< 2.31e-07`, fully satisfying the `< 1e-5` acceptance tolerance.

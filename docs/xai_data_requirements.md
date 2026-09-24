@@ -158,6 +158,7 @@ All environmental predictors + `increment_signed` and/or `increment_absolute`
 
 **Optional Predictors**: station-derived forcing discrepancies.
 
+*Status Update*: Value candidates (e.g., `value_ae` instead of the old `et_gain` name) have been formally derived and audited. The final canonical target is still undecided.
 ## 7. ET Reference Robustness
 
 **Conceptual classifications**:
