@@ -67,7 +67,10 @@ MOD16 is kept on its native composite temporal support.
 | `delta_et` | derived | derived | mm day-1 | daily |
 | `delta_surface_runoff` | derived | derived | mm day-1 | daily |
 | `delta_baseflow` | derived | derived | mm day-1 | daily |
+| `value_ae` | derived | derived | mm day-1 | daily |
 
+**Value Target Notes**:
+* `value_ae` is the canonical ET Value target. Positive sign = improved agreement relative to GLEAM, negative sign = degraded agreement relative to GLEAM. Reference = GLEAM v4.3a.
 ## 4.1 Optional EnKF Diagnostics
 Document as available optional standardized diagnostics:
 - `daily_analysis_residual` (source: derived from `analysis_residual`, units: `m3 m-3`, temporal representation: `time` (daily, assimilation-conditional), role: `post-analysis diagnostic`)

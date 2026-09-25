@@ -145,20 +145,19 @@ All environmental predictors + `increment_signed` and/or `increment_absolute`
 *   MOD16A2GF Collection 6.1
 *(Legacy WaPOR requirement is replaced).*
 
-**Targets**:
-*   `et_gain_gleam` = `abs(et_opl - et_gleam) - abs(et_da - et_gleam)`
-*   `et_gain_mod16` = `abs(et_opl - et_mod16) - abs(et_da - et_mod16)`
-*(Comparisons performed on their appropriate harmonized temporal and spatial support).*
+**Target**:
+*   `value_ae` = `abs(et_opl - et_gleam) - abs(et_da - et_gleam)`
+*(For each DA experiment separately. This is the ONLY ET Value target used by the XAI workflow).*
 
-*   **Positive gain**: assimilation improves agreement
-*   **Negative gain**: assimilation degrades agreement
+*   **Positive gain**: ET agreement improvement relative to GLEAM
+*   **Negative gain**: change in absolute ET disagreement relative to GLEAM
 
 **Predictors**:
 `increment_signed`, `increment_absolute`, `delta_rzsm`, `ssm_opl`, `rzsm_opl`, `precipitation`, `air_temperature`, `et_opl`, `elevation`, `soil_texture`, `land_cover`, `season`, `drought_state`
 
 **Optional Predictors**: station-derived forcing discrepancies.
 
-*Status Update*: Value candidates (e.g., `value_ae` instead of the old `et_gain` name) have been formally derived and audited. The final canonical target is still undecided.
+*Status Update*: The canonical Value target `value_ae` has been formally defined and derived. All alternative metrics have been discarded.
 ## 7. ET Reference Robustness
 
 **Conceptual classifications**:

@@ -1,67 +1,64 @@
-# Value Target Design and Audit
+# Final Value Target Design and Audit
 
 ## Scientific Question
 The Value block asks whether Data Assimilation (DA) agrees more closely with an independent ET reference (GLEAM v4.3a) than the Open Loop (OPL) does.
 
 ## Evaluation Reference
-The canonical harmonized reference is GLEAM v4.3a actual ET on the 4110-cell daily common support.
+The canonical harmonized reference is GLEAM v4.3a actual ET on the 4110-cell daily common support. GLEAM remains an external evaluation reference, not ground truth.
 
-## Candidate Metrics
-1. **Absolute-Error Improvement (`value_ae`)**: `abs(e_OPL) - abs(e_DA)`. Positive means DA is closer to GLEAM.
-2. **Squared-Error Improvement (`value_se`)**: `e_OPL^2 - e_DA^2`. Emphasizes large errors.
-3. **Normalized Absolute-Error Improvement (`value_nae`)**: `(abs(e_OPL) - abs(e_DA)) / (abs(e_OPL) + abs(e_DA) + epsilon)`. Bounded [-1, 1].
-4. **Reference-Scaled Improvement (`value_refnorm`)**: `(abs(e_OPL) - abs(e_DA)) / (abs(ET_GLEAM) + epsilon_ref)`.
-5. **Log Error Ratio (`log_error_ratio`)**: `log((abs(e_DA) + epsilon) / (abs(e_OPL) + epsilon))`. (Note: sign is inverted).
+## Canonical Value Definition
+The ONLY Value metric retained in the final SMAP-XAI workflow is the absolute-error improvement metric (`value_ae`), calculated separately for each DA experiment:
 
-## Mathematical Relationships
-It was verified that `value_se = value_ae * (abs(e_OPL) + abs(e_DA))`. The maximum absolute difference is `< 4.83e-06`. Thus squared-error improvement has identical sign semantics but reweights the sample according to baseline error magnitude.
+```
+value_ae = |ET_OPL - ET_GLEAM| - |ET_DA - ET_GLEAM|
+```
 
-## Candidate Distributions
-All candidate distributions are finite and strictly closed for all expected 7,508,970 cell-days (4110 support) and 7,072,317 cell-days (3871 support), with exactly 0 NaNs and 0 Infs.
+(Note: Alternative transformations were examined during development; the final workflow retains only the physically interpretable absolute-error improvement metric value_ae.)
 
-**DA-CDF `value_ae`**: Mean: -0.0312, Median: -0.0411, Skew: 0.41, Kurt: 7.01. Top 1% contribution: 6.95%.
-**DA-NoCDF `value_ae`**: Mean: 0.0035, Median: -0.0183, Skew: 0.55, Kurt: 5.47. Top 1% contribution: 6.54%.
+## Physical Interpretation
+*   **value_ae > 0**: DA agrees more closely with GLEAM than OPL does under absolute ET error (improved agreement).
+*   **value_ae < 0**: DA agrees less closely with GLEAM than OPL does (degraded agreement).
+*   **value_ae == 0**: Equal absolute disagreement.
 
-## Candidate Correlations & Rank-Stability
-The evaluated candidate metrics show 100% sign agreement after applying the expected sign inversion for `log_error_ratio`.
-Mathematical reason: `value_se`, `value_nae`, and `value_refnorm` all multiply/divide `value_ae` by strictly positive quantities. `log_error_ratio` sign is opposite by construction.
-Spearman R vs `value_ae` (DA-NoCDF): `value_se` (0.971), `value_nae` (0.900), `value_refnorm` (0.868), `log_error_ratio` (0.900).
+## Units and Sign Convention
+*   **Units**: mm/day
+*   **Positive sign**: ET agreement improvement relative to GLEAM
+*   **Negative sign**: Change in absolute ET disagreement relative to GLEAM
 
-## Support Definitions & Sensitivity
-*   **Common Availability (4110 cells)**: Mean `value_ae` (DA-CDF) = -0.0312.
-*   **High-Coverage (3871 cells)**: Mean `value_ae` = -0.0316.
-Sensitivity to partial boundary cells is negligible (diff mean = 3.7e-04).
+## Common Support
+The canonical availability support consists of exactly 4110 cells/day on every one of the 1827 days from 2016-01-01 to 2020-12-31. No temporal aggregation is applied; the canonical target operates at daily resolution.
 
-## GLEAM-Zero Issue
-GLEAM-zero conditions form a large subset (~22%) and show a distinct `value_ae` distribution.
-*   **GLEAM == 0**: DA-CDF median = -0.0804 (12.5% positive, 87.5% negative). DA-NoCDF median = -0.0642 (26.7% positive).
-*   **GLEAM > 2.0**: DA-CDF median = 0.0258 (54.9% positive). DA-NoCDF median = -0.0458 (45.5% positive).
+## High-Coverage Sensitivity Support
+A stricter high-land-coverage sensitivity subset of 3871 cells/day containing only target cells with >= 0.99 valid source land fractional coverage was tested. Sensitivity to these partial boundary cells is negligible. 
+For example, the absolute difference in mean `value_ae` between the 4110 and 3871 supports is ~0.0003 mm/day, and the change in the positive fraction is < 0.20%. Both support subsets are available for analysis, but the 3871 subset is NOT a second Value target.
 
-## Epsilon Sensitivity
-*   **value_nae** (`epsilon=1e-6` vs `1e-4` vs `1e-3`): Demonstrates limited sensitivity over the tested epsilon range. Median (-0.0331) and rank-correlation (0.900) remain virtually unchanged across all magnitudes for DA-NoCDF. Top/bottom bounds (-0.9999 to 0.9999) are strictly respected. A numerical deadband is not required for floating-point stability. Whether a scientifically meaningful deadband is desirable remains a separate Value-target design decision.
-*   **value_refnorm** (`eps_ref=0.01` vs `0.05` vs `0.1`): `eps_ref=0.01` creates pronounced tail amplification under low-reference ET. For ET_GLEAM much smaller than epsilon_ref, value_refnorm becomes approximately proportional to value_ae, with scaling ~1/epsilon_ref.
+## Distribution and Near-Zero Behavior
+The `value_ae` distributions are finite and strictly closed for all expected 7,508,970 cell-days (4110 support) with exactly 0 NaNs and 0 Infs.
+*   **DA-CDF `value_ae`**: Mean: -0.0312, Median: -0.0411, Skew: 0.41, Kurtosis: 7.01.
+*   **DA-NoCDF `value_ae`**: Mean: 0.0035, Median: -0.0183, Skew: 0.55, Kurtosis: 5.47.
+
+GLEAM-zero conditions form a large subset (~22%) and show a distinct `value_ae` distribution. For instance, when GLEAM == 0, the DA-CDF median `value_ae` is -0.0804 (12.5% positive). When GLEAM > 2.0, the DA-CDF median is 0.0258 (54.9% positive).
 
 ## Baseline-Error Dependence
-`value_ae` correlates positively with baseline error `abs(e_OPL)` (Pearson R=0.29 for DA-CDF, 0.36 for DA-NoCDF). 
-Note: large baseline disagreement permits larger possible absolute agreement changes.
-*   **Q1 Baseline Error**: DA-NoCDF median = -0.0891 (13.7% positive).
-*   **Q4 Baseline Error**: DA-NoCDF median = 0.1473 (68.0% positive).
+The metric inherently depends on the baseline OPL error. Large baseline disagreement permits larger possible absolute agreement changes. 
+*   **Q1 Baseline Error**: DA-NoCDF median `value_ae` = -0.0891.
+*   **Q4 Baseline Error**: DA-NoCDF median `value_ae` = 0.1473.
 
-## Transfer-vs-Value Relationship (delta_et)
-Magnitude of the DA-minus-OPL ET response (`abs(delta_et)`) is very strongly correlated with `abs(value_ae)` (Spearman > 0.91). Large ET responses can correspond to either improved or degraded agreement relative to GLEAM.
+## Transfer-vs-Value Relationship
+The magnitude of the DA-minus-OPL ET response (`abs(delta_et)`) is very strongly correlated with `abs(value_ae)` (Spearman > 0.91). Large ET responses can correspond to either improved or degraded agreement relative to GLEAM.
 
 ## Assimilation-Support Stratification
-`assimilated_fraction` was aggregated to GLEAM support.
+The `observation_frequency` from the EnKF system was mapped to the harmonized GLEAM support.
 *   **No Assimilation (af == 0)**: DA-CDF median = -0.0443 (36.9% positive). DA-NoCDF median = -0.0222 (44.5% positive).
 *   **Some Assimilation (af > 0)**: DA-CDF median = -0.0241 (43.6% positive). DA-NoCDF median = -0.0075 (48.6% positive).
-DA improves agreement (relatively speaking) in observed cells.
+DA improves agreement (relatively speaking) in cell-days with some assimilation support compared to cell-days with no assimilation support.
 
-## 2019 SMAP Outage
-Expected cell-days (143,850) strictly matched the actual zero-assimilation cell-days (0 mismatches). During the documented period with no assimilated SMAP observations, the `value_ae` distribution had DA-CDF median -0.0643 (33.0% pos) and DA-NoCDF median -0.0603 (35.3% pos).
-
-## Temporal Structure
+## Seasonal and Yearly Structure
 *   **Seasonal mean (CDF)**: DJF (-0.0074), MAM (-0.0372), JJA (-0.0563), SON (-0.0236)
 *   **Yearly mean (CDF)**: 2016 (-0.0425), 2017 (-0.0658), 2018 (-0.0038), 2019 (-0.0113), 2020 (-0.0328)
 
-## Remaining Decision Before Canonicalization
-Value candidates derived and audited. The final canonical target is still undecided.
+## 2019 SMAP Outage
+During the documented period with no assimilated SMAP observations (2019-06-19 to 2019-07-23), expected cell-days (143,850) strictly matched the actual zero-assimilation cell-days (0 mismatches). The `value_ae` distribution remained strictly finite.
+
+## Final Value Contract
+The canonical Value target (`value_ae`) is finalized and integrated into the workflow. All alternative experimental candidate metrics have been deprecated and removed from the active data pipeline.

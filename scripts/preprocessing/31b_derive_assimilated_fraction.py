@@ -14,7 +14,7 @@ def main():
     base_dir = "/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit"
     gleam_dir = "/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/data/validation/evapotranspiration/GLEAM/raw"
     
-    out_dir = os.path.join(base_dir, "data/processed/value/candidates")
+    out_dir = os.path.join(base_dir, "data/processed/value/value_ae")
     os.makedirs(out_dir, exist_ok=True)
     
     years = [2016, 2017, 2018, 2019, 2020]
@@ -137,8 +137,8 @@ def main():
             out_af = np.full((len(obs_ds.time), len(g_lat_idx), len(g_lon_idx)), np.nan, dtype=np.float32)
             out_af[:, fast_map_gi, fast_map_gj] = assimilated_fraction
             
-            # Save it alongside candidates
-            c_file = os.path.join(out_dir, exp, f"candidates_{year}.nc")
+            # Save it alongside value_ae
+            c_file = os.path.join(out_dir, exp, f"value_ae_{year}.nc")
             ds_c = xr.open_dataset(c_file)
             
             # Avoid appending if already exists, recreate dataset or just add variable
