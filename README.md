@@ -1,28 +1,22 @@
 # SMAP-XAI Audit
 
-**Author:** M. El Aabaribaoune (@um6p)
+**Author:** M. El Aabaribaoune
 
-## Overview
+## Purpose
+The SMAP-XAI Audit framework is a rigorous research-software pipeline designed to evaluate SMAP soil moisture assimilation impacts using Explainable AI (XAI).
 
-SMAP-XAI Audit is a scientific software project for diagnosing and
-explaining how SMAP soil-moisture information propagates through
-Noah-MP/LIS land data assimilation.
+## Project Organization
+The workflow follows a logical progression:
+- **Block 1 — SOURCE**: Analyzes SMAP/EnKF source diagnostics (primary target: `daily_absolute_increment`, secondary: `daily_signed_increment`).
+- **Block 2 — TRANSFER**: Examines downstream land model responses (`delta_rzsm`, `delta_et`, `delta_surface_runoff`, `delta_baseflow`).
+- **Block 3 — VALUE**: Evaluates actual ET improvement against independent reference data (`value_ae`).
 
-The project will progressively include:
-
-- scientific data preprocessing;
-- land data-assimilation diagnostics;
-- spatiotemporal machine-learning validation;
-- explainable AI;
-- reproducible scientific workflows;
-- HPC-oriented execution.
-
-## Current development stage
-
-Phase 0 — Repository and software environment setup.
-
-Scientific preprocessing and machine-learning components are not yet
-implemented.
+## High-Level Repository Structure
+- [`docs/`](docs/): Scientific methodology, data contracts, and audit reports.
+- [`scripts/`](scripts/): Executable workflow drivers for preprocessing and QC.
+- [`src/`](src/): Reusable scientific source code and core logic.
+- [`data/`](data/): Generated data lifecycle (interim and processed).
+- [`reports/`](reports/): Generated diagnostics and QC visualizations.
 
 ## Environment
 
@@ -30,3 +24,4 @@ Create the Conda environment:
 
 ```bash
 conda env create -f environment.yml
+```

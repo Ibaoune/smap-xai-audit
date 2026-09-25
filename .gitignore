@@ -13,5 +13,11 @@ dist/
 .DS_Store
 
 # Data
-data/
-reports/qc/
+data/**
+!data/**/
+!data/**/README.md
+
+# Reports
+reports/**
+!reports/**/
+!reports/**/README.md
