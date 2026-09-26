@@ -1,0 +1,51 @@
+primary_temporal:
+  train:
+    start: 2016-01-08
+    end: 2018-12-31
+
+  validation:
+    start: 2019-01-01
+    end: 2019-12-31
+
+  test:
+    start: 2020-01-01
+    end: 2020-12-31
+
+pretest_temporal_cv:
+  fold_1:
+    train:
+      start: 2016-01-08
+      end: 2016-12-31
+    validation:
+      start: 2017-01-01
+      end: 2017-12-31
+  fold_2:
+    train:
+      start: 2016-01-08
+      end: 2017-12-31
+    validation:
+      start: 2018-01-01
+      end: 2018-12-31
+  fold_3:
+    train:
+      start: 2016-01-08
+      end: 2018-12-31
+    validation:
+      start: 2019-01-01
+      end: 2019-12-31
+
+spatial:
+  block_size_degrees: 1.0
+  n_folds: 5
+  assignment_method: "deterministic balanced assignment based on geometric support block weight"
+
+rules:
+  random_pixel_day_split: forbidden
+  target_based_assignment: forbidden
+  test_used_for_tuning: false
+  untouched_test_rule: 2020 test set remains completely untouched during model development. Do not use 2020 SHAP/results to modify the model.
+  final_refit_rule: After model design is frozen, refit final selected model on 2016-2019, then evaluate ONCE on 2020 final test.
+
+notes:
+  - "SOURCE begins according to its actual available modeling support but follows the same year boundaries."
+  - "Feature modes share exactly the same splits."
