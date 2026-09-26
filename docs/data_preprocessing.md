@@ -766,7 +766,7 @@ The daily dataset represents a sparse time-series at each pixel. Descriptive sta
 This is the foundational XAI-Source target variable representing the absolute state correction applied by EnKF.
 - `> 0`: EnKF made Layer-1 soil moisture wetter.
 - `< 0`: EnKF made Layer-1 soil moisture drier.
-- `= 0` (where `observation_frequency == 0`): No assimilation update occurred.
+- `= 0` (where `observation_frequency == 0`): No finite native EnKF innovation diagnostic was mapped to this pixel-day.
 
 **STORAGE**:
 `data/processed/daily_enkf/da_[no]cdf/daily_signed_increment/daily_signed_increment_YYYY.nc`
