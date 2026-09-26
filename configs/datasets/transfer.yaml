@@ -1,0 +1,155 @@
+targets:
+  - delta_rzsm
+  - delta_et
+  - delta_surface_runoff
+  - delta_baseflow
+
+assimilation_source_current:
+  - source_signed_increment_t
+  - observation_frequency
+
+assimilation_source_current_alternative:
+  - source_absolute_increment_t
+
+assimilation_source_history:
+  - source_signed_increment_pre3d_sum
+  - source_signed_increment_pre7d_sum
+  - source_absolute_increment_pre3d_sum
+  - source_absolute_increment_pre7d_sum
+  - finite_innovation_count_pre3d
+  - finite_innovation_count_pre7d
+  - days_since_finite_innovation_7d
+
+environmental_context:
+  - precip_t
+  - tair_t
+  - precip_lag1
+  - precip_pre3d_sum
+  - precip_pre7d_sum
+  - tair_lag1
+  - tair_pre3d_mean
+  - tair_pre7d_mean
+  - ssm_opl_lag1
+  - rzsm_opl_lag1
+  - et_opl_lag1
+  - surface_runoff_opl_lag1
+  - baseflow_opl_lag1
+
+forcing_perturbation_control:
+  - delta_precip_forcing_t
+  - delta_precip_forcing_pre3d_sum
+  - delta_precip_forcing_pre7d_sum
+# Note: delta_tair_forcing_t is excluded as differences are ~1e-5 K (arithmetic noise).
+
+trajectory_memory:
+  - delta_ssm_lag1
+  - delta_rzsm_lag1
+  - delta_et_lag1
+  - delta_surface_runoff_lag1
+  - delta_baseflow_lag1
+
+static:
+  - elevation
+  - land_cover_fraction_1
+  - land_cover_fraction_2
+  - land_cover_fraction_3
+  - land_cover_fraction_4
+  - land_cover_fraction_5
+  - land_cover_fraction_6
+  - land_cover_fraction_7
+  - land_cover_fraction_8
+  - land_cover_fraction_9
+  - land_cover_fraction_10
+  - land_cover_fraction_11
+  - land_cover_fraction_12
+  - land_cover_fraction_13
+  - land_cover_fraction_14
+  - land_cover_fraction_16
+  - soil_texture_fraction_1
+  - soil_texture_fraction_3
+  - soil_texture_fraction_4
+  - soil_texture_fraction_6
+  - soil_texture_fraction_7
+  - soil_texture_fraction_9
+  - soil_texture_fraction_12
+
+temporal_context:
+  - month
+  - day_of_year
+  - doy_sin
+  - doy_cos
+
+metadata:
+  - date
+  - year
+  - lat
+  - lon
+  - y_index
+  - x_index
+  - experiment
+
+forbidden_same_day:
+  - same-day delta_rzsm (unless target)
+  - same-day delta_et (unless target)
+  - same-day delta_surface_runoff (unless target)
+  - same-day delta_baseflow (unless target)
+  - same-day DA RZSM
+  - same-day OPL RZSM
+  - same-day DA ET
+  - same-day OPL ET
+  - same-day DA surface runoff
+  - same-day OPL surface runoff
+  - same-day DA baseflow
+  - same-day OPL baseflow
+  - value_ae
+  - GLEAM ET
+  - analysis_residual
+
+feature_sets:
+  source_context_feature_set:
+    description: "Primary forcing-controlled feature mode"
+    includes:
+      - assimilation_source_current
+      - assimilation_source_history
+      - environmental_context
+      - forcing_perturbation_control
+      - static
+      - temporal_context
+
+  source_context_without_forcing_control:
+    description: "Sensitivity mode excluding explicit control of DA forcing perturbations"
+    includes:
+      - assimilation_source_current
+      - assimilation_source_history
+      - environmental_context
+      - static
+      - temporal_context
+
+  memory_augmented_feature_set:
+    description: "Memory-augmented feature mode"
+    includes:
+      - assimilation_source_current
+      - assimilation_source_history
+      - environmental_context
+      - forcing_perturbation_control
+      - trajectory_memory
+      - static
+      - temporal_context
+
+zero_variance_on_transfer_support:
+  exclude_from_model_by_default: true
+  features:
+    - land_cover_fraction_15
+    - land_cover_fraction_17
+    - land_cover_fraction_18
+    - land_cover_fraction_19
+    - land_cover_fraction_20
+    - soil_texture_fraction_2
+    - soil_texture_fraction_5
+    - soil_texture_fraction_8
+    - soil_texture_fraction_10
+    - soil_texture_fraction_11
+    - soil_texture_fraction_13
+    - soil_texture_fraction_14
+    - soil_texture_fraction_15
+    - soil_texture_fraction_16

@@ -80,7 +80,52 @@ The substantially different finite-innovation support between DA-CDF and DA-NoCD
 Primary SOURCE modeling uses experiment-specific conditional samples (each experiment uses its own finite-innovation support). However, any DIRECT CDF-vs-NoCDF model or XAI comparison should include a matched-support sensitivity analysis restricted to `BOTH` (shared pixel-days where both branches successfully generated a finite innovation). Otherwise, differences in model behavior or XAI attributions may reflect the different sampled locations/times rather than strictly the differences between the assimilation algorithms. This matched subset can be obtained dynamically by inner-joining `date` + `y_index` + `x_index` between the two canonical SOURCE tables.
 
 ## Block 2 — TRANSFER
-*Pending Step 32B*
+
+### Scientific question
+How does the DA-modified land trajectory propagate from the surface-soil-moisture assimilation source into deeper soil moisture and land-surface flux responses?
+
+### Sample unit
+One valid-land canonical Noah-MP pixel × one calendar day × one DA experiment. The support is the complete daily land support (16,030 valid-land pixels), without filtering to `observation_frequency == 1`, because Transfer responses persist between finite-innovation events.
+
+### Target
+Canonical signed Transfer targets: `delta_rzsm`, `delta_et`, `delta_surface_runoff`, `delta_baseflow` (where delta is `DA - OPL`). These are model-response targets, not errors or observational skill metrics.
+
+### Experiment separation
+Built and stored independently for `DA-CDF` and `DA-NoCDF`. ONE Transfer table per experiment containing all four targets. Experiments are NOT concatenated into a single model.
+
+### Predictor groups
+- **assimilation_source_current**: `source_signed_increment_t`, `observation_frequency`
+- **assimilation_source_current_alternative**: `source_absolute_increment_t`
+- **assimilation_source_history**: `source_signed_increment_pre3d_sum`, `source_signed_increment_pre7d_sum`, `source_absolute_increment_pre3d_sum`, `source_absolute_increment_pre7d_sum`, `finite_innovation_count_pre3d`, `finite_innovation_count_pre7d`, `days_since_finite_innovation_7d`
+- **environmental_context**: `precip_t`, `tair_t`, `precip_lag1`, `precip_pre3d_sum`, `precip_pre7d_sum`, `tair_lag1`, `tair_pre3d_mean`, `tair_pre7d_mean`, `ssm_opl_lag1`, `rzsm_opl_lag1`, `et_opl_lag1`, `surface_runoff_opl_lag1`, `baseflow_opl_lag1`
+- **forcing_perturbation_control**: `delta_precip_forcing_t`, `delta_precip_forcing_pre3d_sum`, `delta_precip_forcing_pre7d_sum` (Note: `delta_tair_forcing_t` is excluded as DA-minus-OPL air temperature differences are ~1e-5 K arithmetic noise. Precipitation differences are non-zero and require control.)
+- **trajectory_memory**: `delta_ssm_lag1`, `delta_rzsm_lag1`, `delta_et_lag1`, `delta_surface_runoff_lag1`, `delta_baseflow_lag1`
+- **static**: `elevation`, 16 `soil_texture_fraction_*`, 20 `land_cover_fraction_*`
+- **temporal_context**: `month`, `day_of_year`, `doy_sin`, `doy_cos`
+- **metadata**: `date`, `year`, `lat`, `lon`, `y_index`, `x_index`, `experiment`
+
+### Leakage exclusions
+The following variables are strictly forbidden to prevent data leakage:
+- Same-day Transfer targets (except the specific selected target for modeling)
+- Same-day DA/OPL RZSM, ET, surface runoff, baseflow
+- `value_ae`, `GLEAM ET`, `analysis_residual`
+
+### Raw HIST Temporal Convention
+The canonical Noah-MP daily date convention uses `canonical_date = LIS_HIST timestamp - 1 day` because HIST `_tavg` files are END-of-period labeled. For example, canonical date `2018-05-10` maps strictly to `LIS_HIST_201805110000.d01.nc`.
+
+### Meteorological timing
+Unlike SOURCE, same-day meteorological forcing (`precip_t`, `tair_t`) is allowed because TRANSFER is an explanatory contemporaneous daily-response problem, not a day-ahead forecast problem.
+
+### Modeling Modes
+- **source_context_feature_set**: Primary forcing-controlled feature mode. Predicts Transfer response given current/recent assimilation source, environmental context, and forcing perturbation controls. Excludes trajectory-memory features.
+- **source_context_without_forcing_control**: Sensitivity mode identical to `source_context_feature_set` but excluding the 3 `forcing_perturbation_control` variables. Allows quantifying if conclusions are robust to explicit control of DA forcing perturbations.
+- **memory_augmented_feature_set**: Extends `source_context_feature_set` with allowed target-specific lagged Transfer memory (e.g., `delta_ssm_lag1` and `delta_rzsm_lag1` for `delta_rzsm` target).
+
+### Forcing-Control Interpretation
+The forcing-perturbation variables are nuisance controls included to separate experiment-specific meteorological forcing differences from the SSM-assimilation source signal. They must not be interpreted as part of the SMAP assimilation mechanism.
+
+### Storage format
+Partitioned Parquet (`year=YYYY/part-MM.parquet`) format.
 
 ## Block 3 — VALUE
 *Pending Step 32C*
