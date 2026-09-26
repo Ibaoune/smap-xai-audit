@@ -21,3 +21,8 @@ data/**
 reports/**
 !reports/**/
 !reports/**/README.md
+
+# Logs
+logs/**
+!logs/**/
+!logs/**/README.md
