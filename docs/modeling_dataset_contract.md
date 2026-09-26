@@ -128,4 +128,55 @@ The forcing-perturbation variables are nuisance controls included to separate ex
 Partitioned Parquet (`year=YYYY/part-MM.parquet`) format.
 
 ## Block 3 — VALUE
-*Pending Step 32C*
+
+### Scientific question
+Under what assimilation-source, land-surface, meteorological, and Transfer-response conditions does the DA trajectory reduce absolute ET disagreement relative to the external GLEAM reference?
+
+### Target Definition
+The single canonical target is `value_ae`:
+`value_ae = abs(ET_OPL - ET_GLEAM) - abs(ET_DA - ET_GLEAM)`
+
+* `value_ae > 0`: DA is closer to GLEAM than OPL (improved agreement).
+* `value_ae < 0`: DA is farther from GLEAM than OPL (degraded agreement).
+* `value_ae = 0`: Equal absolute disagreement.
+
+GLEAM is an external evaluation reference, NOT ground truth.
+
+### Spatial Support
+The analysis is conducted on the 0.1-degree GLEAM grid (4110 valid common cells per day). Native 0.05-degree Noah-MP predictors are aggregated using an exact spatial overlap-area weighting to prevent geometric distortions. Value targets are NEVER upsampled to the Noah-MP grid.
+
+### Temporal Support
+Calendar years 2016 through 2020. The first 7 days of 2016 are excluded to ensure complete antecedent history features. Expected modeling support is 1820 days.
+
+### Predictor Groups
+- **assimilation_source_current**: `source_signed_increment_t`, `source_absolute_increment_t`, `finite_innovation_fraction_t` (fraction of valid Noah-MP overlap area within the GLEAM cell where `observation_frequency == 1`)
+- **assimilation_source_history**: Pre-3d and pre-7d sums/means of increments and finite innovation fractions.
+- **baseline_state**: `ssm_opl_lag1`, `rzsm_opl_lag1`
+- **environmental_context**: Current and antecedent `precip` and `tair`.
+- **baseline_flux_lagged**: `et_opl_lag1`, `surface_runoff_opl_lag1`, `baseflow_opl_lag1`
+- **forcing_perturbation_control**: Current and antecedent `delta_precip_forcing`.
+- **trajectory_memory**: Lag-1 Transfer states (`delta_ssm`, `delta_rzsm`, `delta_et`, `delta_surface_runoff`, `delta_baseflow`).
+- **realized_transfer_response**: Same-day `delta_rzsm_t`, `delta_et_t` (for explanatory mode only).
+- **static**: `elevation`, `land_cover_fraction_1..20`, `soil_texture_fraction_1..16` (aggregated from 0.05-degree).
+- **temporal_context**: `year`, `month`, `day_of_year`, `doy_sin`, `doy_cos`.
+- **metadata/quality**: `date`, grid indices, `valid_noahmp_land_fraction`, `high_land_coverage`.
+
+### Modeling Modes
+1. **value_context_feature_set**: Primary contemporaneous explanatory context mode. Explains realized ET value using assimilation source, antecedent trajectory/environmental state, meteorological context, forcing controls, static properties, and season WITHOUT seeing the same-day Transfer response.
+2. **value_memory_augmented_feature_set**: Adds lag-1 Transfer memory to the context mode.
+3. **value_transfer_informed_feature_set**: Realized-response explanatory mode. Adds same-day `delta_rzsm_t` and `delta_et_t`. This is NOT a pre-response prediction setup.
+
+### Leakage Exclusions
+The following variables are strictly forbidden as predictors:
+- `ET_GLEAM(t)`
+- `ET_OPL(t)`, `ET_DA(t)`
+- `abs(ET_OPL - ET_GLEAM)`, `abs(ET_DA - ET_GLEAM)`
+- `value_ae` itself (including lags)
+- Any other Value metrics (`value_se`, `value_nae`, `ratio`, etc.)
+- Future information.
+
+### Predictor Timing
+Same-day meteorology is allowed because VALUE is an explanatory contemporaneous daily problem, not a day-ahead forecasting problem. Same-day OPL ET is forbidden because it is algebraically part of `value_ae`. Lagged `value_ae` is forbidden to prevent injecting persistent reference-error structure that obscures the physical pathway.
+
+### High-Land-Coverage Sensitivity
+A metadata flag `high_land_coverage` identifies GLEAM cells where `valid_noahmp_land_fraction >= 0.99`. This is retained in the same dataset for sensitivity testing, rather than creating a duplicate dataset.
