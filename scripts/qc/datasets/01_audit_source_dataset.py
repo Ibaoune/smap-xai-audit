@@ -2,7 +2,7 @@
 """
 01_audit_source_dataset.py
 Author: M. El Aabaribaoune
-QC script for the generated SOURCE XAI datasets.
+QC script for the generated SOURCE modeling datasets.
 """
 import os
 import sys

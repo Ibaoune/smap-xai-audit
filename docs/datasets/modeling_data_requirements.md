@@ -187,7 +187,7 @@ These are derivable from canonical time coordinates. Do not store redundant raw 
 **Potential stations**: Agadir-Massira, Chefchaouen
 **Potential derived predictors**: `precipitation_discrepancy`, `temperature_discrepancy`
 
-Use only for collocated station-grid analyses. Do NOT spatially propagate station discrepancies across the entire domain. Do not activate them in the main gridded XAI dataset yet.
+Use only for collocated station-grid analyses. Do NOT spatially propagate station discrepancies across the entire domain. Do not activate them in the main gridded modeling dataset yet.
 
 ## 11. Temporal Support
 
@@ -204,7 +204,7 @@ The current XAI sample is a valid land pixel-day. No monthly aggregation is part
 
 ## 12. Validation Support Variables
 
-Ensure later XAI datasets can derive:
+Ensure later modeling datasets can derive:
 *   `year` (for temporal holdout)
 *   `spatial_block_id` (for spatial GroupKFold)
 Do not generate blocks here.
@@ -236,6 +236,6 @@ Do not generate blocks here.
 ---
 
 ## Further Reading
-For a complete cross-target audit and implications for ML feature engineering, please refer to the dedicated [Transfer Target Audit](transfer_target_audit.md).
+For a complete cross-target audit and implications for ML feature engineering, please refer to the dedicated [Transfer Target Audit](../preprocessing/transfer_target_audit.md).
 
-For independent evaluation reference preparation, please refer to [Value Data Preparation](value_data_preparation.md).
+For independent evaluation reference preparation, please refer to [Value Data Preparation](../preprocessing/value_data_preparation.md).

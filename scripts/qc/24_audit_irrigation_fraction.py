@@ -204,7 +204,7 @@ def audit_irrigation_fraction(raw_file, ref_file, out_dir):
     else:
         print("Independent finding 1 (Static input): IRRIGFRAC = 0 everywhere on canonical valid land.")
         print("Independent finding 2 (Process configuration): irrigation is disabled in the current Noah-MP experiments.")
-        print("Decision: IRRIGFRAC is constant zero over the current valid-land domain and therefore contains no sample-to-sample variation for the current XAI dataset. It is excluded from the current feature matrix due to zero variance.")
+        print("Decision: IRRIGFRAC is constant zero over the current valid-land domain and therefore contains no sample-to-sample variation for the current modeling dataset. It is excluded from the current feature matrix due to zero variance.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

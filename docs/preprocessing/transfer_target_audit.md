@@ -51,7 +51,7 @@ During the 2019 SMAP observation outage (19 June - 23 July), DA-minus-OPL differ
 
 ## Row-Wise Numerical Structure
 The even/odd row contrast is a descriptive parity diagnostic and should not by itself be interpreted as evidence for or against the previously diagnosed implementation-dependent row-wise pattern.
-*   `delta_et`, `delta_surface_runoff`, and `delta_baseflow` have row-dependent numerical structure already established from the raw DA flux diagnostics and documented in docs/model_diagnostics.md.
+*   `delta_et`, `delta_surface_runoff`, and `delta_baseflow` have row-dependent numerical structure already established from the raw DA flux diagnostics and documented in docs/preprocessing/model_diagnostics.md.
 *   The previous target-specific spatial QC did not show an obvious rigid row-wise pattern dominating the long-term `delta_rzsm` maps. The unified even/odd parity diagnostic is reported descriptively and is not used as an artifact classifier.
 
 ## Extreme-Response Concentration
@@ -82,10 +82,10 @@ Large absolute responses (top 1% and 5%) are heavily concentrated in specific te
 | `delta_surface_runoff` | target | daily mean | yes | model-output | target/response |
 | `delta_baseflow` | target | daily mean | yes | model-output | target/response |
 
-## Implications for Final XAI Dataset Design
+## Implications for Final Modeling Dataset Design
 The four targets have strongly different units, variance, zero structure, tail behavior, and temporal persistence. Therefore final model design must NOT automatically:
 1. Use one shared target scaling.
 2. Compare RMSE numerically across targets.
 3. Pool targets into one loss without normalization/design.
 
-The final XAI dataset requires an explicit decision between building models over *all valid pixel-days* versus *assimilation-conditional samples*. For daily aggregated forecasting, explicit lag definition is critical to prevent data leakage from post-analysis features into the prediction of daily-mean responses.
+The final modeling dataset requires an explicit decision between building models over *all valid pixel-days* versus *assimilation-conditional samples*. For daily aggregated forecasting, explicit lag definition is critical to prevent data leakage from post-analysis features into the prediction of daily-mean responses.

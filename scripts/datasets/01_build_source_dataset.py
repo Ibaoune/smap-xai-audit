@@ -3,7 +3,7 @@
 01_build_source_dataset.py
 Author: M. El Aabaribaoune
 
-Builds leakage-controlled machine-learning/XAI datasets explaining
+Builds leakage-controlled machine-learning/modeling datasets explaining
 the magnitude of the daily SMAP EnKF surface-soil-moisture update.
 """
 import os

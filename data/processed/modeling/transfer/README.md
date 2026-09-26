@@ -8,4 +8,4 @@ This directory contains the Block 2 TRANSFER datasets, used to model how the DA-
 - `da_cdf/`: Transfer dataset for the DA-CDF experiment
 - `da_nocdf/`: Transfer dataset for the DA-NoCDF experiment
 
-For complete details, see `docs/modeling_dataset_contract.md`.
+For complete details, see `docs/datasets/modeling_dataset_contract.md`.

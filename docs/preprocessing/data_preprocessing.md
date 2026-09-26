@@ -415,7 +415,7 @@ No monthly aggregation is part of the current XAI design.
 - no smoothing/filtering is applied;
 - detailed investigation is documented in:
 
-    docs/model_diagnostics.md
+    docs/preprocessing/model_diagnostics.md
 
 ## EnKF / Signed Analysis Increment — Soil Moisture Layer 1
 
@@ -810,7 +810,7 @@ DA-NoCDF possesses both a much wider assimilation support and slightly larger ty
 Candidate PRIMARY TARGET for XAI models asking: "How strongly does SMAP assimilation modify surface soil moisture?"
 
 **FUTURE SAMPLING STRATEGIES**:
-Two distinct ML modeling approaches are possible for the XAI dataset:
+Two distinct ML modeling approaches are possible for the modeling dataset:
 - **Strategy A (All pixel-days)**: Uses the unconditional distribution. Explains where/when DA activity and magnitude occur jointly.
 - **Strategy B (Assimilated pixel-days only)**: Uses the conditional distribution. Explains correction magnitude given an actual DA event.
 The final XAI design may utilize both as complementary analyses.
@@ -1246,7 +1246,7 @@ There are two distinct and independent findings:
 Neither statement is logically inferred solely from the other; both were independently verified.
 
 **CURRENT XAI ELIGIBILITY**:
-`IRRIGFRAC` is constant zero over the current valid-land domain and therefore contains no sample-to-sample variation for the current XAI dataset. It is excluded from the current feature matrix due to zero variance.
+`IRRIGFRAC` is constant zero over the current valid-land domain and therefore contains no sample-to-sample variation for the current modeling dataset. It is excluded from the current feature matrix due to zero variance.
 
 **FUTURE IRRIGATION-AWARE RELEVANCE**:
 Future XAI experiments that contrast irrigation-ON vs irrigation-OFF configurations may require revisiting this dataset or establishing a dedicated irrigation-aware predictor block. For the current experiments, it is strictly excluded.
@@ -1347,7 +1347,7 @@ Correlations are descriptive comparisons. `delta_et` and `delta_rzsm` exhibit ex
 The relationship between `delta_et` and the instantaneous EnKF Layer-1 surface increment is weak/modest, as they represent different stages (instantaneous EnKF correction vs daily model ET flux difference).
 
 **ROW-WISE NUMERICAL STRUCTURE**:
-A critical numerical diagnostic: `delta_et` exhibits a known row-wise numerical structure (alternating magnitudes along latitude rows). This row-wise structure is inherited from the DA model outputs and was previously verified in the raw LIS flux diagnostics; it is not introduced by `delta_et` preprocessing (see `docs/model_diagnostics.md`).
+A critical numerical diagnostic: `delta_et` exhibits a known row-wise numerical structure (alternating magnitudes along latitude rows). This row-wise structure is inherited from the DA model outputs and was previously verified in the raw LIS flux diagnostics; it is not introduced by `delta_et` preprocessing (see `docs/preprocessing/model_diagnostics.md`).
 
 **CDF VS NOCDF CAUTION**:
 The two experiments differ in observation representation, assimilation support frequency, and DA trajectory. Descriptive comparisons should not be used to rank one experiment as "better" or "worse" than the other based solely on raw `delta_et`.
@@ -1499,7 +1499,7 @@ The relationship between `delta_baseflow` and the EnKF Layer-1 surface increment
 Responses occur year-round. Given baseflow is continuously active across the domain, seasonal stratifications summarize varying mean magnitude differences without requiring zero-support adjustments.
 
 **ROW-WISE NUMERICAL STRUCTURE**:
-A critical numerical diagnostic: `delta_baseflow` preserves a row-dependent numerical structure. This row-dependent structure in `delta_baseflow` is inherited from the DA Qsb/baseflow outputs and is consistent with the row-dependent implementation-related structure previously documented in the raw LIS flux diagnostics (see `docs/model_diagnostics.md`).
+A critical numerical diagnostic: `delta_baseflow` preserves a row-dependent numerical structure. This row-dependent structure in `delta_baseflow` is inherited from the DA Qsb/baseflow outputs and is consistent with the row-dependent implementation-related structure previously documented in the raw LIS flux diagnostics (see `docs/preprocessing/model_diagnostics.md`).
 
 **CDF VS NOCDF CAUTION**:
 The DA experiments differ in observation representation, assimilation support frequency, and their complete DA and ensemble/forcing trajectories. Descriptive comparisons should not be used to rank experiments against each other based on raw `delta_baseflow`.

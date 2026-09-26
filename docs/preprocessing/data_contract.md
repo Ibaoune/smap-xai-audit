@@ -20,7 +20,7 @@ Geographic latitude/longitude coordinates must be used in standardized outputs. 
 Used for: `ssm`, `soil_moisture_layer1` through `4`, `rzsm`, `et`, `surface_runoff`, `baseflow`, `increment`, `innovation`, `normalized_innovation`.
 
 ### B. ET Evaluation Grid
-Use the GLEAM native 0.1-degree geographic grid subset covering the Noah-MP domain as the common ET evaluation grid. Harmonized ET-evaluation products must share this common 0.1-degree evaluation grid. The exact aggregation/reprojection algorithms will be documented in `docs/data_preprocessing.md`.
+Use the GLEAM native 0.1-degree geographic grid subset covering the Noah-MP domain as the common ET evaluation grid. Harmonized ET-evaluation products must share this common 0.1-degree evaluation grid. The exact aggregation/reprojection algorithms will be documented in `docs/preprocessing/data_preprocessing.md`.
 
 ## 2.3 Static Physiographic Predictors
 - `elevation` (source: `lis_input_NorthMor_5km.nc`, units: `m`, temporal representation: `static lat-lon`)
@@ -172,4 +172,4 @@ Every standardized variable must retain:
 
 ## 14. Unresolved Contract Items
 
-Source-specific preprocessing algorithms and QC choices are documented separately in `docs/data_preprocessing.md`.
+Source-specific preprocessing algorithms and QC choices are documented separately in `docs/preprocessing/data_preprocessing.md`.
