@@ -16,13 +16,13 @@ This directory contains the documentation and scientific protocols for the Expla
 | Stage | Status |
 |---|---|
 | RF-04A protocol/cohorts | COMPLETE |
-| SOURCE development XAI | PLANNED |
+| SOURCE development XAI | COMPLETE |
 | TRANSFER development XAI | PLANNED |
 | VALUE development XAI | PLANNED |
-| spatiotemporal robustness | PLANNED |
+| spatiotemporal robustness | IN PROGRESS |
 | protocol freeze | PLANNED |
 | final 2020 XAI | SEALED |
-| paper figures | PLANNED |
+| paper figures | DEVELOPMENT |
 
 ## Documentation Table of Contents
 - [Random Forest Development Matrix](../../docs/modeling/06_random_forest_development_matrix.md)

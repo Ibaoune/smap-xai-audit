@@ -1,7 +1,12 @@
 protocol:
   development_year: 2019
   test_year: 2020  # Note: Test year is sealed until final evaluation
-  shap_cohort_size: 50000
+  shap_cohort_size: 50000          # Full cohort index size (stored as parquet)
+  shap_compute_size: 10000         # SHAP actually computed on this balanced subset
+                                   # Rationale: RF_A has 300 trees, max_depth=12, ~2700 leaves
+                                   # 50k rows -> ~200 min/model; 10k -> ~20 min/model
+                                   # 10k rows sampled by balanced month x spatial_fold (seed 42)
+                                   # Additivity verified on full computed subset
   permutation_cohort_size: 20000
   random_seed: 42
   sampling_dimensions:

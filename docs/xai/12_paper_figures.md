@@ -35,7 +35,17 @@ This registry catalogs the finalized figures planned for the Random Forest model
 - **Scientific Question:** Which assimilation-state and independent meteorological drivers dominate the prediction of EnKF updates?
 - **Planned Panels:** Grouped-importance bars for `da_cdf` vs `da_nocdf` over the matched support, individual top-feature beeswarm plots, and selected 2D physical dependence plots.
 - **Required Input Products:** SOURCE 2019 XAI processed parquets and metadata summaries.
-- **Status:** PLANNED
+- **Development Input Products:** `matched_group_comparison.csv`, `tidy_predictor_summary.csv`, `dependence_features.json`
+- **Current Panel Definitions:**
+  - A. matched-support scientific-group importance: CDF vs NoCDF
+  - B. predictor-level importance comparison
+  - C. CDF SHAP beeswarm
+  - D. NoCDF SHAP beeswarm
+  - E-F. dependence plots for scientifically selected/top-ranked predictors
+  - G. seasonal or spatial robustness summary
+- **Plot Script:** `scripts/xai/05_plot_source_xai.py`
+- **Status:** DEVELOPMENT PROTOTYPE
+- **Development Filenames:** `fig_source_a_group_importance.png`, `fig_source_b_top_predictors.png`, `fig_source_e_seasonal.png`, `fig_source_f_spatial.png`
 - **Final-Output Filenames:** `fig5_source_xai.png`, `fig5_source_xai.pdf`
 
 ## Fig.6 TRANSFER XAI
