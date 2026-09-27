@@ -80,10 +80,13 @@ def main():
         baseline_type = "temporal"
         baseline_fold = args.fold
 
+    print("Loading baseline metrics...")
     baseline_metrics = load_baseline_metrics(
         args.block, args.experiment, args.target, baseline_ref,
-        fold=baseline_fold, workspace_root=args.workspace_root, baseline_type=baseline_type
+        fold=baseline_fold, workspace_root=args.workspace_root, baseline_type=baseline_type,
+        support_mode=args.support_mode
     )
+    print(f"Baseline loaded: {baseline_metrics}")
 
     # Resolve features
     config_path = f"{args.workspace_root}/configs/datasets/{args.block.lower()}.yaml"
