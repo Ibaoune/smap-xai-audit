@@ -26,3 +26,8 @@ reports/**
 logs/**
 !logs/**/
 !logs/**/README.md
+
+# Artifacts
+artifacts/**
+!artifacts/**/
+!artifacts/**/README.md

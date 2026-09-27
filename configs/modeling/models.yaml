@@ -1,0 +1,10 @@
+models:
+  random_forest:
+    pilot:
+      n_estimators: 200
+      max_depth: 16
+      min_samples_leaf: 5
+      max_features: 0.7
+      bootstrap: true
+      random_state: 42
+      save_model: true
