@@ -26,6 +26,19 @@ def assign_temporal_split(date_series: pd.Series) -> pd.Series:
     
     return split
 
+def get_temporal_fold_bounds(fold: str) -> tuple:
+    """
+    Returns (train_start, train_end, val_start, val_end) for a given fold.
+    """
+    folds = {
+        "fold_1": ("2016-01-08", "2016-12-31", "2017-01-01", "2017-12-31"),
+        "fold_2": ("2016-01-08", "2017-12-31", "2018-01-01", "2018-12-31"),
+        "fold_3": ("2016-01-08", "2018-12-31", "2019-01-01", "2019-12-31"),
+    }
+    if fold not in folds:
+        raise ValueError(f"Unknown temporal fold: {fold}")
+    return folds[fold]
+
 def assign_spatial_block(lat_series: pd.Series, lon_series: pd.Series, block_size_degrees: float = 1.0) -> pd.Series:
     """
     Assigns spatial blocks conceptually as floor(coord / block_size).

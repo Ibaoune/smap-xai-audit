@@ -13,6 +13,7 @@ from pathlib import Path
 
 from smap_xai.modeling.training import get_model, audit_leakage, load_data, train_model
 from smap_xai.modeling.evaluation import load_baseline_metrics, evaluate_model
+from smap_xai.modeling.splits import get_temporal_fold_bounds
 
 def get_git_revision_short_hash() -> str:
     import subprocess
@@ -24,7 +25,7 @@ def get_git_revision_short_hash() -> str:
 def parse_features(config_path, feature_set_name):
     with open(config_path, 'r') as f:
         cfg = yaml.safe_load(f)
-    
+
     if feature_set_name in cfg:
         # source.yaml style
         features = cfg[feature_set_name]
@@ -53,6 +54,10 @@ def main():
     parser.add_argument("--experiment", type=str, required=True)
     parser.add_argument("--target", type=str, required=True)
     parser.add_argument("--feature-set", type=str, required=True)
+    parser.add_argument("--candidate", type=str, default="pilot", help="Model candidate config name")
+    parser.add_argument("--fold", type=str, default="fold_3", help="Temporal fold name")
+    parser.add_argument("--spatial-fold", type=str, default=None, help="Spatial fold name (e.g., spatial_0)")
+    parser.add_argument("--support-mode", type=str, default="native_support", choices=["native_support", "matched_support"])
     parser.add_argument("--workspace-root", type=str, default=".")
     args = parser.parse_args()
 
@@ -67,39 +72,72 @@ def main():
         raise ValueError("Unknown block")
 
     # Load baseline
+    if args.spatial_fold:
+        baseline_type = "spatial"
+        baseline_fold = args.spatial_fold
+        args.fold = args.spatial_fold  # For naming output dirs
+    else:
+        baseline_type = "temporal"
+        baseline_fold = args.fold
+
     baseline_metrics = load_baseline_metrics(
-        args.block, args.experiment, args.target, baseline_ref, 
-        fold="fold_3", workspace_root=args.workspace_root
+        args.block, args.experiment, args.target, baseline_ref,
+        fold=baseline_fold, workspace_root=args.workspace_root, baseline_type=baseline_type
     )
 
     # Resolve features
     config_path = f"{args.workspace_root}/configs/datasets/{args.block.lower()}.yaml"
     requested_features = parse_features(config_path, args.feature_set)
     zero_variance_features = parse_zero_variance(config_path, args.block)
-    
+
     fitted_features = [f for f in requested_features if f not in zero_variance_features]
-    
+
     # Audit leakage
     audit_leakage(fitted_features, args.target, args.block)
 
     # Load model config
     with open(f"{args.workspace_root}/configs/modeling/models.yaml", 'r') as f:
         model_cfg = yaml.safe_load(f)
-    model_params = model_cfg['models'][args.model]['pilot']
-    
+    model_params = model_cfg['models'][args.model][args.candidate]
+
     if args.model == "random_forest":
         # Get n_jobs from SLURM if available
         cpus = int(os.environ.get("SLURM_CPUS_PER_TASK", 1))
         model_params['n_jobs'] = cpus
 
-    # Train and Val dates
-    train_start, train_end = "2016-01-08", "2018-12-31"
-    val_start, val_end = "2019-01-01", "2019-12-31"
+    save_model = model_params.pop("save_model", True)
 
-    # Load Data
-    print("Loading train data...")
-    df_train = load_data(args.block, args.experiment, args.target, fitted_features, train_start, train_end)
-    
+    # Train and Val dates
+    if args.spatial_fold:
+        train_start, train_end, val_start, val_end = "2016-01-08", "2019-12-31", "2016-01-08", "2019-12-31"
+        print("Loading data for spatial CV...")
+        coord_cols = ["y_index", "x_index"] if args.block in ["SOURCE", "TRANSFER"] else ["gleam_y_index", "gleam_x_index"]
+        mapping_file = "noahmp_spatial_blocks.parquet" if args.block in ["SOURCE", "TRANSFER"] else "gleam_spatial_blocks.parquet"
+
+        df_all = load_data(args.block, args.experiment, args.target, fitted_features, train_start, train_end, meta_cols=["date"] + coord_cols)
+        mapping_df = pd.read_parquet(f"{args.workspace_root}/data/processed/modeling/splits/{mapping_file}")
+
+        df_all = pd.merge(df_all, mapping_df[coord_cols + ["spatial_fold"]], on=coord_cols, how="inner")
+
+        target_fold_int = int(args.spatial_fold.split("_")[-1])
+        df_train = df_all[df_all["spatial_fold"] != target_fold_int]
+        df_val = df_all[df_all["spatial_fold"] == target_fold_int]
+
+    else:
+        train_start, train_end, val_start, val_end = get_temporal_fold_bounds(args.fold)
+        print("Loading train data...")
+        coord_cols = ["y_index", "x_index"] if args.block in ["SOURCE", "TRANSFER"] else ["gleam_y_index", "gleam_x_index"]
+        df_train = load_data(args.block, args.experiment, args.target, fitted_features, train_start, train_end, meta_cols=["date"] + coord_cols)
+        print("Loading validation data...")
+        df_val = load_data(args.block, args.experiment, args.target, fitted_features, val_start, val_end, meta_cols=["date"] + coord_cols)
+
+        if args.support_mode == "matched_support":
+            print("Applying matched support keys...")
+            matched_df = pd.read_parquet(f"{args.workspace_root}/data/processed/modeling/splits/source_matched_support.parquet")
+            matched_df["date"] = pd.to_datetime(matched_df["date"])
+            df_train = pd.merge(df_train, matched_df, on=["date", "y_index", "x_index"], how="inner")
+            df_val = pd.merge(df_val, matched_df, on=["date", "y_index", "x_index"], how="inner")
+
     if args.block == "TRANSFER":
         # Resource estimation
         n_rows, n_cols = df_train.shape
@@ -110,25 +148,23 @@ def main():
         print(f"  N_features: {len(fitted_features)}")
         print(f"  DataFrame RAM: {ram_bytes / 1024**3:.2f} GB")
         print(f"  Available RAM: {avail_ram / 1024**3:.2f} GB")
-        
+
     X_train = df_train[fitted_features]
     y_train = df_train[args.target]
-    
+
     # Train
     print("Training model...")
     model = get_model(args.model, model_params)
     train_meta = train_model(model, X_train, y_train)
 
-    print("Loading validation data...")
-    df_val = load_data(args.block, args.experiment, args.target, fitted_features, val_start, val_end)
     X_val = df_val[fitted_features]
     y_val = df_val[args.target]
 
     print("Predicting and evaluating...")
     y_pred = model.predict(X_val)
-    
+
     metrics = evaluate_model(y_val, y_pred, baseline_metrics)
-    
+
     # Prepare metadata
     metadata = {
         "model_family": args.model,
@@ -144,6 +180,9 @@ def main():
         "experiment": args.experiment,
         "target": args.target,
         "feature_set": args.feature_set,
+        "candidate": args.candidate,
+        "fold": args.fold,
+        "support_mode": args.support_mode,
         "train_start": train_start,
         "train_end": train_end,
         "validation_start": val_start,
@@ -167,37 +206,43 @@ def main():
         "RMSE_skill": metrics["RMSE_skill"],
         "fit_walltime": train_meta.get("fit_walltime_seconds", 0)
     }
-    
+
     # Save artifacts
-    run_name = f"{args.block}_{args.experiment}_{args.target}_{args.feature_set}"
+    if args.candidate == "pilot":
+        run_name = f"{args.block}_{args.experiment}_{args.target}_{args.feature_set}"
+    else:
+        run_name = f"{args.block}_{args.experiment}_{args.target}_{args.feature_set}_{args.candidate}_{args.fold}_{args.support_mode}"
+
     artifact_dir = Path(args.workspace_root) / "artifacts" / "modeling" / args.model / run_name
     report_dir = Path(args.workspace_root) / "reports" / "modeling" / "models" / args.model / run_name
-    
+
     artifact_dir.mkdir(parents=True, exist_ok=True)
     report_dir.mkdir(parents=True, exist_ok=True)
-    
-    save_model = model_params.pop("save_model", True)
-    
+
     if save_model:
         model_path = artifact_dir / "model.joblib"
         model.save(str(model_path))
         metadata["model_file_size"] = os.path.getsize(model_path)
     else:
         metadata["model_file_size"] = 0
-        
+
     with open(report_dir / "metadata.json", "w") as f:
         json.dump(metadata, f, indent=4)
-        
+
     metrics_df = pd.DataFrame([metadata])
     # subset columns
-    cols = ["model_family", "block", "experiment", "target", "feature_set",
+    cols = ["model_family", "block", "experiment", "target", "feature_set", "candidate", "fold", "support_mode",
             "train_start", "train_end", "validation_start", "validation_end",
             "N_train", "N_validation", "N_features", "MAE", "RMSE", "bias", "R2", "Pearson",
-            "baseline_reference", "baseline_MAE", "baseline_RMSE", "MAE_skill", "RMSE_skill"]
+            "baseline_reference", "baseline_MAE", "baseline_RMSE", "MAE_skill", "RMSE_skill",
+            "fit_walltime", "model_file_size"]
+    # only include existing columns to avoid errors if some are missing
+    cols = [c for c in cols if c in metrics_df.columns]
     metrics_df = metrics_df[cols]
     metrics_df.to_csv(report_dir / "metrics.csv", index=False)
-    
-    print(f"Model saved to {model_path}")
+
+    if save_model:
+        print(f"Model saved to {model_path}")
     print(f"Metadata saved to {report_dir / 'metadata.json'}")
     print(f"Metrics saved to {report_dir / 'metrics.csv'}")
 
