@@ -1,7 +1,7 @@
 # Random Forest XAI Protocol (RF-04)
 
 ## 1. Development and Validation Setup
-The entire Explainable AI (XAI) protocol is explicitly developed, balanced, and frozen using the canonical **2019 validation period**. 2020 remains sealed.
+The entire Explainable AI (XAI) protocol is explicitly developed, balanced, and frozen using the canonical **2019 validation period**. 2020 remains sealed. This builds upon the [Random Forest Development Matrix](../../docs/modeling/06_random_forest_development_matrix.md).
 
 The identical cohort-generation algorithm and explanation settings will be applied later to the final 2020 independent test set. No parameter or predictor-group definition may be changed after unsealing 2020.
 
