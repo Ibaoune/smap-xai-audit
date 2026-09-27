@@ -1,0 +1,19 @@
+protocol:
+  development_year: 2019
+  test_year: 2020  # Note: Test year is sealed until final evaluation
+  shap_cohort_size: 50000
+  permutation_cohort_size: 20000
+  random_seed: 42
+  sampling_dimensions:
+    - month
+    - spatial_fold
+  target_stratification: forbidden
+
+explainer:
+  class: shap.TreeExplainer
+  feature_perturbation: tree_path_dependent
+  model_output: raw
+
+permutation:
+  scoring: neg_mean_absolute_error
+  n_repeats: 5

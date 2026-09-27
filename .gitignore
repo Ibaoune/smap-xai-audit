@@ -13,21 +13,20 @@ dist/
 .DS_Store
 
 # Data
-data/**
+data/**/*
 !data/**/
 !data/**/README.md
 
 # Reports
-reports/**
+reports/**/*
 !reports/**/
 !reports/**/README.md
 
 # Logs
-logs/**
-!logs/**/
-!logs/**/README.md
+logs/
+!logs/README.md
 
 # Artifacts
-artifacts/**
+artifacts/**/*
 !artifacts/**/
 !artifacts/**/README.md
