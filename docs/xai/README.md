@@ -17,7 +17,7 @@ This directory contains the documentation and scientific protocols for the Expla
 |---|---|
 | RF-04A protocol/cohorts | COMPLETE |
 | SOURCE development XAI | COMPLETE |
-| TRANSFER development XAI | PLANNED |
+| TRANSFER development XAI | COMPLETE |
 | VALUE development XAI | PLANNED |
 | spatiotemporal robustness | IN PROGRESS |
 | protocol freeze | PLANNED |
