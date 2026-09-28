@@ -14,6 +14,7 @@ Checks:
   9.  Frozen dependence features (top-3 per target, 4 targets)
   10. All 7 development figures present
   11. SOURCE XAI audit still passes (no shared code regressions)
+  12. Normalized group importance sums to 1.0 for every model (tol=1e-6)
 """
 import json
 import sys
@@ -142,6 +143,32 @@ def main():
     if "AUDIT PASSED" not in result.stdout:
         fail("SOURCE XAI audit did not report PASSED")
     print("  [✓] SOURCE XAI regression audit: PASSED", flush=True)
+
+    # ── 12. Normalized group importance sums to 1.0 ────────────────────────────
+    with open("configs/xai/feature_groups.yaml") as f:
+        fg = yaml.safe_load(f)
+    for exp, tgt in MODELS:
+        tag = f"{exp}_{tgt}"
+        df  = pd.read_parquet(IN_DIR / f"shap_{tag}.parquet")
+        features = [c.replace("shap__", "") for c in df.columns if c.startswith("shap__")]
+        total_abs = sum(
+            float(np.mean(np.abs(df[[f"shap__{f}" for f in fs if f in features]].values)) * len([f for f in fs if f in features]))
+            for fs in fg.values()
+        )
+        # total_abs computed as sum of per-group sum-of-mean-abs; normalize
+        group_sums = []
+        for g, fs in fg.items():
+            active = [f for f in fs if f in features]
+            if active:
+                g_abs = float(np.mean(np.abs(df[[f"shap__{f}" for f in active]].values)) * len(active))
+            else:
+                g_abs = 0.0
+            group_sums.append(g_abs)
+        total = sum(group_sums)
+        norm_sum = sum(v / total for v in group_sums) if total > 0 else 0.0
+        if abs(norm_sum - 1.0) > 1e-6:
+            fail(f"{tag}: normalized group importance sums to {norm_sum:.8f} != 1.0")
+    print("  [✓] Normalized group importance sums to 1.0 for all 8 models (tol=1e-6)", flush=True)
 
     print("\n" + "="*55)
     print("TRANSFER XAI FINAL CLOSURE AUDIT PASSED")

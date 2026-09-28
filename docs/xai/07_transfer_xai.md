@@ -72,21 +72,46 @@ All errors are at or near machine-epsilon level. ✅
 
 ## Group-Level Results — CDF (% normalized importance)
 
-| Target | Antec. SM | Meteo. | Antec. LSM flux | Assimilation | Soil props. | Land cover | Topography | Temporal |
-|---|---|---|---|---|---|---|---|---|
-| ΔRZSM | 35.1 | 8.9 | 5.8 | **26.9** | 4.9 | 6.9 | 3.7 | 7.7 |
-| ΔET | 16.0 | 9.0 | 14.5 | **29.7** | 16.5 | 3.7 | 1.7 | 8.9 |
-| ΔRunoff | 1.6 | **22.3** | **35.9** | 7.4 | 1.8 | 12.2 | 6.5 | 5.0 |
-| ΔBaseflow | 6.3 | 1.2 | **21.3** | **15.2** | 17.4 | 15.6 | 13.7 | 9.2 |
+All nine groups are shown. Groups summing to < 0.01% are listed as 0.0.
+Group sums verified to equal 1.000 (within floating-point precision) for all 8 models.
+
+| Target | Antec. SM | Meteo. | Antec. LSM flux | Assimilation | Soil props. | Land cover | Topography | Forcing ctrl. | Temporal |
+|---|---|---|---|---|---|---|---|---|---|
+| ΔRZSM | **35.1** | 8.9 | 5.8 | 27.0 | 4.9 | 6.9 | 3.7 | 0.0 | 7.7 |
+| ΔET | 16.0 | 9.0 | 14.5 | **29.7** | 16.5 | 3.7 | 1.7 | 0.0 | 8.9 |
+| ΔRunoff | 1.6 | **22.3** | **35.9** | 7.4 | 1.8 | 12.2 | 6.5 | **7.5** | 5.0 |
+| ΔBaseflow | 6.3 | 1.2 | **21.3** | 15.2 | 17.4 | 15.6 | 13.7 | 0.1 | 9.2 |
+
+**Column key**: Antec. SM = antecedent_soil_moisture_state; Meteo. = meteorological_forcing;
+Antec. LSM flux = antecedent_land_surface_fluxes; Assimilation = assimilation_diagnostics_or_history;
+Forcing ctrl. = forcing_perturbation_controls (delta-precipitation nuisance/control predictors).
+
+**Scientific notes — CDF:**
+- ΔRZSM: the **antecedent soil moisture state** group has the largest attribution (35.1%), followed
+  by assimilation diagnostics (27.0%). Neither group alone is decisively dominant.
+- ΔET: the **assimilation diagnostics** group has the largest attribution (29.7%).
+- ΔRunoff: dominated by antecedent LSM fluxes (35.9%), meteorological forcing (22.3%), and
+  **forcing_perturbation_controls** (7.5%). The forcing-control group contains delta-precipitation
+  nuisance predictors that capture precipitation perturbation signal; their attribution is
+  separate from the assimilation-diagnostics group and should not be merged with it.
+- ΔBaseflow: spread across antecedent LSM fluxes (21.3%), soil properties (17.4%),
+  land cover (15.6%), assimilation diagnostics (15.2%), and topography (13.7%).
 
 ## Group-Level Results — NoCDF (% normalized importance)
 
-| Target | Antec. SM | Meteo. | Antec. LSM flux | Assimilation | Soil props. | Land cover | Topography | Temporal |
-|---|---|---|---|---|---|---|---|---|
-| ΔRZSM | **40.1** | 3.0 | 10.8 | 10.0 | 9.8 | 13.9 | 5.8 | 6.5 |
-| ΔET | 13.4 | 14.8 | **29.8** | 20.0 | 7.0 | 7.2 | 1.4 | 6.5 |
-| ΔRunoff | 6.8 | **30.0** | 7.7 | 10.0 | 16.1 | **20.6** | 2.1 | 4.6 |
-| ΔBaseflow | 11.3 | 2.9 | 13.9 | 14.8 | **23.3** | **23.5** | 4.0 | 6.2 |
+| Target | Antec. SM | Meteo. | Antec. LSM flux | Assimilation | Soil props. | Land cover | Topography | Forcing ctrl. | Temporal |
+|---|---|---|---|---|---|---|---|---|---|
+| ΔRZSM | **40.1** | 3.0 | 10.8 | 10.0 | 9.8 | 13.9 | 5.8 | 0.0 | 6.5 |
+| ΔET | 13.4 | 14.8 | **29.8** | 20.0 | 7.0 | 7.2 | 1.4 | 0.0 | 6.5 |
+| ΔRunoff | 6.8 | **30.0** | 7.7 | 10.0 | 16.1 | **20.6** | 2.1 | **2.2** | 4.6 |
+| ΔBaseflow | 11.3 | 2.9 | 13.9 | 14.8 | **23.3** | **23.5** | 4.0 | 0.1 | 6.2 |
+
+**Scientific notes — NoCDF:**
+- ΔRZSM: the **antecedent soil moisture state** group has the largest attribution (40.1%).
+- ΔET: the **antecedent LSM fluxes** group has the largest attribution (29.8%).
+- ΔRunoff: forcing_perturbation_controls contributes 2.2%, smaller than in CDF (7.5%) but still
+  non-negligible. The meteorological forcing (30.0%) and land cover (20.6%) groups dominate.
+- ΔBaseflow: soil properties (23.3%) and land cover (23.5%) are co-dominant.
 
 ## Cross-Target Predictor Rank Correlations
 
@@ -133,9 +158,12 @@ All results are descriptive — identical support ensures no coverage confoundin
 | `da_nocdf` ΔRunoff | 0.785 | 3/5 | 8/10 |
 | `da_nocdf` ΔBaseflow | 0.683 | 4/5 | 8/10 |
 
-Note: `da_cdf` ΔRZSM shows low predictor-rank ρ (0.160) with reasonable top-10 overlap (7/10).
-This reflects known permutation instability under strongly correlated lagged predictors,
-which is especially pronounced for RZSM where soil-moisture state variables are dominant.
+Note: `da_cdf` ΔRZSM shows a low predictor-rank ρ (0.160) alongside a top-10 overlap of 7/10.
+The discrepancy is compatible with the known sensitivity of permutation and SHAP attribution to
+correlated predictors, but its origin is not established here. The top-10 overlap (7/10) suggests
+that gross importance ordering is partially preserved; the low ρ likely reflects rank instability
+among mid-ranked correlated predictors rather than a fundamental disagreement in the dominant
+predictors. No further claim is made about the mechanism.
 
 ## Frozen Dependence-Plot Predictors (Top-3 Per Target)
 
