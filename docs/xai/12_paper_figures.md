@@ -1,7 +1,7 @@
 # Final Manuscript Figure Registry
 
 ## Overview
-This registry catalogs the finalized figures planned for the Random Forest modeling and XAI manuscript. 
+This registry catalogs the finalized figures planned for the Random Forest modeling and XAI manuscript.
 
 ## Fig.1 Conceptual Framework
 - **Scientific Question:** What is the overarching architecture and scientific purpose of the SMAP-XAI framework?
@@ -32,20 +32,36 @@ This registry catalogs the finalized figures planned for the Random Forest model
 - **Final-Output Filenames:** `fig4_predictive_robustness.png`, `fig4_predictive_robustness.pdf`
 
 ## Fig.5 SOURCE XAI
-- **Scientific Question:** Which assimilation-state and independent meteorological drivers dominate the prediction of EnKF updates?
-- **Planned Panels:** Grouped-importance bars for `da_cdf` vs `da_nocdf` over the matched support, individual top-feature beeswarm plots, and selected 2D physical dependence plots.
-- **Required Input Products:** SOURCE 2019 XAI processed parquets and metadata summaries.
-- **Development Input Products:** `matched_group_comparison.csv`, `tidy_predictor_summary.csv`, `dependence_features.json`
+- **Scientific Question:** Which environmental, antecedent land-state, and assimilation-context
+  predictors are associated with the predictive attribution of daily EnKF increments
+  (`daily_absolute_increment`) across CDF and NoCDF configurations on identical pixel-days?
+- **Interpretation note:** Results reflect a matched-support direct comparison (identical
+  pixel-days for CDF and NoCDF). Do NOT write causal statements about assimilation.
+- **Feature set:** `context_only_feature_set` — **35 active predictors** (subset of 58-predictor global registry)
+- **SHAP compute subset:** 10,000 rows (frozen, stability-audited)
+- **Required Input Products:** SOURCE 2019 XAI processed parquets and metadata summaries
+- **Development Input Products:**
+  - `matched_group_comparison.csv`
+  - `tidy_predictor_summary.csv`
+  - `dependence_features.json`
+  - `seasonal_djf_group_da_cdf.csv`, `seasonal_jja_group_da_cdf.csv`
+  - `spatial_fold_group_da_cdf.csv`
 - **Current Panel Definitions:**
   - A. matched-support scientific-group importance: CDF vs NoCDF
-  - B. predictor-level importance comparison
-  - C. CDF SHAP beeswarm
-  - D. NoCDF SHAP beeswarm
-  - E-F. dependence plots for scientifically selected/top-ranked predictors
-  - G. seasonal or spatial robustness summary
-- **Plot Script:** `scripts/xai/05_plot_source_xai.py`
+  - B. top-15 predictor mean\|SHAP\| comparison (matched CDF vs NoCDF)
+  - C. SHAP value distributions top-8 predictors (CDF and NoCDF side-by-side)
+  - D. SHAP dependence plots — frozen top-4 predictors (CDF row / NoCDF row)
+  - E. DJF vs JJA group importance (matched CDF)
+  - F. Spatial-fold group importance stability (median ± IQR across 5 folds)
+- **Plot Script:** `scripts/xai/05_plot_source_xai.py` (matplotlib only, no seaborn)
 - **Status:** DEVELOPMENT PROTOTYPE
-- **Development Filenames:** `fig_source_a_group_importance.png`, `fig_source_b_top_predictors.png`, `fig_source_e_seasonal.png`, `fig_source_f_spatial.png`
+- **Development Filenames:**
+  - `fig_source_a_group_importance.png` ✅
+  - `fig_source_b_top_predictors.png` ✅
+  - `fig_source_c_beeswarm.png` ✅
+  - `fig_source_d_dependence.png` ✅
+  - `fig_source_e_seasonal.png` ✅
+  - `fig_source_f_spatial.png` ✅
 - **Final-Output Filenames:** `fig5_source_xai.png`, `fig5_source_xai.pdf`
 
 ## Fig.6 TRANSFER XAI
