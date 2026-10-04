@@ -24,8 +24,9 @@ This directory contains the documentation and scientific protocols for the Expla
 | final 2020 XAI | SEALED |
 | paper figures | DEVELOPMENT PROTOTYPES COMPLETE |
 
-Next stage:
-RF-05 — final refit on 2016–2019
+RF-04C — COMPLETE
+RF-05 — COMPLETE
+RF-06 — NEXT
 
 **2020 FINAL HOLDOUT: SEALED**
 
