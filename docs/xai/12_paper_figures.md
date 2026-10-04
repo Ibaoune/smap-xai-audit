@@ -54,7 +54,8 @@ This registry catalogs the finalized figures planned for the Random Forest model
   - E. DJF vs JJA group importance (matched CDF)
   - F. Spatial-fold group importance stability (median ± IQR across 5 folds)
 - **Plot Script:** `scripts/xai/05_plot_source_xai.py` (matplotlib only, no seaborn)
-- **Status:** DEVELOPMENT PROTOTYPE
+- **Status:** DEVELOPMENT PROTOTYPE COMPLETE FOR 2019
+  FINAL 2020 FIGURE SEALED
 - **Development Filenames:**
   - `fig_source_a_group_importance.png` ✅
   - `fig_source_b_top_predictors.png` ✅
@@ -87,7 +88,8 @@ This registry catalogs the finalized figures planned for the Random Forest model
   - F. DJF vs JJA group attribution by target
   - G. Spatial-fold group stability
 - **Plot Script:** `scripts/xai/08_plot_transfer_xai.py` (matplotlib only)
-- **Status:** DEVELOPMENT PROTOTYPE
+- **Status:** DEVELOPMENT PROTOTYPE COMPLETE FOR 2019
+  FINAL 2020 FIGURE SEALED
 - **Development Filenames:**
   - `fig_transfer_a_group_matrix.png` ✅
   - `fig_transfer_b_top_predictors.png` ✅
@@ -128,7 +130,8 @@ This registry catalogs the finalized figures planned for the Random Forest model
   - F. DJF vs JJA group attribution
   - G. Spatial-fold group stability (median ± IQR)
 - **Plot Script:** `scripts/xai/11_plot_value_xai.py` (matplotlib only)
-- **Status:** DEVELOPMENT PROTOTYPE
+- **Status:** DEVELOPMENT PROTOTYPE COMPLETE FOR 2019
+  FINAL 2020 FIGURE SEALED
 - **Development Filenames:**
   - `fig_value_a_distribution.png` ✅
   - `fig_value_b_group_importance.png` ✅

@@ -19,10 +19,15 @@ This directory contains the documentation and scientific protocols for the Expla
 | SOURCE development XAI | COMPLETE |
 | TRANSFER development XAI | COMPLETE |
 | VALUE development XAI | COMPLETE |
-| spatiotemporal robustness | IN PROGRESS |
-| protocol freeze | PLANNED |
+| spatiotemporal robustness | COMPLETE |
+| protocol freeze | COMPLETE |
 | final 2020 XAI | SEALED |
-| paper figures | DEVELOPMENT |
+| paper figures | DEVELOPMENT PROTOTYPES COMPLETE |
+
+Next stage:
+RF-05 — final refit on 2016–2019
+
+**2020 FINAL HOLDOUT: SEALED**
 
 ## Documentation Table of Contents
 - [Random Forest Development Matrix](../../docs/modeling/06_random_forest_development_matrix.md)

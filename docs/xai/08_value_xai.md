@@ -98,15 +98,34 @@ The following are verified **absent** from the fitted feature set:
 
 ## 2019 value_ae Target Distribution
 
+The manuscript descriptive statistics for `value_ae` must use the **full 2019 validation distribution** (N=1,500,150) to ensure representative physical properties, rather than the subsetted XAI cohorts.
+
+### 1. Full 2019 Validation Distribution (Manuscript Reference)
+
 | Statistic | CDF | NoCDF |
 |---|---|---|
-| Mean | -0.0093 | 0.0125 |
-| Median | -0.0231 | -0.0045 |
-| Std Dev | 0.2229 | 0.2868 |
-| P05 | -0.3274 | -0.4084 |
-| P95 | 0.3513 | 0.4922 |
-| Fraction > 0 | 42.52% | 49.03% |
-| Fraction < 0 | 57.48% | 50.97% |
+| N | 1,500,150 | 1,500,150 |
+| Mean | -0.0113 | 0.0163 |
+| Median | -0.0245 | -0.0047 |
+| Std Dev | 0.2216 | 0.2854 |
+| P05 | -0.3275 | -0.3997 |
+| P95 | 0.3416 | 0.4953 |
+| Fraction > 0 | 42.05% | 48.98% |
+| Fraction < 0 | 57.95% | 51.02% |
+| Fraction == 0 | 0.00% | 0.00% |
+
+### 2. 50,000-row XAI Cohort (Representative Sample)
+*Used as the background cohort for sampling.*
+- **CDF**: Mean=-0.0103, Median=-0.0238, Std=0.2187, P05=-0.3218, P95=0.3419
+- **NoCDF**: Mean=0.0161, Median=-0.0036, Std=0.2845, P05=-0.3970, P95=0.4901
+
+### 3. 10,000-row TreeSHAP Subset
+*Used explicitly for computing TreeSHAP explanations.*
+- **CDF**: Mean=-0.0093, Median=-0.0231, Std=0.2229, P05=-0.3274, P95=0.3513
+- **NoCDF**: Mean=0.0125, Median=-0.0045, Std=0.2869, P05=-0.4084, P95=0.4922
+
+### 4. 5,000-row Permutation Subset
+*Used for permutation feature importance.*
 
 ## Predictor-Level Results
 
