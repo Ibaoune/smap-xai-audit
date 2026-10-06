@@ -26,7 +26,7 @@ def audit_leakage(features: List[str], target: str, block: str):
         if f in forbidden or f == target:
             raise ValueError(f"Leakage audit failed: forbidden feature '{f}' found in predictors.")
 
-def load_data(block: str, experiment: str, target: str, features: List[str], start_date: str, end_date: str, meta_cols: List[str] = None) -> pd.DataFrame:
+def load_data(block: str, experiment: str, target: str, features: List[str], start_date: str, end_date: str, meta_cols: List[str] = None, allow_2020: bool = False) -> pd.DataFrame:
     path = f"data/processed/modeling/{block.lower()}/{experiment}"
     dataset = ds.dataset(path, format="parquet", ignore_prefixes=['.', '_', 'README.md'])
     
@@ -41,7 +41,7 @@ def load_data(block: str, experiment: str, target: str, features: List[str], sta
     
     # 2020 isolation
     df["date"] = pd.to_datetime(df["date"])
-    if (df["date"].dt.year == 2020).sum() > 0:
+    if not allow_2020 and (df["date"].dt.year == 2020).sum() > 0:
         raise ValueError("2020 data leaked!")
         
     # Convert to float32
