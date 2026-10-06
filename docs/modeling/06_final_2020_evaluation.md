@@ -36,3 +36,9 @@ This document serves as the formal record of the one-time final opening of the 2
 - RF-05 Final Refit Audit: PASSED
 
 *(Note: No methodological choice has been changed in response to 2020 opening. All metric calculations and XAI protocols strictly adhere to the frozen rules.)*
+
+## RF-06B Result Consolidation
+- **Final Target Distributions**: `reports/modeling/final_2020/target_distributions/final_target_distributions_2020.csv`
+- **DJF-JJA Attribution Summary**: `data/processed/modeling/xai/final_2020/summaries/seasonal_group_summary_2020.csv`
+- **2020 Spatial-Stratum Attribution Stability**: `data/processed/modeling/xai/final_2020/summaries/spatial_group_stability_2020.csv`
+- **Frozen Dependence-Relationship Summary**: `data/processed/modeling/xai/final_2020/summaries/dependence_summary_2020.csv`
