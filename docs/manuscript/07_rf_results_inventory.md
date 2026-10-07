@@ -24,3 +24,10 @@
 | 3.5 | Figure 7 | (e) | `shap_VALUE_*_native_support_cohort.parquet` | `shap__tair_t`, `value__tair_t` | Native | XAI-Cohort | None (scatter points) |
 | 3.5 | Figure 7 | (f) | `shap_VALUE_*_native_support_cohort.parquet` | `shap__land_cover_fraction_16`, `value__land_cover_fraction_16` | Native | XAI-Cohort | None (scatter points) |
 | 3.6 | Figure 8 | (All) | `tidy_group_summary.csv` | `normalized_group_importance` | Matched (SOURCE), Native | XAI-Cohort | Removed SOURCE native |
+| Supp | Figure S1 | (All) | `tidy_group_summary.csv`, `tidy_predictor_summary.csv` | `normalized_group_importance`, `mean_abs_shap` | Native & Matched | XAI-Cohort | Comparison of Native vs Matched for SOURCE |
+| Supp | Figure S2 | (All) | `robustness_*.json` | `spearman_rho`, `top5_overlap`, `top10_overlap` | Native & Matched | XAI-Cohort | Bar plot of robustness |
+| Supp | Figure S3 | (All) | `seasonal_group_summary_2020.csv` | `DJF_normalized_importance`, `JJA_normalized_importance` | Matched | XAI-Cohort | SOURCE Seasonal grouped attribution |
+| Supp | Figure S4 | (All) | `seasonal_group_summary_2020.csv` | `DJF_normalized_importance`, `JJA_normalized_importance` | Native | XAI-Cohort | TRANSFER Seasonal grouped attribution |
+| Supp | Figure S5 | (All) | `seasonal_group_summary_2020.csv` | `DJF_normalized_importance`, `JJA_normalized_importance` | Native | XAI-Cohort | VALUE Seasonal grouped attribution |
+| Supp | Figure S6 | (All) | `spatial_group_stability_2020.csv` | `std` | Matched (SOURCE), Native | XAI-Cohort | 2020 Spatial-stratum attribution stability |
+| Supp | Figure S7 | (All) | `shap_*_cohort.parquet` | `shap__*` | Matched (SOURCE), Native | XAI-Cohort | Additional dependence relationships combined |
