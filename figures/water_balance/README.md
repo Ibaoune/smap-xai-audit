@@ -14,10 +14,10 @@ Ce répertoire rassemble les visualisations relatives aux transferts d'eau indui
 
 ## Chaîne de scripts et dépendances
 
-1. [`process_water_accounting.py`](../../process_water_accounting.py) :
+1. [`process_water_accounting.py`](../../scripts/postprocessing/water_accounting/process_water_accounting.py) :
    - *Entrées :* Incréments signés événementiels (`data/interim/enkf/{da_cdf,da_nocdf}/increment_signed/`) et incréments absolus journaliers (`data/processed/daily_enkf/{da_cdf,da_nocdf}/daily_absolute_increment/`) pour 2016–2020 (présents sur le disque).
    - *Sorties :* Fichiers temporaires racine (`cdf_matched_temp.nc`, `nocdf_matched_temp.nc`, masques, `qc_report.txt`).
-2. [`plot_water_accounting.py`](../../plot_water_accounting.py) :
+2. [`plot_water_accounting.py`](../../scripts/postprocessing/water_accounting/plot_water_accounting.py) :
    - *Entrées :* Fichiers intermédiaires (`cdf_matched_temp.nc`, `nocdf_matched_temp.nc`) et masque d'élévation (`data/processed/static/elevation/elevation.nc`).
    - *Sorties :* Synthèses tabulaires/grilles à la racine (`analysis_water_accounting_*`) et figures dans ce répertoire (`Figure_S8.*`, `QC_maps.png`).
 

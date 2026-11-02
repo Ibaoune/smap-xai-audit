@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 # Repository root and output directory for figures
-REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 OUT_FIG_DIR = os.path.join(REPO_ROOT, 'figures', 'water_balance')
 
 def get_area_weights(ds):
