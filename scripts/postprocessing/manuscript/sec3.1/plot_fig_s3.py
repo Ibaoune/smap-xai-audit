@@ -1,7 +1,15 @@
 """
-Plotting Script for Supplementary Figure S3
-===========================================
+Plotting Script for Supplementary Figure S3 (Legacy DA-CDF Accounting)
+======================================================================
 Water-Equivalent Surface-Layer Analysis Adjustment
+
+Note on Legacy Data & Scientific Invalidation:
+  - Figure S3 generation is DISABLED by default because it visualizes data
+    derived from the historical DA-CDF simulation, which has been invalidated
+    due to CDF domain and spatial mismatch (see docs/invalidated_legacy_cdf_results.md).
+  - Rendering can be explicitly requested with --include-legacy-s3.
+  - Existing output figure files are protected against accidental overwrite;
+    --overwrite-legacy-s3 must be provided alongside --include-legacy-s3 to overwrite.
 
 Panels:
   (a) Absolute adjustment activity (monthly climatology of absolute adjustment [mm])
@@ -10,13 +18,14 @@ Panels:
   (d) Cumulative matched-sample accounting (bar chart: Positive, Removal, Absolute, Net [mm])
       * Corrected visual sign convention: Wetting > 0, Drying / Removal < 0
 
-Outputs:
+Outputs (when enabled):
   - figures/manuscript/section_3_1/FigS3_water_accounting.png (500 DPI)
   - figures/manuscript/section_3_1/FigS3_water_accounting.pdf
 """
 
 import os
 from pathlib import Path
+import argparse
 import copy
 import xarray as xr
 import pandas as pd
@@ -33,6 +42,30 @@ def get_project_root() -> Path:
             return parent
     return Path.cwd()
 
+def parse_args(args=None):
+    parser = argparse.ArgumentParser(
+        description="Plotting Script for Manuscript Supplementary Figure S3 (Legacy DA-CDF Accounting)."
+    )
+    parser.add_argument(
+        '--include-legacy-s3',
+        action='store_true',
+        help=(
+            "Explicitly allow rendering Figure S3 using invalidated legacy DA-CDF accounting data. "
+            "By default, figure generation is disabled to prevent accidental visualization of invalidated CDF data."
+        )
+    )
+    parser.add_argument(
+        '--overwrite-legacy-s3',
+        action='store_true',
+        help=(
+            "Explicit authorization to overwrite existing Figure S3 output figures in "
+            "figures/manuscript/section_3_1/. Can only be used in conjunction with --include-legacy-s3."
+        )
+    )
+    parsed_args = parser.parse_args(args)
+    if parsed_args.overwrite_legacy_s3 and not parsed_args.include_legacy_s3:
+        parser.error("--overwrite-legacy-s3 can only be used in conjunction with --include-legacy-s3.")
+    return parsed_args
 # Typography and styling (matching Figure 3)
 mpl.rcParams.update({
     'font.family': 'sans-serif',
@@ -76,17 +109,61 @@ def setup_map_ax(ax, title: str):
         spine.set_linewidth(0.75)
 
 def main():
+    args = parse_args()
     root = get_project_root()
     data_dir = root / 'figures' / 'manuscript' / 'section_3_1'
-    
-    # Load input datasets
+
+    if not args.include_legacy_s3:
+        print("\n" + "=" * 78)
+        print("Figure S3 generation SKIPPED by default.")
+        print("Figure S3 depends on the historical DA-CDF water accounting simulation,")
+        print("which has been scientifically INVALIDATED due to unaligned CDF matching")
+        print("(see docs/invalidated_legacy_cdf_results.md).")
+        print("Existing figure files on disk are preserved without modification.")
+        print("To explicitly render legacy Figure S3, run with: --include-legacy-s3")
+        print("=" * 78 + "\n")
+        return
+
+    # Mode --include-legacy-s3 active:
+    print("\n" + "=" * 78)
+    print("WARNING: --include-legacy-s3 flag detected.")
+    if args.overwrite_legacy_s3:
+        print("WARNING: --overwrite-legacy-s3 authorization granted.")
+    print("Figure S3 renders water accounting diagnostics from the scientifically INVALIDATED")
+    print("historical DA-CDF simulation (see docs/invalidated_legacy_cdf_results.md).")
+    print("Provenance Notice: Input files in figures/manuscript/section_3_1/ are legacy artifacts;")
+    print("their presence does not guarantee scientific validity.")
+    print("=" * 78)
+
+    # 1. Verification of the 3 required S3 inputs before any rendering or plotting
     clim_path = data_dir / 'FigS3_monthly_climatology.csv'
     map_path = data_dir / 'FigS3_cumulative_map.nc'
     summary_path = data_dir / 'FigS3_water_accounting_summary.csv'
-    
-    if not (clim_path.is_file() and map_path.is_file() and summary_path.is_file()):
-        raise FileNotFoundError("Missing inputs for Figure S3. Run process_supplementary_data.py first.")
-        
+
+    required_inputs = [clim_path, map_path, summary_path]
+    missing_inputs = [p for p in required_inputs if not p.is_file()]
+    if missing_inputs:
+        raise FileNotFoundError(
+            f"Missing required Figure S3 input file(s) in {data_dir}:\n"
+            + "\n".join(f"  - {p.name}" for p in missing_inputs)
+            + "\nRun process_supplementary_data.py --include-legacy-s3 first."
+        )
+
+    # 2. Protection of existing outputs: check before any rendering
+    png_path = data_dir / 'FigS3_water_accounting.png'
+    pdf_path = data_dir / 'FigS3_water_accounting.pdf'
+
+    output_files = [png_path, pdf_path]
+    existing_outputs = [p for p in output_files if p.is_file()]
+    if existing_outputs and not args.overwrite_legacy_s3:
+        raise FileExistsError(
+            f"Figure S3 output file(s) already exist in {data_dir}:\n"
+            + "\n".join(f"  - {p.name}" for p in existing_outputs)
+            + "\nRefusing to overwrite existing figures without explicit authorization.\n"
+            "To overwrite existing Figure S3 files, re-run with both --include-legacy-s3 and --overwrite-legacy-s3."
+        )
+
+    print("\nRendering Figure S3...")
     df_clim = pd.read_csv(clim_path)
     ds_map = xr.open_dataset(map_path)
     df_summary = pd.read_csv(summary_path)
