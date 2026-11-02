@@ -2,8 +2,8 @@
 Data Processing Pipeline for Manuscript Supplementary Figures S1–S3
 ===================================================================
 
-This script prepares the underlying frozen diagnostic datasets for the three
-supplementary figures supporting Section 3.1:
+This script prepares the underlying frozen diagnostic datasets for the supplementary
+figures supporting Section 3.1:
 
 1. Figure S1 (Sample Matching Sensitivity):
    - CDF and NoCDF signed increments on native vs matched samples (1D arrays).
@@ -18,11 +18,17 @@ supplementary figures supporting Section 3.1:
      * figures/manuscript/section_3_1/FigS2_source_data.nc
      * figures/manuscript/section_3_1/FigS2_seasonal_summary.csv
 
-3. Figure S3 (Water-Equivalent Surface-Layer Analysis Adjustment):
+3. Figure S3 (Water-Equivalent Surface-Layer Analysis Adjustment - LEGACY):
+   - Note: Figure S3 data processing is DISABLED by default because the historical
+     DA-CDF run was invalidated (see docs/invalidated_legacy_cdf_results.md).
+   - S3 processing can be explicitly requested with --include-legacy-s3, which reads
+     preserved records exclusively from data/processed/water_accounting/legacy_cdf_2016_2020/.
+   - Existing S3 outputs are protected against accidental overwrite; --overwrite-legacy-s3
+     must be specified alongside --include-legacy-s3 to overwrite existing S3 files.
    - Monthly climatology of absolute adjustment and net balance.
    - Cumulative 2016–2020 absolute adjustment difference spatial grid.
    - Standardized domain cumulative water accounting metrics table.
-   - Exported to:
+   - Exported to (when enabled):
      * figures/manuscript/section_3_1/FigS3_monthly_climatology.csv
      * figures/manuscript/section_3_1/FigS3_cumulative_map.nc
      * figures/manuscript/section_3_1/FigS3_water_accounting_summary.csv
@@ -33,6 +39,7 @@ supplementary figures supporting Section 3.1:
 
 import os
 from pathlib import Path
+import argparse
 import xarray as xr
 import pandas as pd
 import numpy as np
@@ -45,13 +52,43 @@ def get_project_root() -> Path:
             return parent
     return Path.cwd()
 
+def parse_args(args=None):
+    parser = argparse.ArgumentParser(
+        description="Data Processing Pipeline for Manuscript Supplementary Figures S1–S3."
+    )
+    parser.add_argument(
+        '--include-legacy-s3',
+        action='store_true',
+        help=(
+            "Explicitly process Figure S3 water-accounting data using invalidated legacy "
+            "DA-CDF inputs preserved in data/processed/water_accounting/legacy_cdf_2016_2020/. "
+            "By default, S3 processing is disabled to prevent accidental reuse of invalidated CDF data."
+        )
+    )
+    parser.add_argument(
+        '--overwrite-legacy-s3',
+        action='store_true',
+        help=(
+            "Explicit authorization to overwrite existing Figure S3 output files in "
+            "figures/manuscript/section_3_1/. Can only be used in conjunction with --include-legacy-s3."
+        )
+    )
+    parsed_args = parser.parse_args(args)
+    if parsed_args.overwrite_legacy_s3 and not parsed_args.include_legacy_s3:
+        parser.error("--overwrite-legacy-s3 can only be used in conjunction with --include-legacy-s3.")
+    return parsed_args
+
 def main():
+    args = parse_args()
     root = get_project_root()
     out_dir = root / 'figures' / 'manuscript' / 'section_3_1'
     out_dir.mkdir(parents=True, exist_ok=True)
     
     print(f"Project root: {root}")
     print(f"Output directory: {out_dir}")
+    print(f"Include legacy S3 processing: {args.include_legacy_s3}")
+    if args.include_legacy_s3:
+        print(f"Overwrite existing legacy S3 outputs: {args.overwrite_legacy_s3}")
     
     years = [2016, 2017, 2018, 2019, 2020]
     
@@ -210,49 +247,98 @@ def main():
     # -------------------------------------------------------------------------
     # 5. Process Figure S3 Data (Water-Equivalent Accounting)
     # -------------------------------------------------------------------------
-    print("\nProcessing Figure S3 water-accounting datasets...")
-    # Load pre-aggregated monthly time series and compute 12-month climatology
-    monthly_path = root / 'analysis_water_accounting_monthly.csv'
-    if not monthly_path.is_file():
-        raise FileNotFoundError(f"Missing {monthly_path}. Please run process_water_accounting.py first.")
-    
-    df_monthly_raw = pd.read_csv(monthly_path)
-    df_monthly_raw['month'] = pd.to_datetime(df_monthly_raw['time']).dt.month
-    df_clim = df_monthly_raw.drop(columns=['time']).groupby('month').mean().reset_index()
-    df_clim['month_name'] = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
-    
-    csv_s3_clim_path = out_dir / 'FigS3_monthly_climatology.csv'
-    df_clim.to_csv(csv_s3_clim_path, index=False)
-    print(f"Saved: {csv_s3_clim_path}")
-    
-    # Load cumulative NetCDFs to construct cumulative difference map
-    cum_cdf_path = root / 'analysis_water_accounting_pixel_cumulative_cdf.nc'
-    cum_nocdf_path = root / 'analysis_water_accounting_pixel_cumulative_nocdf.nc'
-    
-    if not (cum_cdf_path.is_file() and cum_nocdf_path.is_file()):
-        raise FileNotFoundError("Missing pixel cumulative NetCDFs. Please run process_water_accounting.py first.")
-        
-    cum_cdf = xr.open_dataset(cum_cdf_path)
-    cum_nocdf = xr.open_dataset(cum_nocdf_path)
-    
-    diff_cum_abs = (cum_nocdf['W_absolute'] - cum_cdf['W_absolute']).where(valid_land)
-    diff_cum_net = (cum_nocdf['W_net'] - cum_cdf['W_net']).where(valid_land)
-    
-    ds_s3_map = xr.Dataset({
-        'diff_cum_absolute': diff_cum_abs.assign_attrs(units='mm', long_name='2016-2020 Cumulative absolute-adjustment difference (NoCDF - CDF)'),
-        'diff_cum_net': diff_cum_net.assign_attrs(units='mm', long_name='2016-2020 Cumulative net-adjustment difference (NoCDF - CDF)')
-    })
-    nc_s3_path = out_dir / 'FigS3_cumulative_map.nc'
-    ds_s3_map.to_netcdf(nc_s3_path)
-    print(f"Saved: {nc_s3_path}")
-    
-    # Save standardized water-accounting summary CSV
-    summary_raw_path = root / 'analysis_water_accounting_summary.csv'
-    df_summary = pd.read_csv(summary_raw_path)
-    csv_s3_sum_path = out_dir / 'FigS3_water_accounting_summary.csv'
-    df_summary.to_csv(csv_s3_sum_path, index=False)
-    print(f"Saved: {csv_s3_sum_path}")
-    
+    df_summary = None
+    if args.include_legacy_s3:
+        print("\n" + "=" * 78)
+        print("WARNING: --include-legacy-s3 flag detected.")
+        if args.overwrite_legacy_s3:
+            print("WARNING: --overwrite-legacy-s3 authorization granted.")
+        print("The historical DA-CDF water accounting simulation is scientifically INVALIDATED")
+        print("due to CDF domain and spatial mismatch (see docs/invalidated_legacy_cdf_results.md).")
+        print("Reading legacy inputs strictly from:")
+        print("  data/processed/water_accounting/legacy_cdf_2016_2020/")
+        print("=" * 78)
+
+        legacy_dir = root / 'data' / 'processed' / 'water_accounting' / 'legacy_cdf_2016_2020'
+        if not legacy_dir.is_dir():
+            raise FileNotFoundError(
+                f"Missing legacy directory: {legacy_dir}. "
+                "Ensure data/processed/water_accounting/legacy_cdf_2016_2020/ exists."
+            )
+
+        # Pre-execution checks: Verify all 4 inputs before creating or modifying any S3 output
+        monthly_path = legacy_dir / 'analysis_water_accounting_monthly.csv'
+        cum_cdf_path = legacy_dir / 'analysis_water_accounting_pixel_cumulative_cdf.nc'
+        cum_nocdf_path = legacy_dir / 'analysis_water_accounting_pixel_cumulative_nocdf.nc'
+        summary_raw_path = legacy_dir / 'analysis_water_accounting_summary.csv'
+
+        required_inputs = [monthly_path, cum_cdf_path, cum_nocdf_path, summary_raw_path]
+        missing_inputs = [p for p in required_inputs if not p.is_file()]
+        if missing_inputs:
+            raise FileNotFoundError(
+                f"Missing required legacy water accounting input file(s) in {legacy_dir}:\n"
+                + "\n".join(f"  - {p.name}" for p in missing_inputs)
+                + "\nCannot process Figure S3. Please ensure data/processed/water_accounting/legacy_cdf_2016_2020/ is complete."
+            )
+
+        # Output protection: Check if existing S3 outputs exist before any write
+        csv_s3_clim_path = out_dir / 'FigS3_monthly_climatology.csv'
+        nc_s3_path = out_dir / 'FigS3_cumulative_map.nc'
+        csv_s3_sum_path = out_dir / 'FigS3_water_accounting_summary.csv'
+
+        s3_outputs = [csv_s3_clim_path, nc_s3_path, csv_s3_sum_path]
+        existing_outputs = [p for p in s3_outputs if p.is_file()]
+        if existing_outputs and not args.overwrite_legacy_s3:
+            raise FileExistsError(
+                f"Figure S3 output file(s) already exist in {out_dir}:\n"
+                + "\n".join(f"  - {p.name}" for p in existing_outputs)
+                + "\nRefusing to overwrite existing outputs without explicit authorization.\n"
+                "To overwrite existing legacy S3 files, re-run with both --include-legacy-s3 and --overwrite-legacy-s3."
+            )
+
+        print("\nProcessing Figure S3 water-accounting datasets...")
+        # Load pre-aggregated monthly time series and compute 12-month climatology
+        df_monthly_raw = pd.read_csv(monthly_path)
+        df_monthly_raw['month'] = pd.to_datetime(df_monthly_raw['time']).dt.month
+        df_clim = df_monthly_raw.drop(columns=['time']).groupby('month').mean().reset_index()
+        df_clim['month_name'] = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
+
+        df_clim.to_csv(csv_s3_clim_path, index=False)
+        print(f"Saved: {csv_s3_clim_path}")
+
+        # Load cumulative NetCDFs to construct cumulative difference map
+        cum_cdf = xr.open_dataset(cum_cdf_path)
+        cum_nocdf = xr.open_dataset(cum_nocdf_path)
+
+        diff_cum_abs = (cum_nocdf['W_absolute'] - cum_cdf['W_absolute']).where(valid_land)
+        diff_cum_net = (cum_nocdf['W_net'] - cum_cdf['W_net']).where(valid_land)
+
+        ds_s3_map = xr.Dataset({
+            'diff_cum_absolute': diff_cum_abs.assign_attrs(
+                units='mm',
+                long_name='2016-2020 Cumulative absolute-adjustment difference (NoCDF - CDF)'
+            ),
+            'diff_cum_net': diff_cum_net.assign_attrs(
+                units='mm',
+                long_name='2016-2020 Cumulative net-adjustment difference (NoCDF - CDF)'
+            )
+        })
+        ds_s3_map.to_netcdf(nc_s3_path)
+        print(f"Saved: {nc_s3_path}")
+
+        # Save standardized water-accounting summary CSV
+        df_summary = pd.read_csv(summary_raw_path)
+        df_summary.to_csv(csv_s3_sum_path, index=False)
+        print(f"Saved: {csv_s3_sum_path}")
+    else:
+        print("\n" + "-" * 78)
+        print("Figure S3 water-accounting data generation SKIPPED by default.")
+        print("Historical DA-CDF water accounting results have been invalidated")
+        print("(see docs/invalidated_legacy_cdf_results.md).")
+        print("Existing S3 source data files on disk are preserved without modification.")
+        print("To explicitly process legacy S3 data, run with --include-legacy-s3.")
+        print("-" * 78)
+
     # -------------------------------------------------------------------------
     # 6. Generate Comprehensive Supplementary QC Audit Report
     # -------------------------------------------------------------------------
@@ -261,29 +347,50 @@ def main():
         f.write("======================================================================\n")
         f.write("QC AUDIT REPORT - SUPPLEMENTARY FIGURES S1–S3\n")
         f.write("======================================================================\n\n")
-        
+
+        f.write("SCIENTIFIC STATUS NOTICE:\n")
+        f.write("   - Figures S1 and S2 present technical diagnostic comparisons (increment\n")
+        f.write("     distributions and seasonal matched differences) between DA-CDF and DA-NoCDF.\n")
+        f.write("     They do NOT constitute validated scientific assessments of assimilation\n")
+        f.write("     accuracy, as the historical DA-CDF run was conducted with an unaligned\n")
+        f.write("     spatial domain (see docs/invalidated_legacy_cdf_results.md).\n")
+        f.write("   - Figure S3 water-accounting data depend on the invalidated historical DA-CDF\n")
+        f.write("     accounting chain and are excluded by default.\n\n")
+
         f.write("1. FIGURE S1: INCREMENT DISTRIBUTION BY SAMPLE MATCHING\n")
         f.write(f"   - CDF Native pixel-days:       {len(cdf_nat_1d):,} | Mean |inc|: {np.mean(np.abs(cdf_nat_1d)):.5f} m3 m-3\n")
         f.write(f"   - CDF Matched pixel-days:      {len(cdf_mat_1d):,} | Mean |inc|: {np.mean(np.abs(cdf_mat_1d)):.5f} m3 m-3\n")
         f.write(f"   - NoCDF Native pixel-days:     {len(nocdf_nat_1d):,} | Mean |inc|: {np.mean(np.abs(nocdf_nat_1d)):.5f} m3 m-3\n")
         f.write(f"   - NoCDF Matched pixel-days:    {len(nocdf_mat_1d):,} | Mean |inc|: {np.mean(np.abs(nocdf_mat_1d)):.5f} m3 m-3\n\n")
-        
+
         f.write("2. FIGURE S2: SEASONAL MATCHED INCREMENT DIFFERENCES (NoCDF - CDF)\n")
         for _, row in df_s2.iterrows():
             f.write(f"   - {row['season']}: Mean = {row['mean_m3m3']:+.5f} m3 m-3 | Range = [{row['min_m3m3']:+.4f}, {row['max_m3m3']:+.4f}] | Wetting frac = {row['fraction_positive']*100:.1f}%\n")
         f.write("\n")
-        
+
         f.write("3. FIGURE S3: WATER-EQUIVALENT ACCOUNTING (CUMULATIVE 2016–2020)\n")
-        f.write(f"   - CDF Positive (Wetting):      +{df_summary.loc[0, 'area_weighted_positive_mm']:.1f} mm\n")
-        f.write(f"   - CDF Removal (Drying):        -{df_summary.loc[0, 'area_weighted_removal_mm']:.1f} mm\n")
-        f.write(f"   - CDF Absolute (Activity):     +{df_summary.loc[0, 'area_weighted_absolute_mm']:.1f} mm\n")
-        f.write(f"   - CDF Net (Balance):           {df_summary.loc[0, 'area_weighted_net_mm']:.1f} mm\n")
-        f.write(f"   - NoCDF Positive (Wetting):    +{df_summary.loc[1, 'area_weighted_positive_mm']:.1f} mm\n")
-        f.write(f"   - NoCDF Removal (Drying):      -{df_summary.loc[1, 'area_weighted_removal_mm']:.1f} mm\n")
-        f.write(f"   - NoCDF Absolute (Activity):   +{df_summary.loc[1, 'area_weighted_absolute_mm']:.1f} mm\n")
-        f.write(f"   - NoCDF Net (Balance):         {df_summary.loc[1, 'area_weighted_net_mm']:.1f} mm\n")
+        if args.include_legacy_s3 and df_summary is not None:
+            f.write("   [PROCESSED WITH EXPLICIT --include-legacy-s3 FLAG]\n")
+            if args.overwrite_legacy_s3:
+                f.write("   [OVERWRITE AUTHORIZED: --overwrite-legacy-s3]\n")
+            f.write("   WARNING: Input data sourced from data/processed/water_accounting/legacy_cdf_2016_2020/.\n")
+            f.write("   Historical DA-CDF results are invalidated (see docs/invalidated_legacy_cdf_results.md).\n")
+            f.write(f"   - CDF Positive (Wetting):      +{df_summary.loc[0, 'area_weighted_positive_mm']:.1f} mm\n")
+            f.write(f"   - CDF Removal (Drying):        -{df_summary.loc[0, 'area_weighted_removal_mm']:.1f} mm\n")
+            f.write(f"   - CDF Absolute (Activity):     +{df_summary.loc[0, 'area_weighted_absolute_mm']:.1f} mm\n")
+            f.write(f"   - CDF Net (Balance):           {df_summary.loc[0, 'area_weighted_net_mm']:.1f} mm\n")
+            f.write(f"   - NoCDF Positive (Wetting):    +{df_summary.loc[1, 'area_weighted_positive_mm']:.1f} mm\n")
+            f.write(f"   - NoCDF Removal (Drying):      -{df_summary.loc[1, 'area_weighted_removal_mm']:.1f} mm\n")
+            f.write(f"   - NoCDF Absolute (Activity):   +{df_summary.loc[1, 'area_weighted_absolute_mm']:.1f} mm\n")
+            f.write(f"   - NoCDF Net (Balance):         {df_summary.loc[1, 'area_weighted_net_mm']:.1f} mm\n")
+        else:
+            f.write("   [OMITTED / NOT RECALCULATED]\n")
+            f.write("   Figure S3 data generation was skipped by default because historical DA-CDF\n")
+            f.write("   water accounting results have been invalidated (see docs/invalidated_legacy_cdf_results.md).\n")
+            f.write("   Existing S3 source data files on disk were preserved without modification.\n")
+            f.write("   To explicitly reprocess S3 from preserved legacy records, run with --include-legacy-s3.\n")
         f.write("======================================================================\n")
-        
+
     print(f"Saved: {qc_path}")
     print("\nSupplementary data processing completed successfully.")
 
