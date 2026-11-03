@@ -51,3 +51,8 @@ figures/manuscript/rf/rf_eval/*.png
 figures/manuscript/section_3_1/*.pdf
 figures/manuscript/section_3_1/*.csv
 figures/manuscript/section_3_1/*.txt
+
+# Legacy figures archive (binary and data outputs kept out of Git, manifest tracked)
+figures/legacy/**/*
+!figures/legacy/**/
+!figures/legacy/**/README.md

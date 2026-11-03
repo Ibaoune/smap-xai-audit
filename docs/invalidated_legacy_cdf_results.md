@@ -50,7 +50,7 @@ L'examen technique de ces fichiers (vérifiable via [`scripts/audits/check_cdf_d
 
 ## 3. Inventaire des résultats de la Section 3.1 et statut scientifique
 
-Les fichiers ci-dessous, situés dans [`figures/manuscript/section_3_1/`](file:///home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit/figures/manuscript/section_3_1/), reposent sur la simulation historique DA-CDF ou sur une comparaison conjointe CDF / NoCDF :
+Les 25 fichiers ci-dessous, initialement situés dans `figures/manuscript/section_3_1/` et désormais archivés sous [`figures/legacy/section_3_1/`](file:///home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit/figures/legacy/section_3_1/), reposent sur la simulation historique DA-CDF ou sur une comparaison conjointe CDF / NoCDF :
 
 | Fichier | Nature | Statut Git actuel | Script producteur | Dépendance d'entrée directe | Statut scientifique |
 |---|---|:---:|---|---|:---:|
