@@ -1,5 +1,11 @@
 # Pipeline de Post-traitement et Rendu — Manuscrit Section 3.1 (Figure 3)
 
+> [!WARNING]
+> **Notice d'invalidation historique — Données DA-CDF :**
+> Les métriques et figures de la simulation DA-CDF répertoriées dans ce document reposent sur l'ancienne simulation CDF à grille géographique discordante, formellement invalidée (voir [`docs/invalidated_legacy_cdf_results.md`](../../../../docs/invalidated_legacy_cdf_results.md)).
+> Les scripts de ce répertoire sont configurés pour être réexécutés sur les données de la DA-CDF corrigée (dont les prétraitements 01–20 sont validés pour 2016–2020), ce qui produira les nouvelles figures définitives pour la Section 3.1.
+> Seules les métriques de la simulation DA-NoCDF constituent des références scientifiques vérifiées.
+
 Ce répertoire contient l'ensemble des scripts de traitement des données et de production des figures pour la **Section 3.1** du manuscrit (*SMAP / Noah-MP Assimilation Audit*).
 
 ---
