@@ -36,3 +36,4 @@ fort.*
 
 # Large intermediate distribution caches for manuscript figures (reproducible via pipeline)
 figures/manuscript/section_3_1/*.npz
+figures/manuscript/section_3_1/*.nc
