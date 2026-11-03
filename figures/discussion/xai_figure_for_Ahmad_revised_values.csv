@@ -1,0 +1,7 @@
+group,family,CDF_exact_pct,NoCDF_exact_pct,CDF_minus_NoCDF_exact_pp,CDF_displayed,NoCDF_displayed,CDF_minus_NoCDF_displayed_pp,exact_diff_rounded_pp
+antecedent_soil_moisture_state,Antecedent soil moisture,58.7621,38.5191,20.2429,58.8000,38.5000,20.3000,20.2000
+meteorological_forcing,Meteorology,19.8647,26.6903,-6.8256,19.9000,26.7000,-6.8000,-6.8000
+soil_properties,Soil properties,5.0190,11.3665,-6.3475,5.0000,11.4000,-6.4000,-6.3000
+land_cover_or_vegetation,Land cover / vegetation,5.6962,10.2531,-4.5569,5.7000,10.3000,-4.6000,-4.6000
+topography,Topography,1.0114,3.5224,-2.5109,1.0000,3.5000,-2.5000,-2.5000
+temporal_context,Temporal context,9.6466,9.6487,-0.0020,9.6000,9.6000,0.0000,-0.0000

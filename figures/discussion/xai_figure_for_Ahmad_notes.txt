@@ -1,0 +1,101 @@
+xai_figure_for_Ahmad — notes d'accompagnement
+==============================================
+Généré le 2026-10-17 par scripts/figures/make_xai_figure_for_ahmad.py
+Sorties : figures/discussion/xai_figure_for_Ahmad.{png,pdf,svg}
+          figures/discussion/xai_figure_for_Ahmad_values.csv (valeurs exactes du panneau b)
+Statut  : figure de DISCUSSION (pas une figure finale du papier).
+
+
+1. Sources utilisées
+--------------------
+Cadre conceptuel (panneau a)
+- docs/xai/06_source_xai.md      : question SOURCE, cible daily_absolute_increment (|δx|)
+- docs/xai/07_transfer_xai.md, configs/datasets/transfer.yaml : cibles TRANSFER
+  (delta_rzsm, delta_et, delta_surface_runoff, delta_baseflow)
+- docs/preprocessing/data_preprocessing.md : définition Δ = DA − OPL
+- docs/xai/08_value_xai.md       : value_ae = |ET_OPL − ET_GLEAM| − |ET_DA − ET_GLEAM|
+- configs/xai/feature_groups.yaml + docs/xai/03_feature_group_contract.md : familles de prédicteurs
+- docs/xai/04_rf_shap_method.md  : RF + shap.TreeExplainer (tree_path_dependent), cohorte SHAP 10 000
+
+Résultat (panneau b) — version la plus récente et figée (final 2020, scellée)
+- data/processed/modeling/xai/final_2020/summaries/tidy_group_summary.csv   (valeurs tracées)
+- data/processed/modeling/xai/final_2020/summaries/source_matched_comparison_stats.json (ρ de groupe)
+- data/processed/modeling/xai/final_2020/shap/shap_SOURCE_da_{cdf,nocdf}_daily_absolute_increment_matched_support_cohort.parquet
+  (recalcul indépendant pour vérification)
+- figures/manuscript/rf/rf_eval/Figure4_2020_holdout_metrics.csv (R² hold-out 2020 de SOURCE)
+
+
+2. Origine des valeurs du panneau (b)
+-------------------------------------
+- Modèles : SOURCE, RF_A, context_only_feature_set (35 prédicteurs), entraînés 2016–2019,
+  expliqués sur le hold-out 2020.
+- Support : MATCHED (mêmes pixel-jours pour CDF et NoCDF) → seule configuration permettant une
+  comparaison directe CDF vs NoCDF (docs/xai/06 : les supports natifs ne sont pas comparables).
+- Métrique : importance de groupe = Σ_{features du groupe} mean|SHAP|, normalisée à 100 % par
+  configuration (colonne normalized_group_importance_pct). n = 10 000 pixel-jours.
+- Vérification : recalcul à partir des parquets SHAP bruts → écart max = 0.0000 pp avec le CSV.
+
+  Famille                    CDF (%)  NoCDF (%)  CDF−NoCDF (pp)
+  Antecedent soil moisture    58.8     38.5       +20.2
+  Meteorology                 19.9     26.7        −6.8
+  Antecedent fluxes            —        —           (absent de SOURCE)
+  Assimilation history         —        —           (absent de SOURCE)
+  Soil properties              5.0     11.4        −6.3
+  Land cover / vegetation      5.7     10.3        −4.6
+  Topography                   1.0      3.5        −2.5
+  Temporal context             9.6      9.6         0.0
+  Spearman ρ des rangs de groupes (CDF vs NoCDF) = 0.93 ; ρ des prédicteurs = 0.96.
+
+- Cohérence avec la version développement 2019 (outputs/source/matched_group_comparison.csv) :
+  CDF 58.7 / NoCDF 38.7 % pour l'humidité antécédente → le résultat est stable entre 2019 et 2020.
+  Le résultat attendu (CDF dominé par l'humidité antécédente, NoCDF redistribué) est donc
+  bien celui des données ; il n'a pas été forcé.
+
+
+3. Hypothèses / simplifications
+-------------------------------
+- Correspondance des libellés : antecedent_soil_moisture_state → "Antecedent soil moisture",
+  meteorological_forcing → "Meteorology", antecedent_land_surface_fluxes → "Antecedent fluxes",
+  assimilation_diagnostics_or_history → "Assimilation history", land_cover_or_vegetation →
+  "Land cover / vegetation" ; les autres sont identiques.
+- "Antecedent fluxes" et "Assimilation history" valent 0 dans SOURCE parce qu'ils ne font PAS
+  partie du jeu context_only (choix de conception, pas un résultat). Ils sont affichés en gris
+  "not in SOURCE predictor set†" plutôt qu'avec des barres nulles, pour éviter une lecture erronée.
+  Ils sont bien utilisés (et importants) dans TRANSFER et VALUE (≈ 6–37 % selon la cible).
+- Le registre contient une 9e famille, forcing_perturbation_controls (delta_precip_forcing_*),
+  non listée dans la figure (demande à 8 familles). Elle est nulle dans SOURCE, négligeable
+  pour la plupart des cibles, mais atteint 9.3 % pour ΔQs en CDF. → À mentionner à Ahmad ou à
+  ajouter au bandeau si on veut être exhaustif.
+- Le jeu SOURCE context_only exclut aussi volontairement les variables mécanistes EnKF
+  (innovation, forecast_variance) qui figurent dans primary_feature_set. Point de discussion
+  possible avec Ahmad.
+- Le panneau (a) écrit "δx or |δx|" comme demandé ; le modèle effectivement expliqué en (b) est
+  |δx| (daily_absolute_increment). Le δx signé n'est qu'un diagnostic secondaire.
+- Le R² hold-out 2020 du RF SOURCE est 0.58 (CDF) vs 0.24 (NoCDF) — valeurs lues dans
+  Figure4_2020_holdout_metrics.csv (n = 596 877, toutes lignes du hold-out). Ajouté dans le
+  dernier point de "Key reading" : la redistribution NoCDF doit être lue avec prudence car
+  l'émulateur explique moins bien la variance de |δx| en NoCDF.
+- Police : Arial/Helvetica ne sont pas installées sur le cluster ; Nimbus Sans (clone métrique
+  d'Helvetica, URW) est utilisée. Dans le SVG, la police est déclarée
+  "Arial, Helvetica, Nimbus Sans, sans-serif" pour un rendu Arial chez le lecteur.
+  Le PDF est vectoriel (polices embarquées en Type 3, limitation matplotlib 3.3 avec les OTF-CFF).
+- Couleurs CDF (bleu) / NoCDF (orange) : mêmes teintes que les figures du manuscrit, désaturées.
+
+
+4. Caption proposée (courte)
+----------------------------
+Figure. (a) XAI framework used to diagnose the SMAP assimilation pathway: the analysis update
+(SOURCE), its propagation to root-zone soil moisture, ET and runoff components (TRANSFER), and
+the agreement of the ET response with an independent reference, GLEAM (VALUE). (b) Grouped
+TreeSHAP importance of the SOURCE random forest (target |δx|) for CDF and NoCDF on identical
+2020 pixel-days; values are normalized contributions within each model.
+
+
+5. Questions suggérées pour l'email à Ahmad
+-------------------------------------------
+- Le découpage SOURCE / TRANSFER / VALUE est-il pertinent pour un diagnostic de la DA ?
+- Les familles de prédicteurs sont-elles adéquates ? Manque-t-il un contrôle clé
+  (ex. irrigation, LAI dynamique, variance de prévision EnKF) ?
+- Des simulations irrigation ON aideraient-elles à séparer le signal d'irrigation (vu par SMAP)
+  des incréments d'analyse, en particulier dans les zones où NoCDF donne plus de poids au sol
+  et à l'occupation du sol ?
