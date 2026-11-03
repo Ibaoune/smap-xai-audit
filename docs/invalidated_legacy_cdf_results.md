@@ -20,7 +20,7 @@ SMAP(NASA) model CDF file:       ./experiments/NorthMor/matrix_2016_2020/CDF/OUT
 SMAP(NASA) observation CDF file: ./experiments/NorthMor/matrix_2016_2020/CDF/OUTPUT_noirr/smap_cdf.nc
 ```
 
-L'examen technique de ces fichiers (vérifiable via [`scripts/check_cdf_domain.py`](file:///home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit/scripts/check_cdf_domain.py) et [`scripts/audit_cdf_validity.py`](file:///home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit/scripts/audit_cdf_validity.py)) met en évidence :
+L'examen technique de ces fichiers (vérifiable via [`scripts/audits/check_cdf_domain.py`](file:///home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit/scripts/audits/check_cdf_domain.py) et [`scripts/audits/audit_cdf_validity.py`](file:///home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit/scripts/audits/audit_cdf_validity.py)) met en évidence :
 
 1. **Ce qui est DÉMONTRÉ :**
    - **Incompatibilité géométrique et de masque :** Le fichier domaine historique `smap_cdf_domain.nc` couvrait un domaine spatial distinct plus large, où le domaine NorthMor ne correspondait qu'à un sous-domaine interne (lignes 184:305, colonnes 146:327).
@@ -41,7 +41,7 @@ L'examen technique de ces fichiers (vérifiable via [`scripts/check_cdf_domain.p
 | **23 Septembre 2026** | Prétraitement de cette simulation dans `smap-xai-audit` produisant les séries `data/processed/daily_enkf/da_cdf/daily_innovation/` et `daily_signed_increment/`. | Données dérivées de la simulation non alignée |
 | **11 Octobre 2026 (12:58–15:50 UTC)** | Exécution de `scripts/postprocessing/manuscript/sec3.1/` : génération des figures et des données sources (Source Data) de la Section 3.1. | Sorties basées sur les entrées du 23/09 |
 | **11 Octobre 2026 (16:03 UTC)** | Commit Git `b2f74f3` archivant dans le dépôt les versions PNG raster de la Section 3.1 (`Fig3_a_d_support.png`, etc.). | Commit historique conservé, contenu scientifique obsolète |
-| **24–25 Octobre 2026** | Identification de la discordance spatiale via les scripts d'audit (`scripts/check_cdf_domain.py`, `scripts/audit_cdf_validity.py`). | Discordance géométrique formellement établie |
+| **24–25 Octobre 2026** | Identification de la discordance spatiale via les scripts d'audit (`scripts/audits/check_cdf_domain.py`, `scripts/audits/audit_cdf_validity.py`). | Discordance géométrique formellement établie |
 | **25 Octobre 2026** | Régénération des tables CDF alignées géométriquement sur le domaine NorthMor via LDT (`OUTPUT_model_NorthMor/noahmp_model_cdf_NorthMor.nc` et `OUTPUT_obs_NorthMor/smap_obs_cdf_NorthMor.nc`). | Tables CDF géométriquement conformes (16 030 mailles) ; impact dynamique sur l'assimilation restant à évaluer |
 | **27 Octobre 2026 (19:23 UTC)** | Archivage de l'ancienne simulation vers `NoahMP_Morocco/.../DA_cdf_noirr_2016_2020/_archive_oldCDF_20261027/`. Lancement de la NOUVELLE simulation `DA_cdf_noirr_2016_2020` avec les CDF réalignées. | Simulation en cours d'exécution (évaluation scientifique en attente des sorties complètes) |
 | **29 Octobre 2026** | Audit CLEAN-03B confirmant que tous les fichiers actuels de `figures/manuscript/section_3_1/` proviennent de l'ancien run. | Invalidation formalisée pour la Section 3.1 |
@@ -144,7 +144,7 @@ La réhabilitation des résultats de la Section 3.1 ne saurait être automatique
 1. **Achèvement complet de la simulation DA-CDF réalignée :**
    La simulation `DA_cdf_noirr_2016_2020` (actuellement en cours d'exécution sous `NoahMP_Morocco`) doit avoir achevé ses 60 mois de calcul (2016–2020 complets) sans interruption.
 2. **Évaluation scientifique préalable de la simulation :**
-   La conformité géométrique des tables CDF (`scripts/check_cdf_domain.py`) ne préjuge pas de la qualité hydrologique des sorties. Un contrôle statistique approfondi des innovations et des incréments générés par le nouveau run (via [`scripts/eval_da_cdf_test.py`](file:///home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit/scripts/eval_da_cdf_test.py) ou équivalent) doit confirmer la cohérence physique de l'assimilation avant toute exploitation.
+   La conformité géométrique des tables CDF (`scripts/audits/check_cdf_domain.py`) ne préjuge pas de la qualité hydrologique des sorties. Un contrôle statistique approfondi des innovations et des incréments générés par le nouveau run (via [`scripts/audits/eval_da_cdf_test.py`](file:///home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit/scripts/audits/eval_da_cdf_test.py) ou équivalent) doit confirmer la cohérence physique de l'assimilation avant toute exploitation.
 3. **Mise à jour du prétraitement EnKF journalier :**
    Réexécution du prétraitement EnKF pour actualiser les séries journalières dans `data/processed/daily_enkf/da_cdf/`.
 4. **Régénération des Source Data et des figures de Section 3.1 :**
