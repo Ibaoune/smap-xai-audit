@@ -55,8 +55,24 @@ def get_fingerprint(df, coord_cols):
     key_str = keys.to_csv(index=False).encode('utf-8')
     return hashlib.md5(key_str).hexdigest()
 
+def matches_model_key(target_key: str, block: str, experiment: str, target: str, support: str) -> bool:
+    if not target_key:
+        return True
+    tk = target_key.lower().replace("-", "_").replace("_cohort", "").strip()
+    full_key = f"{block}_{experiment}_{target}_{support}".lower()
+    path_key = f"{block.lower()}/{experiment}/{target}/{support}"
+    if tk in (full_key, path_key, path_key.replace("/", "_")):
+        return True
+    tokens = [t for t in tk.replace("/", "_").split("_") if t]
+    return all(t in full_key.split("_") for t in tokens)
+
 def main():
-    workspace = "."
+    parser = argparse.ArgumentParser(description="Run 2020 XAI (SHAP & Permutation)")
+    parser.add_argument("--model-key", type=str, default=None, help="Specific model key to process (e.g. source_da_cdf_native)")
+    parser.add_argument("--workspace-root", type=str, default=".")
+    args = parser.parse_args()
+
+    workspace = args.workspace_root
     out_dir = Path(workspace) / "data" / "processed" / "modeling" / "xai" / "final_2020"
     out_dir.mkdir(parents=True, exist_ok=True)
     
@@ -81,6 +97,9 @@ def main():
         support = meta["support_mode"]
         features = meta["fitted_features"]
         
+        if args.model_key and not matches_model_key(args.model_key, block, experiment, target, support):
+            continue
+            
         print(f"XAI for 2020: {block} / {experiment} / {target} / {support} ...")
         
         # Load Model
