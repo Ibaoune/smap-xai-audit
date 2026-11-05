@@ -111,7 +111,7 @@ def setup_map_ax(ax, title: str):
 def main():
     args = parse_args()
     root = get_project_root()
-    data_dir = root / 'figures' / 'manuscript' / 'section_3_1'
+    data_dir = Path(os.environ.get('SEC31_OUT_DIR', root / 'figures' / 'manuscript' / 'section_3_1'))
 
     if not args.include_legacy_s3:
         print("\n" + "=" * 78)

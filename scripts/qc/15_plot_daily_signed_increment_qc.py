@@ -52,7 +52,7 @@ def process_exp(exp, ds, ds_freq):
     print(f"  fraction > 0: {np.sum(cond > 0) / len(cond)}")
 
 def main():
-    out_dir = "reports/qc/daily_signed_increment"
+    out_dir = os.environ.get("QC_OUT_DIR", f"reports/qc/daily_signed_increment")
     os.makedirs(out_dir, exist_ok=True)
     
     ds_cdf = load_all("data/processed/daily_enkf/da_cdf/daily_signed_increment", "daily_signed_increment")

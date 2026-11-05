@@ -62,7 +62,7 @@ def calc_ecdf(arr, max_val=0.07, num_points=1000):
 
 def main():
     root = get_project_root()
-    data_dir = root / 'figures' / 'manuscript' / 'section_3_1'
+    data_dir = Path(os.environ.get('SEC31_OUT_DIR', root / 'figures' / 'manuscript' / 'section_3_1'))
     
     # Load 1D distributions
     npz_path = data_dir / 'FigS1_distributions.npz'

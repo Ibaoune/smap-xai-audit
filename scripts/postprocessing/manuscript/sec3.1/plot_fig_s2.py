@@ -83,7 +83,7 @@ def setup_map_ax(ax, title: str, show_yticklabels: bool = True, show_xticklabels
 
 def main():
     root = get_project_root()
-    data_dir = root / 'figures' / 'manuscript' / 'section_3_1'
+    data_dir = Path(os.environ.get('SEC31_OUT_DIR', root / 'figures' / 'manuscript' / 'section_3_1'))
     
     nc_path = data_dir / 'FigS2_source_data.nc'
     if not nc_path.is_file():

@@ -88,7 +88,7 @@ def process_exp(exp, ds_abs, ds_signed, ds_freq):
     print(f"  Zero absolute increments when obs_freq == 1: {zeros_in_freq_1}")
 
 def main():
-    out_dir = "reports/qc/daily_absolute_increment"
+    out_dir = os.environ.get("QC_OUT_DIR", f"reports/qc/daily_absolute_increment")
     os.makedirs(out_dir, exist_ok=True)
     
     ds_abs_cdf = load_all("data/processed/daily_enkf/da_cdf/daily_absolute_increment", "daily_absolute_increment")

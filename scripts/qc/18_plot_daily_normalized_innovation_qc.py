@@ -184,7 +184,7 @@ def formula_reconstruction(exp):
     print(f"Unequal exact: {unequal_exact}")
 
 def main():
-    out_dir = "reports/qc/daily_normalized_innovation"
+    out_dir = os.environ.get("QC_OUT_DIR", f"reports/qc/daily_normalized_innovation")
     os.makedirs(out_dir, exist_ok=True)
     
     ds_ninv_cdf = load_all("data/processed/daily_enkf/da_cdf/daily_normalized_innovation", "daily_normalized_innovation")

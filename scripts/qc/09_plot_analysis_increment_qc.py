@@ -28,7 +28,7 @@ def load_all_years(directory):
 def main():
     cdf_dir = "data/interim/enkf/da_cdf/increment_signed"
     nocdf_dir = "data/interim/enkf/da_nocdf/increment_signed"
-    out_dir = "reports/qc/analysis_increment"
+    out_dir = os.environ.get("QC_OUT_DIR", f"reports/qc/analysis_increment")
     os.makedirs(out_dir, exist_ok=True)
     
     ds_cdf = load_all_years(cdf_dir)

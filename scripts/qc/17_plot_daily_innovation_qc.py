@@ -77,7 +77,7 @@ def process_exp(exp, ds_inv, ds_signed, ds_abs, ds_freq):
     print(f"  Spearman correlation (|inv| vs abs_inc): {corr_abs_s:.4f}")
 
 def main():
-    out_dir = "reports/qc/daily_innovation"
+    out_dir = os.environ.get("QC_OUT_DIR", f"reports/qc/daily_innovation")
     os.makedirs(out_dir, exist_ok=True)
     
     ds_inv_cdf = load_all("data/processed/daily_enkf/da_cdf/daily_innovation", "daily_innovation")

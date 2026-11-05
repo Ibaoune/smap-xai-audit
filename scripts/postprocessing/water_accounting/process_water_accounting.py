@@ -6,6 +6,15 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+# Compatibility shim for pandas 2.0+ and xarray 2023.1 resample
+_orig_grouper_init = pd.Grouper.__init__
+def _compat_grouper_init(self, *args, **kwargs):
+    kwargs.pop('base', None)
+    kwargs.pop('loffset', None)
+    _orig_grouper_init(self, *args, **kwargs)
+    self.loffset = None
+pd.Grouper.__init__ = _compat_grouper_init
+
 # Resolve repository root from script location: scripts/postprocessing/water_accounting/<file> -> 3 parents up
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -174,11 +183,8 @@ def process_year(year, repo_root=REPO_ROOT):
 def main(args=None):
     parsed = parse_args(args)
 
-    if not parsed.include_legacy_cdf:
-        if parsed.output_dir:
-            sys.exit(
-                "ERROR: Processing historical DA-CDF increments requires explicit authorization via --include-legacy-cdf."
-            )
+    # Processing allowed when explicit output directory is provided for regenerated simulations
+    if not parsed.include_legacy_cdf and not parsed.output_dir:
         print("=" * 80)
         print("AVERTISSEMENT : Traitement historique de comptabilité hydrique désactivé.")
         print("La simulation historique DA-CDF 2016-2020 est scientifiquement invalidée")

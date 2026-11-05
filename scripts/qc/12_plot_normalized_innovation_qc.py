@@ -47,7 +47,7 @@ def main():
     cdf_var_dir = "data/interim/enkf/da_cdf/forecast_variance"
     nocdf_var_dir = "data/interim/enkf/da_nocdf/forecast_variance"
     
-    out_dir = "reports/qc/normalized_innovation"
+    out_dir = os.environ.get("QC_OUT_DIR", f"reports/qc/normalized_innovation")
     os.makedirs(out_dir, exist_ok=True)
     
     ds_n_cdf = load_all(cdf_ninnov_dir, 'normalized_innovation')

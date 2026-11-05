@@ -41,7 +41,7 @@ def get_project_root() -> Path:
 
 def main():
     root = get_project_root()
-    out_dir = root / 'figures' / 'manuscript' / 'section_3_1'
+    out_dir = Path(os.environ.get('SEC31_OUT_DIR', root / 'figures' / 'manuscript' / 'section_3_1'))
     out_dir.mkdir(parents=True, exist_ok=True)
     
     print(f"Project root: {root}")

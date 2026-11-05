@@ -372,7 +372,7 @@ def make_fig3_e_h(out_dir: Path):
 
 def main():
     root = get_project_root()
-    out_dir = root / 'figures' / 'manuscript' / 'section_3_1'
+    out_dir = Path(os.environ.get('SEC31_OUT_DIR', root / 'figures' / 'manuscript' / 'section_3_1'))
     print(f"Project root: {root}")
     print(f"Output directory: {out_dir}")
     

@@ -52,9 +52,12 @@ def resolve_mask():
         cdf_only_t = np.setdiff1d(t_cdf, t_nocdf)
         nocdf_only_t = np.setdiff1d(t_nocdf, t_cdf)
         
-        # Common timestamps
-        inn_cdf = ds_cdf['innovation'].sel(event_time=common_t).values
-        inn_nocdf = ds_nocdf['innovation'].sel(event_time=common_t).values
+        # Common timestamps (optimized bulk array indexing)
+        inn_cdf_raw = ds_cdf['innovation'].values
+        inn_nocdf_raw = ds_nocdf['innovation'].values
+        
+        inn_cdf = inn_cdf_raw[np.isin(t_cdf, common_t)]
+        inn_nocdf = inn_nocdf_raw[np.isin(t_nocdf, common_t)]
         
         fin_cdf = np.isfinite(inn_cdf) & valid_mask_canonical[None, :, :]
         fin_nocdf = np.isfinite(inn_nocdf) & valid_mask_canonical[None, :, :]
@@ -66,12 +69,12 @@ def resolve_mask():
         
         # CDF-only timestamps
         if len(cdf_only_t) > 0:
-            inn_cdf_only = ds_cdf['innovation'].sel(event_time=cdf_only_t).values
+            inn_cdf_only = inn_cdf_raw[np.isin(t_cdf, cdf_only_t)]
             cdf_only_time_count += (np.isfinite(inn_cdf_only) & valid_mask_canonical[None, :, :]).sum()
             
         # NoCDF-only timestamps
         if len(nocdf_only_t) > 0:
-            inn_nocdf_only = ds_nocdf['innovation'].sel(event_time=nocdf_only_t).values
+            inn_nocdf_only = inn_nocdf_raw[np.isin(t_nocdf, nocdf_only_t)]
             nocdf_only_time_count += (np.isfinite(inn_nocdf_only) & valid_mask_canonical[None, :, :]).sum()
 
     print("\n--- RECOMPUTED ON CANONICAL 16030 LAND MASK ---")
