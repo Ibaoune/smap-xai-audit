@@ -1,0 +1,767 @@
+[
+  {
+    "path": "data/processed/modeling/source/da_nocdf/year=2016/part-00000.parquet",
+    "size": 94466742,
+    "md5": "e1388b1e7bb9b536e9c0d4e5a9219be3"
+  },
+  {
+    "path": "data/processed/modeling/source/da_nocdf/year=2017/part-00000.parquet",
+    "size": 87496961,
+    "md5": "4fec3cc0e1f100b6f92f38400f2b9e59"
+  },
+  {
+    "path": "data/processed/modeling/source/da_nocdf/year=2018/part-00000.parquet",
+    "size": 101657332,
+    "md5": "6f6c0fc78703844198ad847c92682bed"
+  },
+  {
+    "path": "data/processed/modeling/source/da_nocdf/year=2019/part-00000.parquet",
+    "size": 89066798,
+    "md5": "46800e40d2f7659c26a1e80b6d0e3793"
+  },
+  {
+    "path": "data/processed/modeling/source/da_nocdf/year=2020/part-00000.parquet",
+    "size": 99851754,
+    "md5": "4ecdae5a1815aec549ea482aa8755172"
+  },
+  {
+    "path": "data/processed/modeling/splits/gleam_spatial_blocks.parquet",
+    "size": 9890,
+    "md5": "0c555577bbc074f3c28910da0ffb4df1"
+  },
+  {
+    "path": "data/processed/modeling/splits/noahmp_spatial_blocks.parquet",
+    "size": 11832,
+    "md5": "7e40d46aefbb0c076ef0b812d6ba5885"
+  },
+  {
+    "path": "data/processed/modeling/splits/source_matched_support.parquet",
+    "size": 1316388,
+    "md5": "ce1eb5bbb6d3183c5988857869d26e95"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2016/part-01.parquet",
+    "size": 50900456,
+    "md5": "da39a5d99ad2fc5219ccbe1deca38c05"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2016/part-02.parquet",
+    "size": 60382780,
+    "md5": "6fb7d00b5242fa378bbec3353933af97"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2016/part-03.parquet",
+    "size": 61194663,
+    "md5": "c9912c27ef130c248b4f684e6ec40bef"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2016/part-04.parquet",
+    "size": 61932717,
+    "md5": "084f35726a72efde81db561c50efc3b7"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2016/part-05.parquet",
+    "size": 65221561,
+    "md5": "28bd21069246b386ed19b91994084d8a"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2016/part-06.parquet",
+    "size": 56216189,
+    "md5": "5a6172e07535bcf639344b281e95caaa"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2016/part-07.parquet",
+    "size": 64899875,
+    "md5": "238e6365418de9a3f9a25af9daa5b2e4"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2016/part-08.parquet",
+    "size": 67186677,
+    "md5": "4305f1ac1a7cfb1d9baffc400a552986"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2016/part-09.parquet",
+    "size": 65680012,
+    "md5": "56abbdcddbd4d127c64ce893ca9a7be0"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2016/part-10.parquet",
+    "size": 66956200,
+    "md5": "777ce5df4285aa7b1cb7c09b3634dbae"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2016/part-11.parquet",
+    "size": 66793376,
+    "md5": "2e7397839a3f8f2d2cab3241d8ca4321"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2016/part-12.parquet",
+    "size": 67455068,
+    "md5": "2babb3d28f358ff60595a0e57c8bc727"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2017/part-01.parquet",
+    "size": 62457304,
+    "md5": "1057c37888c60960126d186134e7dbe0"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2017/part-02.parquet",
+    "size": 59774770,
+    "md5": "19dec480ffbb074478c541db0e369b03"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2017/part-03.parquet",
+    "size": 62338460,
+    "md5": "674bc9f27fd8af5d17e1a8ba8623a1a9"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2017/part-04.parquet",
+    "size": 60202041,
+    "md5": "6709829346ff60ad537dd5750b376e5c"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2017/part-05.parquet",
+    "size": 64323937,
+    "md5": "ce534e0fed54a08abdf7428dc0f48473"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2017/part-06.parquet",
+    "size": 63776232,
+    "md5": "11ee3e3b401d1942120a34f7790fd0d6"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2017/part-07.parquet",
+    "size": 59105203,
+    "md5": "68acd024a36f423c949022421159b270"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2017/part-08.parquet",
+    "size": 66422824,
+    "md5": "761f4ad01cc16b59ebfe51e6a5fe498c"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2017/part-09.parquet",
+    "size": 58724500,
+    "md5": "6977a06963c5591a053b6cb9c04950e2"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2017/part-10.parquet",
+    "size": 63629353,
+    "md5": "951eed070cbe317af91ef78edc839fb3"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2017/part-11.parquet",
+    "size": 58016457,
+    "md5": "a0c3bc740018f0703cc71275a18a85ab"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2017/part-12.parquet",
+    "size": 61775668,
+    "md5": "d781213ec3b0f86e016b132366b7a078"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2018/part-01.parquet",
+    "size": 65219297,
+    "md5": "59edaa41698deade2901c12bc85826d7"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2018/part-02.parquet",
+    "size": 60413237,
+    "md5": "62e13e0876d139e3f62ed6bb798c6c05"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2018/part-03.parquet",
+    "size": 66195358,
+    "md5": "4818ff73f7fa92d66c0b344a6477fdca"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2018/part-04.parquet",
+    "size": 64089834,
+    "md5": "63d9a9b363fbb3306d73172ed0c2daea"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2018/part-05.parquet",
+    "size": 64750764,
+    "md5": "04897bb1c99903f523b5286826f19bd5"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2018/part-06.parquet",
+    "size": 54674918,
+    "md5": "34b84ab649444e7a646d9bf1b0c37454"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2018/part-07.parquet",
+    "size": 59537534,
+    "md5": "b77d04d837ff0446f25c92aae76e293b"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2018/part-08.parquet",
+    "size": 67135225,
+    "md5": "e95a520a79a8ce94eaad527039ba145c"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2018/part-09.parquet",
+    "size": 68081194,
+    "md5": "e4afb91b87484cb46efb87ca96efc1de"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2018/part-10.parquet",
+    "size": 68842615,
+    "md5": "799bd009a1ec48cb15ec986f5856bf31"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2018/part-11.parquet",
+    "size": 66583337,
+    "md5": "be8f421b59ab050178265467c4740423"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2018/part-12.parquet",
+    "size": 58957408,
+    "md5": "692d3c88c9c315c1d97c03663c96f5ec"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2019/part-01.parquet",
+    "size": 56994956,
+    "md5": "eb275dec418b11b5a232da6dd3294ca2"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2019/part-02.parquet",
+    "size": 52365916,
+    "md5": "a40b99cd6a6b7f77ae995800aa539aa1"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2019/part-03.parquet",
+    "size": 61565561,
+    "md5": "377aa4dd8dbbf5b4ed36cff3cf1c2146"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2019/part-04.parquet",
+    "size": 64824813,
+    "md5": "0343250f018cd8b215113596bca73572"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2019/part-05.parquet",
+    "size": 60402154,
+    "md5": "49b051059d6c6fe23612a0375ea12676"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2019/part-06.parquet",
+    "size": 52831657,
+    "md5": "f18e78d84da843e6b21c03dbd0f569da"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2019/part-07.parquet",
+    "size": 56750161,
+    "md5": "b7890a97cad5f7678bf1a3071adc4872"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2019/part-08.parquet",
+    "size": 66094686,
+    "md5": "ea9956830f0755d9778a2e61cfa08e58"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2019/part-09.parquet",
+    "size": 65093609,
+    "md5": "8ec71e152f877d8502865bd6e1f8a75d"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2019/part-10.parquet",
+    "size": 62744110,
+    "md5": "02b0cd4ba0fdd97f50893f388a10f52d"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2019/part-11.parquet",
+    "size": 63578242,
+    "md5": "64919310dab8774979dc76758851934a"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2019/part-12.parquet",
+    "size": 65950116,
+    "md5": "96e8d8cd02418b1d423ca4db19580603"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2020/part-01.parquet",
+    "size": 59412316,
+    "md5": "33946592a7925f68a78305659ec1db45"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2020/part-02.parquet",
+    "size": 53271400,
+    "md5": "56efbd86f8470e438b671ab7e086981a"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2020/part-03.parquet",
+    "size": 64059005,
+    "md5": "405daba64c0da62e953392a3ab70e802"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2020/part-04.parquet",
+    "size": 66040422,
+    "md5": "bf50cbb6fe5aa920244aa39c473b8bac"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2020/part-05.parquet",
+    "size": 63020974,
+    "md5": "f2a1dfaf00c4a16d3d11adbbafc079f6"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2020/part-06.parquet",
+    "size": 57849654,
+    "md5": "6997fd9f60aa80e8996dda2c77a7bfad"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2020/part-07.parquet",
+    "size": 64217723,
+    "md5": "4e869542f3899b58bc12aa6e213888b4"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2020/part-08.parquet",
+    "size": 65265349,
+    "md5": "57b742a6876b1224eeed21ed45205767"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2020/part-09.parquet",
+    "size": 63286860,
+    "md5": "a845f3d23ceb25f764665f36a9c2f4f8"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2020/part-10.parquet",
+    "size": 60611549,
+    "md5": "aaebb254b7dacbf4195fce109d27607e"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2020/part-11.parquet",
+    "size": 63827070,
+    "md5": "8735bc546e609c462027a31a504fb348"
+  },
+  {
+    "path": "data/processed/modeling/transfer/da_nocdf/year=2020/part-12.parquet",
+    "size": 64307392,
+    "md5": "f123d9e940733ec4c832aca1a58e8b40"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2016/part-01.parquet",
+    "size": 14541021,
+    "md5": "94ca7f973522df1576d2e35add53b594"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2016/part-02.parquet",
+    "size": 17714372,
+    "md5": "1fbb78128f30797c8d2f80ecc6a79d5b"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2016/part-03.parquet",
+    "size": 18271416,
+    "md5": "fd7f45bf40ebdab5657943a683a3d2b2"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2016/part-04.parquet",
+    "size": 18323797,
+    "md5": "4fdde831fe3c419d6c6d487ac1acca1e"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2016/part-05.parquet",
+    "size": 19089642,
+    "md5": "eda8cae674cd7fc72fb0d63db22a61b0"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2016/part-06.parquet",
+    "size": 16595546,
+    "md5": "6c3deac902778a724e2538a6029f83ad"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2016/part-07.parquet",
+    "size": 19121740,
+    "md5": "0e27b38a711acf12c082be767fe1dee6"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2016/part-08.parquet",
+    "size": 19867746,
+    "md5": "40ae9c3c1abbca6e788e9712f5380a3b"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2016/part-09.parquet",
+    "size": 19295360,
+    "md5": "8d71fa0db0fb654f797ceec3f76c76ab"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2016/part-10.parquet",
+    "size": 19886146,
+    "md5": "ec6bcd43eebc2068be21a33847fc1fd5"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2016/part-11.parquet",
+    "size": 19754304,
+    "md5": "8649cf2fa4e62d912a8ef5e1f671527e"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2016/part-12.parquet",
+    "size": 19907569,
+    "md5": "f282e9ee4e2a68523ce7cafe5922ea41"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2017/part-01.parquet",
+    "size": 18465302,
+    "md5": "a359534e65d3e4246b866f5cefa67d2a"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2017/part-02.parquet",
+    "size": 17385207,
+    "md5": "eb708ff12d0b3d9eea5300a670476746"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2017/part-03.parquet",
+    "size": 18421548,
+    "md5": "d12ac1969bd8037e0ddb6e57eab29107"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2017/part-04.parquet",
+    "size": 17647940,
+    "md5": "b75b8dde551517b89dcc0d7080bde843"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2017/part-05.parquet",
+    "size": 18968928,
+    "md5": "c309e4bb4a4afea26c3312cd506acd06"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2017/part-06.parquet",
+    "size": 18689854,
+    "md5": "bae6e6a9c8fd41dcf71798684c07105a"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2017/part-07.parquet",
+    "size": 17453375,
+    "md5": "9215cb34e3bac9069f37b17766517225"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2017/part-08.parquet",
+    "size": 19619720,
+    "md5": "dc9e2f8b0dcdae3b5a7e31185654ba8e"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2017/part-09.parquet",
+    "size": 17250344,
+    "md5": "1a7b2c2bda37144140ca496601a713dd"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2017/part-10.parquet",
+    "size": 18734496,
+    "md5": "b9a688c25ee26929cb0cb5210a56da1a"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2017/part-11.parquet",
+    "size": 17257241,
+    "md5": "d8bd4449f1ed0eb68d26f96edef24ed3"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2017/part-12.parquet",
+    "size": 18422128,
+    "md5": "f0c0e1c650ae9e24f9170b2623acd891"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2018/part-01.parquet",
+    "size": 19243796,
+    "md5": "32a2294372ce4ba34964f77753f8bafc"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2018/part-02.parquet",
+    "size": 17485052,
+    "md5": "dcb45a68a6808419cf43814d0ecee77f"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2018/part-03.parquet",
+    "size": 19445639,
+    "md5": "86222041bd4cc8a9ac729d4b45360270"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2018/part-04.parquet",
+    "size": 18672417,
+    "md5": "b89648cfa9ada5241655d2e911a58cf1"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2018/part-05.parquet",
+    "size": 18897362,
+    "md5": "2cf5cf7d54f1a9c05db2c1df8e44b914"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2018/part-06.parquet",
+    "size": 16102926,
+    "md5": "fd54035295f78d6c7e445167596eb10d"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2018/part-07.parquet",
+    "size": 17654616,
+    "md5": "e986ad228463700a62735354ba491df2"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2018/part-08.parquet",
+    "size": 19713973,
+    "md5": "f9833105a5eb331512c07401997e0b47"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2018/part-09.parquet",
+    "size": 20034604,
+    "md5": "30f5a803f5fe3bfcdb58c86562c023c2"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2018/part-10.parquet",
+    "size": 20383953,
+    "md5": "7809629659f2133a8942334e61685f93"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2018/part-11.parquet",
+    "size": 19569861,
+    "md5": "facd469c02090ae35030b6287c6c0e48"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2018/part-12.parquet",
+    "size": 17562919,
+    "md5": "b81a8df2ed178176dddd2251ea4108a7"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2019/part-01.parquet",
+    "size": 17058288,
+    "md5": "64740b295dfa2292e536b02cffa99ebf"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2019/part-02.parquet",
+    "size": 15424099,
+    "md5": "a61f8276b9f2d70b90eac2d06d2437ff"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2019/part-03.parquet",
+    "size": 18227746,
+    "md5": "ba5051690269aaef6cf46b34e0e06fdd"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2019/part-04.parquet",
+    "size": 18954610,
+    "md5": "d9b2d480b560b6d6fe9d735d3bc4a3c2"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2019/part-05.parquet",
+    "size": 17734713,
+    "md5": "325153e80bbf1629050591c72b1f9ac5"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2019/part-06.parquet",
+    "size": 15403584,
+    "md5": "2b5f5aa37b6d05d01589209f9ffc1e17"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2019/part-07.parquet",
+    "size": 16356523,
+    "md5": "b7827379a98c6879c2a10f008003a2b3"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2019/part-08.parquet",
+    "size": 19514063,
+    "md5": "a92e0a672c6ca5f3c180bc1de0e58f42"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2019/part-09.parquet",
+    "size": 19137593,
+    "md5": "5f04581b55be645bc8db2ecb7a826df4"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2019/part-10.parquet",
+    "size": 18617405,
+    "md5": "86f6b0727d858bc270fda85d888be452"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2019/part-11.parquet",
+    "size": 18851230,
+    "md5": "141ad7757abc1cafe3e369ef4278de9f"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2019/part-12.parquet",
+    "size": 19550050,
+    "md5": "8eb3b06433f12e1fd137397af1d7db00"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2020/part-01.parquet",
+    "size": 17792715,
+    "md5": "3deb964d81abab5a575390313c2758fa"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2020/part-02.parquet",
+    "size": 15996028,
+    "md5": "76f3fdf95e13eaf14e865b6788df57aa"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2020/part-03.parquet",
+    "size": 19030063,
+    "md5": "a466e9fed1a13ef38c11d3a381721529"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2020/part-04.parquet",
+    "size": 19459405,
+    "md5": "af0b3d88b9294302645d961fef4a563c"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2020/part-05.parquet",
+    "size": 18545402,
+    "md5": "9b10de39672b48d2e5ef5ed9e2f4fc55"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2020/part-06.parquet",
+    "size": 17096777,
+    "md5": "d0bbe15ebd1a80db6f59315a1571362c"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2020/part-07.parquet",
+    "size": 19034872,
+    "md5": "a56b704cbbf264d7efb6770dd9e05ac4"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2020/part-08.parquet",
+    "size": 19296059,
+    "md5": "f72918ca57f1540a08d5b4f1827aa240"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2020/part-09.parquet",
+    "size": 18661456,
+    "md5": "eaa0ed43414868154c396187fe42c28e"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2020/part-10.parquet",
+    "size": 18007003,
+    "md5": "0c6eca1ecfb2c67301b7ef984a972c80"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2020/part-11.parquet",
+    "size": 18868714,
+    "md5": "d0f2e03ab56c1f54faf4829a947a0701"
+  },
+  {
+    "path": "data/processed/modeling/value/da_nocdf/year=2020/part-12.parquet",
+    "size": 19128404,
+    "md5": "61a4571b63055f4559eae5fed24a5b5c"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_baseflow/delta_baseflow_2016.nc",
+    "size": 32079502,
+    "md5": "23a29a555d4e7bfe2a9e54114d290321"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_baseflow/delta_baseflow_2017.nc",
+    "size": 31991890,
+    "md5": "656e5f42e6058194840ee6cce882959c"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_baseflow/delta_baseflow_2018.nc",
+    "size": 31991890,
+    "md5": "37f5ca143b22861db191f72cf327aa30"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_baseflow/delta_baseflow_2019.nc",
+    "size": 31991890,
+    "md5": "91021b3b817e54ac6b6d226344bf82b8"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_baseflow/delta_baseflow_2020.nc",
+    "size": 32079502,
+    "md5": "e476fd3d6c914be6ee3902cc56dc3c9c"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_et/delta_et_2016.nc",
+    "size": 32077156,
+    "md5": "9d153a548fdfe9cf18abdd723d445517"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_et/delta_et_2017.nc",
+    "size": 31989544,
+    "md5": "199cc43b0ab1be54d646fa973b3572ba"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_et/delta_et_2018.nc",
+    "size": 31989544,
+    "md5": "f900609d188e2b8048341e0f71dd1e8e"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_et/delta_et_2019.nc",
+    "size": 31989544,
+    "md5": "05f3dfd8ebc0c4e11d9cf4b1752c9410"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_et/delta_et_2020.nc",
+    "size": 32077156,
+    "md5": "6f7ddb025b9c5e2689949dffed0eb3c2"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_rzsm/delta_rzsm_2016.nc",
+    "size": 32077176,
+    "md5": "6fe56f90bf6bc987e74de8d167139a71"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_rzsm/delta_rzsm_2017.nc",
+    "size": 31989564,
+    "md5": "5d35fd456a445b7202cff6ae03b6b9ec"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_rzsm/delta_rzsm_2018.nc",
+    "size": 31989564,
+    "md5": "d82e37456b57ef7a265b39065ded8a2c"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_rzsm/delta_rzsm_2019.nc",
+    "size": 31989564,
+    "md5": "265c23b411dd0c4406a1dc5ef39a15fe"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_rzsm/delta_rzsm_2020.nc",
+    "size": 32077176,
+    "md5": "8339e61ee043c304e0c470f4ab10271f"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_surface_runoff/delta_surface_runoff_2016.nc",
+    "size": 32077180,
+    "md5": "0bf317b90d6f4f173c8cee05662b6bf4"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_surface_runoff/delta_surface_runoff_2017.nc",
+    "size": 31989568,
+    "md5": "a779da408c2130d2f85c4c9e6fc95820"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_surface_runoff/delta_surface_runoff_2018.nc",
+    "size": 31989568,
+    "md5": "bd746a8eb318793a78c1edb51e207048"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_surface_runoff/delta_surface_runoff_2019.nc",
+    "size": 31989568,
+    "md5": "0f86a0149eaa5f475bad5c1134f9ab2d"
+  },
+  {
+    "path": "data/processed/transfer/da_nocdf/delta_surface_runoff/delta_surface_runoff_2020.nc",
+    "size": 32077180,
+    "md5": "9cbdaaa179d979a93732a7ba711b28dc"
+  },
+  {
+    "path": "data/processed/value/value_ae/da_nocdf/value_ae_2016.nc",
+    "size": 16714981,
+    "md5": "8387082617e83cbf23199c6153ad2362"
+  },
+  {
+    "path": "data/processed/value/value_ae/da_nocdf/value_ae_2017.nc",
+    "size": 16669341,
+    "md5": "43a67c6f60f9df3d11092cf6b838b68d"
+  },
+  {
+    "path": "data/processed/value/value_ae/da_nocdf/value_ae_2018.nc",
+    "size": 16669341,
+    "md5": "7b2e3ee0425a6f416bbd37a58758688c"
+  },
+  {
+    "path": "data/processed/value/value_ae/da_nocdf/value_ae_2019.nc",
+    "size": 16669341,
+    "md5": "21b2303efed0684ca1ce6eadd5898b16"
+  },
+  {
+    "path": "data/processed/value/value_ae/da_nocdf/value_ae_2020.nc",
+    "size": 16714981,
+    "md5": "b8832bb72bdd05fe3ac48c055e2b26f6"
+  }
+]
