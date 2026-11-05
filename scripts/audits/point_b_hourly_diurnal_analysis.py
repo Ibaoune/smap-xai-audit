@@ -22,7 +22,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-BASE_HOURLY = "/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/experiments/NorthMor/matrix_2016_2020/OPL_hourly_201807/output/2018-07/SURFACEMODEL/201807"
+BASE_HOURLY = "/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/experiments/NorthMor/matrix_2016_2020/tests/OPL_hourly_201807/output/2018-07/SURFACEMODEL/201807"
 BASE_DA = "/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/experiments/NorthMor/matrix_2016_2020/DA_nocdf_noirr_2016_2020/output/2018-07/DAOBS/201807"
 BASE_DAILY_OL = "/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/experiments/NorthMor/matrix_2016_2020/OPL_noirr_2016_2020/output"
 LIS_INPUT = "/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/data/lis_input/lis_input_NorthMor_5km.nc"
@@ -135,7 +135,7 @@ def run_point_b():
     non_forest = land_bool & (vegt > 4)
     
     # 1. Vérification de la complétude des sorties horaires
-    hourly_files = sorted(glob.glob("/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/experiments/NorthMor/matrix_2016_2020/OPL_hourly_201807/output/2018-07/SURFACEMODEL/*/LIS_HIST_*.d01.nc"))
+    hourly_files = sorted(glob.glob("/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/experiments/NorthMor/matrix_2016_2020/tests/OPL_hourly_201807/output/2018-07/SURFACEMODEL/*/LIS_HIST_*.d01.nc"))
     print(f"Nombre de fichiers horaires trouvés : {len(hourly_files)}")
     if len(hourly_files) < 744: # 31 * 24 = 744 heures
         print(f"ATTENTION : Seulement {len(hourly_files)}/744 fichiers disponibles. Simulation non terminée !")
@@ -161,7 +161,7 @@ def run_point_b():
             else:
                 next_d = dt + datetime.timedelta(days=1)
                 ts = f"{next_d.strftime('%Y%m%d')}0000"
-            cands = glob.glob(f"/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/experiments/NorthMor/matrix_2016_2020/OPL_hourly_201807/output/2018-07/SURFACEMODEL/*/LIS_HIST_{ts}.d01.nc")
+            cands = glob.glob(f"/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/experiments/NorthMor/matrix_2016_2020/tests/OPL_hourly_201807/output/2018-07/SURFACEMODEL/*/LIS_HIST_{ts}.d01.nc")
             if not cands:
                 raise FileNotFoundError(f"Fichier manquant pour timestamp {ts}")
             hf = cands[0]

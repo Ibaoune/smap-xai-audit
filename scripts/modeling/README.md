@@ -7,12 +7,12 @@
 
 ## 1. Objectif scientifique
 
-Le répertoire `scripts/modeling/` implémente le cadre d'apprentissage automatique supervisé utilisé pour émuler et analyser le comportement de la chaîne d'assimilation SMAP / Noah-MP.
+Le répertoire `scripts/modeling/` implémente le cadre d'apprentissage automatique supervisé utilisé pour émuler et analyser le comportement de la chaîne d'assimilation SMAP / Noah-MP sur la grille NorthMor ($121 \times 181$ mailles, résolution $0{,}05^\circ \approx 5\text{ km}$).
 
-L'objectif n'est pas de substituer un réseau de neurones ou une forêt aléatoire au modèle physique Noah-MP, mais de **construire des émulateurs statistiques interprétables** capables de capturer les relations fonctionnelles complexes entre :
-1. Les conditions environnementales antécédentes et les incréments EnKF (bloc **SOURCE**).
-2. L'incrément de surface et la réponse des flux couplés (bloc **TRANSFER**).
-3. Les caractéristiques écohydrologiques et la concordance avec GLEAM (bloc **VALUE**).
+L'objectif n'est pas de substituer un réseau de neurones ou une forêt aléatoire au modèle physique Noah-MP, mais de **construire des émulateurs statistiques interprétables** capables d'analyser :
+1. Dans quelle mesure le contexte environnemental antécédent et statique permet d'anticiper l'intensité des incréments EnKF (bloc **SOURCE**).
+2. La réponse dynamique des flux couplés à l'incrément de surface (bloc **TRANSFER**).
+3. Les facteurs prédictifs de concordance avec la référence externe GLEAM v4.3a (bloc **VALUE**).
 
 ---
 
@@ -21,7 +21,10 @@ L'objectif n'est pas de substituer un réseau de neurones ou une forêt aléatoi
 ### Protocole de scellement temporel strict
 Pour garantir une évaluation sans fuite d'information (*data leakage*) et tester la capacité de généralisation des modèles sur une année hydrologique indépendante :
 - **Période d'entraînement final (*Training refit*) :** 2016-01-08 au 2019-12-31 (4 années hydrologiques complètes).
-- **Période de test scellée (*Holdout 2020*) :** 2020-01-01 au 2020-12-31. L'année 2020 n'a jamais été exposée aux modèles durant la phase d'optimisation.
+- **Période de test scellée (*Holdout 2020*) :** 2020-01-01 au 2020-12-31. L'année 2020 est formellement scellée et n'a pas été utilisée pour le réglage des hyperparamètres.
+
+### Partitionnement spatial par blocs réguliers
+Pour tester la robustesse spatiale face aux dépendances spatiales, le fichier [`configs/modeling/splits.yaml`](../../configs/modeling/splits.yaml) définit un découpage en **5 blocs géographiques réguliers de $1{,}0^\circ \times 1{,}0^\circ$** (folds 0 à 4), interdisant tout découpage aléatoire pixel par pixel (*random pixel split forbidden*).
 
 ### Architectures Random Forest (spécifiées dans `configs/modeling/models.yaml`)
 - **Configuration `RF_A` (utilisée pour SOURCE et TRANSFER) :**
@@ -29,11 +32,10 @@ Pour garantir une évaluation sans fuite d'information (*data leakage*) et teste
   - *Justification scientifique :* Profondeur modérée pour régulariser les modèles face aux colinéarités fortes et optimiser la robustesse des explications TreeSHAP.
 - **Configuration `RF_B` (utilisée pour VALUE) :**
   - Arbres : `n_estimators = 300`, profondeur maximale `max_depth = 16`, feuilles minimales `min_samples_leaf = 5`, `max_features = 0.7`.
-  - *Justification scientifique :* Flexibilité accrue pour capturer la structure résiduelle plus fine du gain d'erreur absolue face à GLEAM.
 
 ### Régimes de support d'évaluation
 - **Support natif (`native_support`) :** Modèles entraînés et évalués sur le support d'assimilation propre à chaque simulation.
-- **Support apparié (`matched_support`) :** Modèles restreints à l'intersection stricte des pixel-jours où CDF et NoCDF possèdent simultanément une innovation finie.
+- **Support apparié (`matched_support`) :** Modèles restreints à l'intersection temporelle et spatiale exacte des pixel-jours où CDF et NoCDF possèdent simultanément une innovation finie.
 
 ---
 
@@ -49,12 +51,22 @@ Pour chaque cible, les performances sur le test 2020 sont évaluées via :
 - Erreur absolue moyenne ($\text{MAE}$) et erreur quadratique moyenne ($\text{RMSE}$).
 - Biais moyen ($\text{Bias} = \bar{\hat{y}} - \bar{y}$).
 - **Score de compétence relatif (*Skill Score*) :**
-  $$\text{Skill}_{\text{metric}} = 1 - \frac{\text{Metric}_{\text{RF}}}{\text{Metric}_{\text{baseline}}}$$
-  Où la baseline est la médiane mensuelle d'entraînement (SOURCE, VALUE) ou la moyenne mensuelle d'entraînement (TRANSFER).
+  $$\text{Skill}_{\text{MAE}} = 1 - \frac{\text{MAE}_{\text{RF}}}{\text{MAE}_{\text{baseline}}}$$
+  Où la baseline est la médiane mensuelle locale d'entraînement (SOURCE, VALUE) ou la moyenne mensuelle (TRANSFER).
 
 ---
 
-## 4. Fonctionnement technique et ordre d'exécution
+## 4. Matrice d'expériences prévues pour SOURCE [Proposé]
+
+Afin de départager rigoureusement la pertinence des cibles et des prédicteurs, quatre expériences contrôlées sont préparées :
+1. **Expérience A (Référence actuelle) :** Régression sur l'amplitude absolue $|\Delta\theta_1^a|$ avec 35 prédicteurs contextuels.
+2. **Expérience B (Classification du signe) :** Prédiction du sens de la correction $\text{signe}(\Delta\theta_1^a)$ avec exclusion d'une bande morte $[-\epsilon, +\epsilon]$ ($\epsilon = 0{,}002\text{ m}^3\,\text{m}^{-3}$).
+3. **Expérience C (Contextuel vs Mécanistique) :** Mesure du saut de prédictibilité apporté par l'innovation ($y - Hx^f$) et la variance de prévision ($HPH^T$).
+4. **Expérience D (Sensibilité d'échelle) :** Régression sur l'amplitude normalisée par la capacité au champ $|\Delta\theta_1^a| / \theta_{\text{fc}}$.
+
+---
+
+## 5. Fonctionnement technique et ordre d'exécution
 
 ```
 Étape 1 : Génération du protocole de split spatio-temporel
@@ -74,23 +86,21 @@ Pour chaque cible, les performances sur le test 2020 sont évaluées via :
   └─► python scripts/modeling/06_evaluate_final_2020.py --block <SOURCE|TRANSFER|VALUE> --exp <exp>
 ```
 
-Les modèles sérialisés sont archivés sous `models/` avec leurs hachages SHA-256 et métadonnées d'entraînement.
+---
+
+## 6. Validation, contrôle qualité et limites d'interprétation
+
+1. **Interprétation du Skill Score :**
+   Pour le modèle SOURCE NoCDF natif, le score de compétence $\text{Skill}_{\text{MAE}} = 15{,}4\%$ indique que la RF réduit l'erreur absolue moyenne de 15,4 % par rapport à la médiane mensuelle locale. Les 84,6 % d'erreur résiduelle rappellent que l'amplitude exacte de l'incrément reste largement imprévisible sans l'observation satellite.
+2. **Adéquation statistique $\neq$ Vérité physique :**
+   Les métriques mesurent strictement l'adéquation de la régression statistique face aux sorties numériques du modèle et du filtre. Elles ne constituent pas une validation de terrain.
+3. **Dépendances spatiales résiduelles :**
+   L'évaluation finale doit impérativement confronter la validation temporelle (2020) et la validation spatiale par blocs ($1^\circ \times 1^\circ$) pour éviter les faux succès dus à l'autocorrélation spatiale.
 
 ---
 
-## 5. Validation, contrôle qualité et limites d'interprétation
-
-1. **Adéquation statistique $\neq$ Réalité terrain :**
-   Les métriques mesurent strictement la capacité de la Random Forest à émuler les équations de Noah-MP et du filtre EnKF. Elles ne constituent en aucun cas une validation physique de terrain par rapport à des données in situ (débits jaugés, tours de flux).
-2. **Faiblesse de la baseline climatologique :**
-   La baseline mensuelle ne résout pas la persistance d'ordre 1 ($t-1$). Sur des variables d'état à forte inertie ($\Delta\text{RZSM}$), un score de compétence de 30 % par rapport à la climatologie reste modeste face à un prédicteur de persistance pure.
-3. **Traçabilité des artefacts :**
-   Les scripts bloquent immédiatement l'exécution si une variable interdite est détectée dans les colonnes ou si un échantillon de 2020 apparaît dans le jeu d'entraînement.
-
----
-
-## 6. Statut des résultats et références internes
+## 7. Statut des résultats et références internes
 
 - **[Vérifié]** Modèles **DA-NoCDF (Support natif)** scellés et évalués sur 2020. Résultats de référence documentés dans [`docs/nocdf_native_rf_results.md`](../../docs/nocdf_native_rf_results.md) et exportables via `scripts/audits/export_nocdf_native_rf_metrics.py`.
-- **[En attente]** Modèles **DA-CDF corrigée** : les entraînements définitifs seront lancés dès validation des tables de données complètes.
-- **Documentation associée :** Consulter [`docs/modeling/`](../../docs/modeling/) pour la matrice de développement RF et [`configs/modeling/`](../../configs/modeling/) pour les hyperparamètres.
+- **[En attente]** Modèles **DA-CDF corrigée** : réentraînement après validation finale du protocole d'expériences.
+- **Documentation associée :** Consulter [`docs/modeling/`](../../docs/modeling/) et [`docs/xai/06_source_xai.md`](../../docs/xai/06_source_xai.md).

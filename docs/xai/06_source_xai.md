@@ -1,166 +1,99 @@
-# SOURCE Development XAI (RF-04B) — COMPLETE
+# Spécification et Protocole Scientifique du Bloc SOURCE (`docs/xai/06_source_xai.md`)
 
-## Scientific Question
-Given a pixel-day with a valid native EnKF innovation diagnostic, which environmental,
-antecedent land-state, and assimilation-context predictors are **associated with** the magnitude
-of the daily surface-soil-moisture analysis increment (`daily_absolute_increment`)?
+**Auteur :** M. El Aabaribaoune (@um6p)  
+**Branche active :** `elaabar`  
+**Statut :** Protocole révisé — Phase de préparation expérimentale (aucun entraînement actif).
 
-## Models Explained
-Exactly four frozen RF_A models (context_only_feature_set):
+---
 
-| # | Experiment | Support | Active predictors |
-|---|---|---|---|
-| 1 | `da_cdf` | `native` | 35 |
-| 2 | `da_nocdf` | `native` | 35 |
-| 3 | `da_cdf` | `matched` | 35 |
-| 4 | `da_nocdf` | `matched` | 35 |
+> [!WARNING]
+> **Avertissement méthodologique sur les résultats historiques DA-CDF :**  
+> Les attributions SHAP historiques de la simulation DA-CDF issues de la phase RF-04B antérieure au 27 octobre 2026 reposent sur une fonction de transfert CDF calculée sur une grille géographique discordante. Elles sont **formellement invalidées** (voir [`docs/invalidated_legacy_cdf_results.md`](../invalidated_legacy_cdf_results.md)). Seules les métriques et attributions de la simulation **DA-NoCDF native** constituent des résultats historiquement vérifiés. Les analyses comparatives avec la DA-CDF seront réexécutées sur la simulation corrigée.
 
-**Note on feature counts**: The global XAI feature-group registry (`feature_groups.yaml`)
-contains **58 unique predictors** spanning all model families. The SOURCE
-`context_only_feature_set` uses a **35-predictor subset** of that registry.
-All 35 SOURCE predictors are correctly mapped to their scientific groups;
-groups whose features are absent from SOURCE have zero importance.
+---
 
-## Cohort Sizes
+## 1. Contrat scientifique SOURCE consolidé
 
-| Level | Rows | Description |
-|---|---|---|
-| Cohort index (parquet) | 50,000 | Balanced pixel-day universe (month × fold, seed 42) |
-| SHAP compute subset | **10,000** | Deterministic balanced sub-sample nested within 50k |
-| Permutation subset | 5,000 | First 5,000 rows of 10k SHAP compute cohort |
+### A. Motivation et question scientifique
+- **Motivation :** L'incrément de surface en couche 1 ($0\text{--}10\text{ cm}$) constitue le point d'injection initial de l'information satellitaire SMAP dans Noah-MP. Analyser les conditions préexistantes associées à ces ajustements permet d'auditer la réceptivité environnementale du modèle avant toute propagation dans le profil racinaire.
+- **Question scientifique :**  
+  *Dans quelle mesure le contexte environnemental antécédent et statique (état hydrique initial, forçage météorologique passé, texture de sol, couverture végétale et calendrier saisonnier) permet-il d'anticiper l'intensité des mises à jour appliquées par le filtre EnKF, en l'absence de l'observation satellitaire elle-même ?*
 
-SHAP values are **not** computed for all 50,000 cohort-index rows.
+### B. Définition mathématique exacte de la cible
+- **[Implémenté & Vérifié]** Amplitude absolue de l'incrément journalier d'analyse :
+  $$\text{target} = \text{daily\_absolute\_increment} = |\Delta\theta_1^a| = |\theta_1^a - \theta_1^f| \quad (\text{m}^3\,\text{m}^{-3})$$
+- **Distinction opérationnelle des grandeurs EnKF :**
+  1. *Innovation finie ($y - Hx^f \in \mathbb{R}$) :* Écart brut entre la mesure SMAP valide et la prévision moyenne d'ensemble.
+  2. *Observation acceptée par le filtre :* Observation ayant passé avec succès les tests de contrôle qualité internes de LIS EnKF (absence de gel, pluie non saturante).
+  3. *Incrément appliqué ($\Delta\theta_1^a = K(y - Hx^f)$) :* Correction effective calculée via le gain de Kalman $K$. Sur le domaine NorthMor ($0{,}05^\circ \approx 5\text{ km}$), chaque pixel continental ne reçoit au plus qu'une observation acceptée par jour civil UTC (`observation_frequency` $\in \{0, 1\}$).
+- **[Proposé]** Formulation normalisée optionnelle : $|\Delta\theta_1^a| / \theta_{\text{fc}}$ (analyse de sensibilité à l'échelle de capacité au champ).
 
-## Sample-Size Stability (Frozen at RF-04B Closure)
-Representative model: `da_cdf` matched support.
+### C. Définition des prédicteurs (35 variables contextuelles)
+- **[Implémenté & Vérifié]** Mode `context_only_feature_set` :
+  - *États hydriques antécédents ($t-1$) :* `ssm_lag1`, `rzsm_lag1`.
+  - *Météorologie antécédente ($t-1$ à $t-7$) :* `precip_lag1`, `precip_pre3d_sum`, `precip_pre7d_sum`, `tair_lag1`, `tair_pre3d_mean`, `tair_pre7d_mean`.
+  - *Propriétés statiques géophysiques :* `elevation`, 15 classes de couvert végétal MODIS, 7 fractions texturales STATSGO.
+  - *Contexte temporel :* `month`, `day_of_year`, composantes harmoniques `doy_sin`, `doy_cos`.
+- **Règle d'exclusion anti-tautologique :**  
+  Les variables d'assimilation directes (`innovation`, `forecast_variance`, `normalized_innovation`) sont délibérément exclues du modèle contextuel pour empêcher la régression d'inverser trivialement la matrice de Kalman, ce qui étoufferait les facteurs environnementaux.
 
-| Comparison | Predictor rank ρ | Top-10 overlap | Group ρ | Max group diff |
-|---|---|---|---|---|
-| 5k vs 10k | 0.9989 | 10/10 | 1.0000 | 0.016 |
+### D. Portée et limites épistémologiques
+1. **Ce que SOURCE démontre :** La susceptibilité statistique et la réceptivité du paysage aux corrections EnKF.
+2. **Ce que SOURCE ne démontre pas :** Il ne prouve pas de causalité physique directe (les corrélations fortes avec l'humidité antécédente sont partiellement portées par la saisonnalité climatique méditerranéenne).
+3. **Dépendances spatio-temporelles :** Malgré le décalage temporel ($t-1$), la forte autocorrélation spatiale des champs météorologiques et hydrologiques réduit le nombre effectif de degrés de liberté.
 
-**Decision**: 10k compute size is frozen. Stable relative to 5k.
+---
 
-## Additivity QC
+## 2. Matrice des quatre expériences contrôlées
 
-| Model | max |SHAP| error | median error |
-|---|---|---|
-| `da_cdf` native | 1.78e-15 | 1.04e-16 |
-| `da_nocdf` native | 1.18e-15 | 8.33e-17 |
-| `da_cdf` matched | 2.16e-15 | 9.63e-17 |
-| `da_nocdf` matched | 1.53e-15 | 6.77e-17 |
+| Expérience | Question scientifique | Cible | Prédicteurs | Support de données | Baselines | Métriques | Validation spatio-temporelle |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **A. Amplitude absolue (Référence)** | Dans quelle mesure le contexte antécédent prédit-il l'amplitude de mise à jour EnKF ? | $|\Delta\theta_1^a|$ ($\text{m}^3\,\text{m}^{-3}$) | 35 variables contextuelles (`context_only`) | Pixel-jours avec `obs_freq == 1` | Médiane mensuelle par pixel, Régression Ridge linéaire | $R^2$, Pearson $r$, MAE, RMSE, Skill MAE | Train 2016–2019, Test 2020 scellé, Block-CV 5 folds ($1^\circ \times 1^\circ$) |
+| **B. Signe de l'incrément (Direction)** | Le contexte environnemental permet-il d'anticiper le sens de la correction (humidification vs assèchement) ? | $Y \in \{0, 1\}$ ($1 \text{ si } \Delta\theta_1^a > +\epsilon$, $0 \text{ si } \Delta\theta_1^a < -\epsilon$) | Mêmes 35 variables contextuelles | Pixel-jours avec $\|\Delta\theta_1^a\| > \epsilon$ ($\epsilon = 0{,}002\text{ m}^3\,\text{m}^{-3}$) | Fréquence majoritaire, Mode mensuel par pixel, Régression logistique | Accuracy, F1 pondéré, AUC-ROC, Brier Score | Train 2016–2019, Test 2020 scellé, Block-CV 5 folds ($1^\circ \times 1^\circ$) |
+| **C. Contextuel vs Mécanistique** | Quel est le saut de prédictibilité apporté par la connaissance de l'innovation et de l'incertitude du filtre ? | $|\Delta\theta_1^a|$ | Mêmes 35 variables + `innovation` ($y - Hx^f$) + `forecast_variance` ($HPH^T$) | Pixel-jours avec `obs_freq == 1` | Modèle contextuel (Exp. A), Régression linéaire sur l'innovation | $\Delta R^2$, $\Delta\text{MAE}$, divergence de rangs SHAP | Train 2016–2019, Test 2020 scellé, Block-CV 5 folds ($1^\circ \times 1^\circ$) |
+| **D. Amplitude normalisée (Sensibilité)** | La modulation de l'incrément par la texture est-elle un artefact d'échelle de la capacité au champ ? | $|\Delta\theta_1^a| / \theta_{\text{fc}}$ (sans unité) | Mêmes 35 variables contextuelles | Pixel-jours avec `obs_freq == 1` | Médiane mensuelle normalisée, Régression Ridge | $R^2$, Pearson $r$, MAE normalisée, rangs SHAP | Train 2016–2019, Test 2020 scellé, Block-CV 5 folds ($1^\circ \times 1^\circ$) |
 
-## Global Predictor Results (Matched CDF — top 10)
+---
 
-| Rank | Feature | Group | mean\|SHAP\| | mean signed |
-|---|---|---|---|---|
-| 1 | `ssm_lag1` | antecedent_soil_moisture_state | 0.00717 | −0.00107 |
-| 2 | `precip_lag1` | meteorological_forcing | 0.00125 | −0.000035 |
-| 3 | `rzsm_lag1` | antecedent_soil_moisture_state | 0.000922 | −0.000193 |
-| 4 | `precip_pre7d_sum` | meteorological_forcing | 0.000837 | −0.000068 |
-| 5 | `doy_sin` | temporal_context | 0.000719 | +0.000512 |
-| 6 | `land_cover_fraction_16` | land_cover_or_vegetation | 0.000585 | +0.000083 |
-| 7 | `precip_pre3d_sum` | meteorological_forcing | 0.000407 | +0.000004 |
-| 8 | `doy_cos` | temporal_context | 0.000404 | +0.000126 |
-| 9 | `day_of_year` | temporal_context | 0.000247 | +0.000098 |
-| 10 | `soil_texture_fraction_1` | soil_properties | 0.000209 | +0.000182 |
+## 3. Justification détaillée des choix méthodologiques
 
-## Grouped Results
+### Justification de la bande morte $[-\epsilon, +\epsilon]$ pour le Signe (Expérience B)
+L'incrément EnKF est calculé à partir d'un ensemble de 12 membres et d'observations satellitaires entachées d'un bruit radiométrique ($\sigma_{\text{SMAP}} \approx 0{,}04\text{ m}^3\,\text{m}^{-3}$).  
+Les variations infinitésimales ($|\Delta\theta| < 0{,}002\text{ m}^3\,\text{m}^{-3}$) représentent du bruit d'échantillonnage de l'ensemble et non une direction physique d'ajustement. L'exclusion de cette zone morte est indispensable pour éviter d'entraîner le classifieur sur du bruit aléatoire.
 
-### Matched CDF group importance
-| Group | % |
-|---|---|
-| antecedent_soil_moisture_state | 58.7% |
-| meteorological_forcing | 20.3% |
-| temporal_context | 10.9% |
-| land_cover_or_vegetation | 5.2% |
-| soil_properties | 3.8% |
-| topography | 1.1% |
+### Portée et limites du modèle mécanistique (Expérience C)
+L'intégration de l'innovation $d = y - Hx^f$ permet de vérifier si la Random Forest apprend fidèlement l'opérateur de Kalman $K$. Cependant, une performance élevée ne doit pas être interprétée comme la preuve d'un émulateur physique complet, car la Random Forest tend à linéariser la relation $\Delta\theta \approx K \cdot d$ sans reproduire explicitement les covariances d'erreur d'état de LIS.
 
-### Matched NoCDF group importance
-| Group | % |
-|---|---|
-| antecedent_soil_moisture_state | 38.7% |
-| meteorological_forcing | 24.5% |
-| soil_properties | 12.2% |
-| temporal_context | 11.7% |
-| land_cover_or_vegetation | 10.3% |
-| topography | 2.6% |
+### Limite de la normalisation par la capacité au champ (Expérience D)
+Normaliser par $\theta_{\text{fc}}$ ajuste l'échelle volumique, mais n'élimine pas l'influence de la texture de sol : la conductivité hydraulique saturée ($K_{\text{sat}}$) et l'indice de distribution des pores continuent de régir la vitesse d'infiltration et l'évaporation dans Noah-MP.
 
-## Matched-Support Direct Comparison (Interpretation)
-The matched cohort (`source_matched_2019.parquet`) uses **identical pixel-days for both
-CDF and NoCDF**. This is a **matched-support direct comparison**, not a native-support
-characterization.
+---
 
-> On identical matched pixel-days, CDF and NoCDF show highly concordant predictor and group
-> rankings (predictor rank ρ = 0.951, group ρ = 0.948), while the relative distribution of
-> predictive attribution differs between some scientific groups.
+## 4. Résultats historiquement vérifiés (DA-NoCDF native — Holdout 2020)
 
-The difference in group importances (notably antecedent SM state: CDF 58.7% vs NoCDF 38.7%)
-reflects a difference in the model's heuristic predictive utilization on identical support.
-**Do not attribute this difference causally** to the CDF assimilation mechanism.
+Les seules métriques formellement vérifiées et scellées sous le commit `bb777c91889d76ecab02067520c9a9f948f3563e` pour le modèle de référence SOURCE (`RF_A`, support natif NoCDF) sont :
 
-## Native-Support Characterization (Interpretation Boundary)
-Native CDF and NoCDF analyses each characterize their respective experiment on its own
-native finite-innovation support. **These may not be directly compared as CDF vs NoCDF
-attribution differences** because they operate on different pixel-day sets.
+| Métrique | Valeur vérifiée | Interprétation rigoureuse |
+| :--- | :---: | :--- |
+| **$N_{\text{train}}$ (2016–2019)** | 5 881 531 | Échantillons d'apprentissage continus sur 4 années. |
+| **$N_{\text{test}}$ (2020)** | 1 596 590 | Échantillons de test scellés sur 1 année indépendante. |
+| **$R^2$** | **0,247** | Environ 25 % de la variance de magnitude est expliquée par la RF. |
+| **Pearson $r$** | **0,497** | Corrélation linéaire modérée entre incrément réel et prédit. |
+| **MAE** | **$0{,}0081\text{ m}^3\,\text{m}^{-3}$** | Erreur absolue moyenne sur le domaine. |
+| **RMSE** | **$0{,}0132\text{ m}^3\,\text{m}^{-3}$** | Erreur quadratique moyenne. |
+| **Biais moyen** | **$-0{,}00018\text{ m}^3\,\text{m}^{-3}$** | Biais moyen d'estimation quasi nul. |
+| **Skill MAE (vs Médiane mensuelle)** | **15,4 %** | La RF réduit l'erreur de 15,4 % par rapport à la médiane mensuelle locale. |
 
-## Native vs Matched Sensitivity
-| Experiment | Predictor rank ρ | Top-10 overlap | Group ρ |
-|---|---|---|---|
-| `da_cdf` | 0.998 | 10/10 | 1.000 |
-| `da_nocdf` | 0.941 | 8/10 | 0.931 |
+*Note sur le Skill MAE :* Ce gain de 15,4 % démontre que la RF apporte une information météorologique et environnementale supérieure à la simple climatologie locale, mais les 84,6 % d'erreur résiduelle rappellent qu'une fraction majeure de la variabilité instantanée de l'incrément demeure imprévisible sans l'innovation satellite.
 
-Rankings are highly stable across support boundaries.
+---
 
-## Permutation Importance Agreement
-| Model | SHAP vs Perm ρ | top-5 | top-10 |
-|---|---|---|---|
-| `da_cdf` native | 0.808 | 3/5 | 9/10 |
-| `da_nocdf` native | 0.884 | 4/5 | 8/10 |
-| `da_cdf` matched | 0.826 | 3/5 | 8/10 |
-| `da_nocdf` matched | 0.902 | 5/5 | 9/10 |
+## 5. Protocole de comparaison NoCDF vs DA-CDF corrigée
 
-Strong to very strong agreement. Minor top-5 differences are consistent with
-permutation instability under correlated predictors.
-
-## DJF/JJA Seasonal Analysis
-Seasonal group importance computed from the matched-support 10k cohort.
-Results stored in `seasonal_djf_group_da_cdf.csv`, `seasonal_jja_group_da_cdf.csv`
-(and NoCDF equivalents).
-
-## Spatial-Fold Stability
-Per-fold group importance computed across all 5 canonical spatial folds on
-the matched-support 10k cohort. Stored in `spatial_fold_group_da_cdf.csv`.
-
-## Frozen Dependence-Plot Predictors (Selection Rule)
-Selection rule: mean(mean_abs_shap_CDF, mean_abs_shap_NoCDF) on matched support,
-ties by feature name ascending. Applied **before** inspecting plots.
-
-**Frozen top-4**: `ssm_lag1`, `precip_lag1`, `rzsm_lag1`, `land_cover_fraction_16`
-
-## Development Figures
-All stored in `figures/development/source/` (Git-ignored).
-
-| Figure | File | Status |
-|---|---|---|
-| FIG SOURCE-A: Group importance CDF vs NoCDF | `fig_source_a_group_importance.png` | ✅ Generated |
-| FIG SOURCE-B: Top-15 predictor comparison | `fig_source_b_top_predictors.png` | ✅ Generated |
-| FIG SOURCE-C: SHAP distributions top-8 | `fig_source_c_beeswarm.png` | ✅ Generated |
-| FIG SOURCE-D: Dependence plots frozen top-4 | `fig_source_d_dependence.png` | ✅ Generated |
-| FIG SOURCE-E: DJF vs JJA group importance | `fig_source_e_seasonal.png` | ✅ Generated |
-| FIG SOURCE-F: Spatial-fold stability | `fig_source_f_spatial.png` | ✅ Generated |
-
-## Plotting Environment
-Figures use **matplotlib only**. Seaborn was pip-installed ad-hoc during RF-04B
-development and removed from the plotting code at RF-04B closure.
-`environment.yml` does NOT include seaborn.
-
-## Limitations
-- SHAP explains the RF model's heuristic predictive attribution, not physical causation.
-- Correlated predictors (e.g. lagged soil moisture, lagged precipitation) share
-  importance in ways that do not isolate independent physical effects.
-- Native CDF and NoCDF results operate on different pixel-day sets and must not
-  be compared as direct attribution differences.
-
-## Status
-**COMPLETE** — RF-04B SOURCE development XAI closed.
+1. **Double régime d'évaluation :**
+   - *Support natif :* Caractérise le comportement intrinsèque de chaque chaîne d'assimilation sur sa couverture réelle.
+   - *Support apparié :* Évalue les deux modèles sur l'intersection temporelle et spatiale exacte des pixel-jours finis pour comparer loyalement les profils d'attribution TreeSHAP.
+2. **Validation par blocs spatiaux réguliers :**
+   - Utilisation des 5 blocs géographiques de $1{,}0^\circ \times 1{,}0^\circ$ déclarés dans [`configs/modeling/splits.yaml`](../../configs/modeling/splits.yaml) (et non des bassins hydrographiques ad-hoc) pour quantifier la stabilité des classements SHAP.
+3. **Interdiction de surinterprétation causale :**
+   - Les écarts d'attribution SHAP entre NoCDF et CDF corrigée reflètent des différences dans l'exploitation statistique des prédicteurs par les modèles, et non une mesure causale de la modification de la dynamique physique.

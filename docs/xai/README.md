@@ -190,7 +190,7 @@ Afin d'éviter tout glissement conceptuel entre prédiction statistique et dynam
 | **Phénomène modélisé** | Décision locale du filtre EnKF | Réponse interne de Noah-MP | Confrontation à GLEAM v4.3a |
 | **Cible principale** | $|\Delta\theta_1^a|$ ($\text{m}^3\,\text{m}^{-3}$) | $\Delta\text{RZSM}$, $\Delta\text{ET}$, $\Delta Q_s$, $\Delta Q_{sb}$ | $\text{value\_ae}$ ($\text{mm}\,\text{d}^{-1}$) |
 | **Prédicteurs actifs** | 35 (`context_only`) | 52 (`source_context`) | 52 (`value_context`) |
-| **Résolution spatiale** | $121 \times 181$ (1 km) | $121 \times 181$ (1 km) | $0{,}25^\circ$ ($\approx 25\text{ km}$) |
+| **Résolution spatiale** | $121 \times 181$ (/usr/bin/bash{,}05^\circ pprox 5	ext{ km}$) | $121 \times 181$ (/usr/bin/bash{,}05^\circ pprox 5	ext{ km}$) | $0{,}25^\circ$ ($\approx 25\text{ km}$) |
 | **Architecture modèle** | RF_A (prof. 12, leaf 10) | RF_A (prof. 12, leaf 10) | RF_B (prof. 16, leaf 5) |
 | **Statut implémenté** | Entièrement codé (scripts 01, 03, 04, 05) | Entièrement codé (scripts 02, 06, 07, 08) | Entièrement codé (scripts 03, 09, 10, 11) |
 | **Statut vérifié** | Validé sur NoCDF natif (2020) | Validé sur NoCDF natif (2020) | Validé sur NoCDF natif (2020) |

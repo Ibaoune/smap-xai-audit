@@ -7,12 +7,12 @@
 
 ## 1. Objectif scientifique
 
-Le répertoire `scripts/datasets/` assure la passerelle entre la modélisation géophysique spatiale (grilles 2D/3D NetCDF) et l'apprentissage automatique statistique (matrices d'exemples $\times$ caractéristiques).
+Le répertoire `scripts/datasets/` assure la passerelle entre la modélisation géophysique spatiale (grilles 2D/3D NetCDF à résolution $0{,}05^\circ \approx 5\text{ km}$) et l'apprentissage automatique statistique (matrices d'exemples $\times$ caractéristiques).
 
 Chaque script répond à un objectif scientifique ciblé :
 1. **`01_build_source_dataset.py` (SOURCE) :** Construire la matrice d'apprentissage pour prédire l'amplitude de l'incrément EnKF de surface à partir des conditions environnementales et météorologiques antécédentes.
 2. **`02_build_transfer_dataset.py` (TRANSFER) :** Construire la matrice d'apprentissage continue pour modéliser la propagation verticale et latérale de la perturbation d'assimilation vers l'humidité racinaire et les flux de surface ($\Delta\text{RZSM}$, $\Delta\text{ET}$, $\Delta\text{Runoff}$, $\Delta\text{Baseflow}$).
-3. **`03_build_value_dataset.py` (VALUE) :** Construire la matrice d'apprentissage agrégée à l'échelle $0{,}25^\circ$ pour prédire le gain d'erreur absolue sur l'évapotranspiration face au produit indépendant GLEAM v4.3a.
+3. **`03_build_value_dataset.py` (VALUE) :** Construire la matrice d'apprentissage agrégée à l'échelle $0{,}25^\circ$ pour prédire la concordance avec le produit indépendant GLEAM v4.3a.
 
 ---
 
@@ -23,8 +23,8 @@ La construction des jeux de données applique un protocole rigoureux de **préve
 - **Causalité temporelle stricte :** Tous les prédicteurs dynamiques d'états (humidité du sol) et de flux (ET, ruissellement) sont strictement décalés d'au moins un pas de temps ($t-1$).
 - **Fenêtrage antécédent standardisé :** Les forçages atmosphériques et les incréments historiques sont intégrés sous forme de cumuls ou moyennes mobiles sur des fenêtres glissantes passées ($t-1$, $t-3$ à $t-1$, $t-7$ à $t-1$).
 - **Interdiction des variables contemporaines :** Pour prédire une cible à la date $t$, aucune variable contemporaine issue de la simulation cible n'est autorisée en entrée, éliminant tout risque de relation circulaire ou tautologique.
-- **Régimes de support spatial :**
-  - *SOURCE (Support conditionné) :* Restreint aux seuls pixel-jours où une observation SMAP a été effectivement assimilée (`obs_freq == 1`).
+- **Régimes de support spatial et d'échantillonnage :**
+  - *SOURCE (Support conditionné) :* Restreint aux seuls pixel-jours où une observation SMAP a été effectivement acceptée par le filtre EnKF (`observation_frequency == 1` et innovation finie).
   - *TRANSFER (Support continu) :* Couvre l'intégralité des 16 030 pixels continentaux sur les 1 827 jours, car les processus d'infiltration et d'évaporation perdurent même en l'absence d'observation satellitaire le jour $t$.
   - *VALUE (Support macro-échelle) :* Rééchantillonné et moyenné par conservation surfacique sur la grille $0{,}25^\circ$ GLEAM (4 110 mailles continentales actives).
 
@@ -40,12 +40,14 @@ Les caractéristiques autorisées, obligatoires et interdites sont rigoureusemen
 | `02_build_transfer_dataset.py` | [`configs/datasets/transfer.yaml`](../../configs/datasets/transfer.yaml) | $\Delta\text{RZSM}$, $\Delta\text{ET}$, $\Delta\text{Runoff}$, $\Delta\text{Baseflow}$ | 52 (`source_context`) | `data/processed/modeling/transfer/<exp>/transfer_<year>.parquet` |
 | `03_build_value_dataset.py` | [`configs/datasets/value.yaml`](../../configs/datasets/value.yaml) | `value_ae` | 52 (`value_context`) | `data/processed/modeling/value/<exp>/value_<year>.parquet` |
 
-### Groupes de prédicteurs communs
-- **États antécédents :** `ssm_lag1`, `rzsm_lag1` (et flux OPL antécédents pour TRANSFER et VALUE).
-- **Météorologie antécédente :** Précipitations (`precip_lag1`, cumuls 3j et 7j) et température de l'air (`tair_lag1`, moyennes 3j et 7j).
-- **Incréments et historique d'assimilation :** Incrément signé au jour $t$, cumuls d'incréments sur 3j et 7j, fréquence d'observation passée.
-- **Propriétés statiques du milieu :** Élévation SRTM, fractions de classes de couverture végétale (MODIS), fractions texturales du sol (STATSGO).
-- **Contexte temporel :** Mois, jour de l'année, composantes harmoniques sinus et cosinus du cycle annuel (`doy_sin`, `doy_cos`).
+### Focus méthodologique sur SOURCE
+- **[Implémenté & Vérifié]** Le dataset SOURCE ne conserve que les pixel-jours où :
+  $$\text{observation\_frequency} == 1 \quad \text{et} \quad \text{isfinite}(\text{daily\_innovation})$$
+  Sur le domaine NorthMor ($0{,}05^\circ$), chaque pixel reçoit au plus un passage SMAP valide par jour civil UTC (`obs_freq` est strictement binaire $\{0, 1\}$).
+- **[Implémenté & Vérifié]** Les prédicteurs actifs (`context_only_feature_set`, 35 variables) excluent délibérément l'innovation ($y - Hx^f$) et la variance de prévision ($HPH^T$) pour forcer la régression à auditer la réceptivité du sol préexistant plutôt que d'inverser le gain de Kalman.
+- **[Proposé]** Variantes cibles préparées pour les expériences méthodologiques :
+  1. *Signe de l'incrément :* $\text{signe}(\Delta\theta_1^a)$ avec exclusion d'une bande morte $[-\epsilon, +\epsilon]$ ($\epsilon = 0{,}002\text{ m}^3\,\text{m}^{-3}$) pour filtrer le bruit d'échantillonnage de l'ensemble EnKF.
+  2. *Amplitude normalisée :* $|\Delta\theta_1^a| / \theta_{\text{fc}}$ (normalisation exploratoire par la capacité au champ).
 
 ---
 
@@ -64,11 +66,6 @@ python scripts/datasets/02_build_transfer_dataset.py --experiment da_nocdf --yea
 python scripts/datasets/03_build_value_dataset.py --experiment da_nocdf --year 2018
 ```
 
-### Paramètres communs :
-- `--experiment` : `opl`, `da_nocdf`, ou `da_cdf`.
-- `--year` : Année hydrologique cible (2016 à 2020).
-- `--base_dir` : Chemin racine du projet (par défaut : répertoire courant).
-
 ---
 
 ## 5. Validation et contrôle d'intégrité
@@ -81,7 +78,7 @@ Avant d'être transmis à la modélisation, chaque fichier Parquet généré est
 
 ---
 
-## 6. Statut des données et références internes
+## 6. Statut des jeux de données et références internes
 
 - **[Vérifié]** Les tables Parquet pour l'expérience **DA-NoCDF** (2016–2020) ont été générées et validées sur le support natif.
 - **[En attente]** Les tables Parquet pour la **DA-CDF corrigée** seront générées dès l'exécution finale des scripts de transfert `25` à `32`.

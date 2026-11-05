@@ -11,7 +11,7 @@
 Ce projet étudie l'impact de l'assimilation de données d'humidité du sol satellitaires **SMAP** (*Soil Moisture Active Passive*, radiomètre bande L, 0–5 cm) dans le modèle de surface continentale **Noah-MP** (*Noah Land Surface Model with Multi-Parameterization Options*), exécuté sous l'infrastructure **LIS** (*Land Information System*, NASA GSFC).
 
 Le domaine d'étude couvre le **Nord du Maroc (domaine NorthMor)** :
-- **Grille de calcul :** $121 \times 181$ mailles régulières à résolution kilométrique, totalisant **16 030 pixels continentaux actifs**.
+- **Grille de calcul :** $121 \times 181$ mailles régulières à résolution $0{,}05^\circ$ ($\approx 5\text{ km}$), totalisant **16 030 pixels continentaux actifs** (bornes géographiques : $30^\circ\text{N}\text{--}36^\circ\text{N}$, $10^\circ\text{W}\text{--}1^\circ\text{W}$).
 - **Période hydrologique :** 1er janvier 2016 au 31 décembre 2020 (5 années complètes couvrant des cycles humides et de fortes sécheresses méditerranéennes).
 - **Enjeu scientifique :** En milieu semi-aride et méditerranéen, la dynamique hydrique est caractérisée par de forts contrastes saisonniers, une hétérogénéité orographique marquée (Rif, Moyen et Haut Atlas) et une forte limitation par l'eau. Comprendre comment l'assimilation satellitaire modifie les états du sol et les flux de surface est crucial pour la modélisation hydrologique et agronomique.
 
@@ -90,7 +90,7 @@ flowchart LR
 Le pipeline suit une chaîne de transformation déterministe, reproductible et auditée :
 
 ```
-Sorties brutes LIS / Noah-MP (NetCDF)
+Sorties brutes LIS / Noah-MP (NetCDF, résol. 0.05°)
                 │
                 ▼
 1. scripts/preprocessing/   ──► Standardisation des variables & diagnostics (NetCDF 121×181)
@@ -151,6 +151,7 @@ Pour approfondir chaque composante du projet, consulter les guides détaillés :
 - **Modélisation prédictive et baselines :** [`scripts/modeling/README.md`](scripts/modeling/README.md)
 - **Méthodologie et calculs XAI :** [`scripts/xai/README.md`](scripts/xai/README.md)
 - **Cadre méthodologique approfondi SOURCE / TRANSFER / VALUE :** [`docs/xai/README.md`](docs/xai/README.md)
+- **Spécification détaillée et protocole SOURCE :** [`docs/xai/06_source_xai.md`](docs/xai/06_source_xai.md)
 - **Audits scientifiques et vérifications :** [`scripts/audits/README.md`](scripts/audits/README.md)
 - **Architecture des configurations :** [`configs/README.md`](configs/README.md)
 - **Organisation et traçabilité des figures :** [`figures/README.md`](figures/README.md)

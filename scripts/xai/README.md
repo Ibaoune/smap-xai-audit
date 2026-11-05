@@ -7,10 +7,10 @@
 
 ## 1. Objectif scientifique
 
-Le répertoire `scripts/xai/` implémente la boîte à outils d'interprétabilité statistique du projet.
+Le répertoire `scripts/xai/` implémente la boîte à outils d'interprétabilité statistique du projet sur la grille NorthMor ($121 \times 181$ mailles, résolution $0{,}05^\circ \approx 5\text{ km}$).
 
 Son objectif scientifique est d'**auditer les décisions prédictives des modèles Random Forest** afin de comprendre :
-1. Quels facteurs environnementaux (humidité antérieure, pluie, texture de sol, couverture végétale) gouvernent l'attribution des incréments par le filtre EnKF (**SOURCE**).
+1. Quels facteurs environnementaux (humidité antérieure, pluie, texture de sol, couverture végétale) sont statistiquement associés à l'amplitude des incréments appliqués par le filtre EnKF (**SOURCE**).
 2. Comment l'information injectée en surface est redistribuée vers les composantes hydrologiques profondes et couplées (**TRANSFER**).
 3. Quels contextes pédo-climatiques conditionnent le gain ou la dégradation de l'évapotranspiration face au produit indépendant GLEAM v4.3a (**VALUE**).
 
@@ -33,7 +33,7 @@ En raison du volume massif de données ($> 20 \times 10^6$ pixel-jours), les cal
 ### Analyses de stabilité et de robustesse
 - **Décomposition par groupes scientifiques :** Les prédicteurs individuels sont agrégés selon le registre unifié de 58 variables (`configs/xai/feature_groups.yaml`) pour neutraliser les colinéarités locales.
 - **Sensibilité saisonnière :** Découpage strict DJF (hiver) vs JJA (été).
-- **Stabilité spatiale :** Évaluation sur 5 blocs géographiques régionaux indépendants (folds 0 à 4).
+- **Stabilité spatiale :** Évaluation sur les 5 blocs géographiques de $1{,}0^\circ \times 1{,}0^\circ$ déclarés dans `configs/modeling/splits.yaml` (folds 0 à 4).
 - **Analyse par signe (VALUE) :** Examen séparé descriptif des pixel-jours où $\text{value\_ae} > 0$ (gain) et $\text{value\_ae} < 0$ (dégradation).
 
 ---
@@ -89,12 +89,14 @@ La chaîne XAI s'exécute selon une séquence ordonnée :
    SHAP décompose la variance expliquée par le modèle statistique ajusté. Une forte importance SHAP d'un prédicteur ne signifie pas qu'il est la cause physique du phénomène, mais qu'il constitue un puissant heuristique statistique exploité par les arbres de décision.
 3. **Colinéarité :**
    Lorsque deux variables sont corrélées (ex. `ssm_lag1` et `rzsm_lag1`), TreeSHAP répartit leur attribution. L'interprétation doit toujours s'appuyer sur le groupe scientifique plutôt que sur une variable isolée.
+4. **Invalidation des résultats historiques CDF :**
+   Toutes les attributions SHAP de l'ancienne simulation DA-CDF sont invalidées en raison de la discordance de domaine géographique. Seules les attributions NoCDF natives sont scientifiquement vérifiées à ce stade.
 
 ---
 
 ## 6. Statut des résultats et références internes
 
-- **[Vérifié]** Chaîne XAI exécutée et fermée pour la phase de développement 2019 (protocoles RF-04B documentés dans `docs/xai/06_source_xai.md`, `07_transfer_xai.md`, `08_value_xai.md`).
+- **[Vérifié]** Chaîne XAI exécutée et fermée pour la phase de développement 2019 sur NoCDF natif.
 - **[Vérifié]** Modèles DA-NoCDF (Support natif) évalués et consolidés sur 2020 via les scripts `12` à `14`.
 - **[En attente]** Calculs XAI pour la simulation DA-CDF corrigée : en attente de la régénération des tables Parquet complètes.
-- **Documentation complète :** Consulter le protocole XAI global dans [`docs/xai/01_rf_xai_protocol.md`](../../docs/xai/01_rf_xai_protocol.md).
+- **Documentation complète :** Consulter le protocole XAI global dans [`docs/xai/01_rf_xai_protocol.md`](../../docs/xai/01_rf_xai_protocol.md) et la spécification SOURCE dans [`docs/xai/06_source_xai.md`](../../docs/xai/06_source_xai.md).
