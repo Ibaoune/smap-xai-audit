@@ -10,6 +10,7 @@ import yaml
 import hashlib
 from pathlib import Path
 from sklearn.inspection import permutation_importance
+from joblib import Parallel, delayed
 
 from smap_xai.modeling.training import load_data
 
@@ -35,17 +36,41 @@ def balanced_subsample(df, size, key_cols, seed):
     result = pd.concat(parts).sort_values(key_cols).reset_index(drop=True)
     return result
 
-def run_shap(model, X, fitted_features):
+def _evaluate_shap_chunk(model_obj, chunk_df, chunk_idx, total_chunks):
     explainer = shap.TreeExplainer(
+        model_obj,
+        feature_perturbation="tree_path_dependent",
+        model_output="raw",
+    )
+    vals = explainer.shap_values(chunk_df)
+    print(f"  [TreeSHAP Chunk {chunk_idx + 1}/{total_chunks}] Finished {len(chunk_df)} samples", flush=True)
+    return vals
+
+def run_shap(model, X, fitted_features, n_jobs=1):
+    explainer0 = shap.TreeExplainer(
         model.model,
         feature_perturbation="tree_path_dependent",
         model_output="raw",
     )
-    shap_values = explainer.shap_values(X)
-    expected_value = explainer.expected_value
+    expected_value = explainer0.expected_value
     if isinstance(expected_value, (list, np.ndarray)):
         expected_value = float(np.squeeze(expected_value))
     predictions = model.predict(X)
+
+    if n_jobs <= 1 or len(X) <= 1:
+        print(f"Running TreeSHAP sequentially on {len(X)} samples...", flush=True)
+        shap_values = explainer0.shap_values(X)
+        return shap_values, expected_value, predictions
+
+    actual_jobs = min(n_jobs, len(X))
+    chunks = np.array_split(X, actual_jobs)
+    print(f"Running TreeSHAP in parallel across {actual_jobs} chunks ({len(X)} samples total)...", flush=True)
+    chunk_results = Parallel(n_jobs=actual_jobs)(
+        delayed(_evaluate_shap_chunk)(model.model, chunk, idx, actual_jobs)
+        for idx, chunk in enumerate(chunks)
+    )
+    shap_values = np.vstack(chunk_results)
+    print(f"TreeSHAP completed: aggregated {shap_values.shape[0]} samples.", flush=True)
     return shap_values, expected_value, predictions
 
 def get_fingerprint(df, coord_cols):
@@ -69,6 +94,7 @@ def matches_model_key(target_key: str, block: str, experiment: str, target: str,
 def main():
     parser = argparse.ArgumentParser(description="Run 2020 XAI (SHAP & Permutation)")
     parser.add_argument("--model-key", type=str, default=None, help="Specific model key to process (e.g. source_da_cdf_native)")
+    parser.add_argument("--shap-n-jobs", type=int, default=1, help="Number of parallel workers for chunked TreeSHAP")
     parser.add_argument("--workspace-root", type=str, default=".")
     args = parser.parse_args()
 
@@ -141,7 +167,7 @@ def main():
         X = compute_keys[features]
         y = compute_keys[target]
         
-        shap_vals, expected_value, predictions = run_shap(model, X, features)
+        shap_vals, expected_value, predictions = run_shap(model, X, features, n_jobs=args.shap_n_jobs)
         
         # Save SHAP
         out_df = compute_keys[["date", "month", "spatial_fold"] + coord_cols].copy()
