@@ -13,8 +13,8 @@ plt.rcParams['font.sans-serif'] = ['Arial', 'DejaVu Sans', 'Liberation Sans']
 plt.rcParams['pdf.fonttype'] = 42
 plt.rcParams['ps.fonttype'] = 42
 
-MAIN_DIR = Path("figures/main")
-SUPP_DIR = Path("figures/supplement")
+MAIN_DIR = Path(os.environ.get("FIGURES_OUT_DIR", "figures/cdf_v2"))
+SUPP_DIR = Path(os.environ.get("SUPP_OUT_DIR", "figures/cdf_v2"))
 MAIN_DIR.mkdir(parents=True, exist_ok=True)
 SUPP_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -112,7 +112,7 @@ def open_mfdataset(paths):
     return xr.concat(datasets, dim='time')
 
 def generate_figure_3():
-    fig, axes = plt.subplots(2, 3, figsize=(16, 10))
+    fig, axes = plt.subplots(2, 3, figsize=(16, 10.5))
     axes = axes.flatten()
     
     base_dir = Path("data/processed/daily_enkf")
@@ -137,17 +137,38 @@ def generate_figure_3():
         lat = ds_nocdf_inn.lat.values
         extent = [lon.min(), lon.max(), lat.min(), lat.max()]
 
-        # (a) Spatial frequency (count of valid NoCDF innovations over time)
-        count_map = ds_nocdf_inn["daily_innovation"].count(dim="time").values
-        im1 = axes[0].imshow(count_map, extent=extent, origin='lower', cmap='viridis')
-        axes[0].set_title("(a) Innovation availability (count)", loc='left')
-        plt.colorbar(im1, ax=axes[0], fraction=0.046, pad=0.04)
+        # (a) Spatial frequency: Innovation availability for CDF and NoCDF
+        axes[0].axis('off')
+        ax_a1 = axes[0].inset_axes([0.0, 0.08, 0.46, 0.84])
+        ax_a2 = axes[0].inset_axes([0.54, 0.08, 0.46, 0.84])
+        
+        count_nocdf = ds_nocdf_inn["daily_innovation"].count(dim="time").values
+        count_cdf = ds_cdf_inn["daily_innovation"].count(dim="time").values
+        vmax_count = max(np.nanmax(count_nocdf), np.nanmax(count_cdf))
+        
+        im_a1 = ax_a1.imshow(count_nocdf, extent=extent, origin='lower', cmap='viridis', vmin=0, vmax=vmax_count)
+        ax_a1.set_title("NoCDF availability", fontsize=9.5, loc='center', pad=3)
+        ax_a1.set_xlabel("Lon", fontsize=8.5, labelpad=2)
+        ax_a1.set_ylabel("Lat", fontsize=8.5, labelpad=2)
+        ax_a1.tick_params(labelsize=7.5)
+        
+        im_a2 = ax_a2.imshow(count_cdf, extent=extent, origin='lower', cmap='viridis', vmin=0, vmax=vmax_count)
+        ax_a2.set_title("CDF availability", fontsize=9.5, loc='center', pad=3)
+        ax_a2.set_xlabel("Lon", fontsize=8.5, labelpad=2)
+        ax_a2.tick_params(labelsize=7.5)
+        ax_a2.set_yticklabels([])
+        
+        axes[0].set_title(r"$\bf{(a)}$ Innovation availability (count)", loc='left', fontsize=11, pad=12)
+        cbar_a = fig.colorbar(im_a2, ax=[ax_a1, ax_a2], orientation='horizontal', fraction=0.06, pad=0.18, shrink=0.88)
+        cbar_a.set_label("Count of update days", fontsize=8.5)
+        cbar_a.ax.tick_params(labelsize=7.5)
 
-        # (b) Mean NoCDF innovation
+        # (b) Mean NoCDF innovation (RdBu_r: blue = negative / drying, red = positive)
         mean_nocdf_inn = ds_nocdf_inn["daily_innovation"].mean(dim="time").values
-        im2 = axes[1].imshow(mean_nocdf_inn, extent=extent, origin='lower', cmap='RdBu', vmin=-0.05, vmax=0.05)
-        axes[1].set_title("(b) Mean innovation (NoCDF) [m³ m⁻³]", loc='left')
-        plt.colorbar(im2, ax=axes[1], fraction=0.046, pad=0.04)
+        im2 = axes[1].imshow(mean_nocdf_inn, extent=extent, origin='lower', cmap='RdBu_r', vmin=-0.05, vmax=0.05)
+        axes[1].set_title(r"$\bf{(b)}$ Mean innovation (NoCDF) [m³ m⁻³]", loc='left', pad=8)
+        cb2 = plt.colorbar(im2, ax=axes[1], fraction=0.046, pad=0.04)
+        cb2.ax.tick_params(labelsize=8.5)
 
         # (c) Innovation distributions
         nocdf_vals = ds_nocdf_inn["daily_innovation"].values.flatten()
@@ -155,40 +176,41 @@ def generate_figure_3():
         nocdf_vals = nocdf_vals[~np.isnan(nocdf_vals)]
         cdf_vals = cdf_vals[~np.isnan(cdf_vals)]
         
-        # Take a random sample if too large to plot efficiently
         sns.kdeplot(np.random.choice(cdf_vals, min(len(cdf_vals), 50000)), label="CDF", color=PALETTE["CDF"], ax=axes[2], fill=True, alpha=0.3)
         sns.kdeplot(np.random.choice(nocdf_vals, min(len(nocdf_vals), 50000)), label="NoCDF", color=PALETTE["NoCDF"], ax=axes[2], fill=True, alpha=0.3)
-        axes[2].set_title("(c) Innovation distributions", loc='left')
+        axes[2].set_title(r"$\bf{(c)}$ Innovation distributions", loc='left', pad=8)
         axes[2].set_xlabel("Innovation [m³ m⁻³]")
         axes[2].legend()
 
-        # (d) Mean signed increment NoCDF
+        # (d) Mean signed increment NoCDF (RdBu_r: blue = negative / drying, red = positive)
         mean_nocdf_inc = ds_nocdf_inc["daily_signed_increment"].mean(dim="time").values
-        im4 = axes[3].imshow(mean_nocdf_inc, extent=extent, origin='lower', cmap='RdBu', vmin=-0.01, vmax=0.01)
-        axes[3].set_title("(d) Mean analysis increment (NoCDF) [m³ m⁻³]", loc='left')
-        plt.colorbar(im4, ax=axes[3], fraction=0.046, pad=0.04)
+        im4 = axes[3].imshow(mean_nocdf_inc, extent=extent, origin='lower', cmap='RdBu_r', vmin=-0.01, vmax=0.01)
+        axes[3].set_title(r"$\bf{(d)}$ Mean analysis increment (NoCDF) [m³ m⁻³]", loc='left', pad=8)
+        cb4 = plt.colorbar(im4, ax=axes[3], fraction=0.046, pad=0.04)
+        cb4.ax.tick_params(labelsize=8.5)
 
-        # (e) Mean signed increment CDF
+        # (e) Mean signed increment CDF (RdBu_r: blue = negative / drying, red = positive)
         mean_cdf_inc = ds_cdf_inc["daily_signed_increment"].mean(dim="time").values
-        im5 = axes[4].imshow(mean_cdf_inc, extent=extent, origin='lower', cmap='RdBu', vmin=-0.01, vmax=0.01)
-        axes[4].set_title("(e) Mean analysis increment (CDF) [m³ m⁻³]", loc='left')
-        plt.colorbar(im5, ax=axes[4], fraction=0.046, pad=0.04)
+        im5 = axes[4].imshow(mean_cdf_inc, extent=extent, origin='lower', cmap='RdBu_r', vmin=-0.01, vmax=0.01)
+        axes[4].set_title(r"$\bf{(e)}$ Mean analysis increment (CDF) [m³ m⁻³]", loc='left', pad=8)
+        cb5 = plt.colorbar(im5, ax=axes[4], fraction=0.046, pad=0.04)
+        cb5.ax.tick_params(labelsize=8.5)
 
-        # (f) Seasonal increment magnitude
+        # (f) Seasonal increment magnitude (order: DJF, MAM, JJA, SON)
         nocdf_seas = ds_nocdf_abs["daily_absolute_increment"].groupby("time.season").mean(dim=["time", "lat", "lon"]).to_dataframe().reset_index()
         cdf_seas = ds_cdf_abs["daily_absolute_increment"].groupby("time.season").mean(dim=["time", "lat", "lon"]).to_dataframe().reset_index()
         
         nocdf_seas["Experiment"] = "NoCDF"
         cdf_seas["Experiment"] = "CDF"
         seas_df = pd.concat([cdf_seas, nocdf_seas])
-        # Reorder seasons to match normal presentation if needed
-        sns.barplot(data=seas_df, x="season", y="daily_absolute_increment", hue="Experiment", ax=axes[5], palette=PALETTE)
-        axes[5].set_title("(f) Seasonal increment magnitude", loc='left')
+        season_order = ["DJF", "MAM", "JJA", "SON"]
+        sns.barplot(data=seas_df, x="season", y="daily_absolute_increment", hue="Experiment", ax=axes[5], palette=PALETTE, order=season_order)
+        axes[5].set_title(r"$\bf{(f)}$ Seasonal increment magnitude", loc='left', pad=8)
         axes[5].set_ylabel("Mean |increment| [m³ m⁻³]")
         axes[5].set_xlabel("")
         axes[5].legend()
 
-        for ax in [axes[0], axes[1], axes[3], axes[4]]:
+        for ax in [axes[1], axes[3], axes[4]]:
             ax.set_xlabel("Longitude")
             ax.set_ylabel("Latitude")
 

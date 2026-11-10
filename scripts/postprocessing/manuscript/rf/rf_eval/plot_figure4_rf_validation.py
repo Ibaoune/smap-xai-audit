@@ -17,6 +17,7 @@ figures/manuscript/rf/rf_eval/
 Aesthetic standards: Q1 hydrology / remote sensing journal style.
 """
 
+import argparse
 from pathlib import Path
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -45,10 +46,10 @@ def resolve_paths(repo_root=None):
         else:
             repo_root = Path(__file__).resolve().parents[5]
     data_dir = repo_root / "figures" / "manuscript" / "rf" / "rf_eval"
-    return data_dir
+    return repo_root, data_dir
 
-def plot_figure4():
-    data_dir = resolve_paths()
+def plot_figure4(out_dir=None, out_name="Figure_4_RF_performance"):
+    repo_root, data_dir = resolve_paths()
     csv_2019 = data_dir / "Figure4_2019_temporal_validation_metrics.csv"
     csv_2020 = data_dir / "Figure4_2020_holdout_metrics.csv"
 
@@ -57,6 +58,12 @@ def plot_figure4():
 
     df_2019 = pd.read_csv(csv_2019)
     df_2020 = pd.read_csv(csv_2020)
+
+    if out_dir is None:
+        target_dir = repo_root / "figures" / "cdf_v2"
+    else:
+        target_dir = Path(out_dir)
+    target_dir.mkdir(parents=True, exist_ok=True)
 
     fig, axes = plt.subplots(2, 2, figsize=(13.0, 9.2), dpi=500)
     plt.subplots_adjust(top=0.93, bottom=0.07, left=0.10, right=0.97, hspace=0.30, wspace=0.28)
@@ -146,8 +153,8 @@ def plot_figure4():
                fontsize=10.5, handlelength=1.4, handleheight=0.9)
 
     # Export figure files
-    out_png = data_dir / "Figure_4_RF_validation_standard_metrics.png"
-    out_pdf = data_dir / "Figure_4_RF_validation_standard_metrics.pdf"
+    out_png = target_dir / f"{out_name}.png"
+    out_pdf = target_dir / f"{out_name}.pdf"
 
     fig.savefig(out_png, dpi=500, bbox_inches='tight')
     fig.savefig(out_pdf, bbox_inches='tight')
@@ -157,4 +164,8 @@ def plot_figure4():
     print(f"    PDF: {out_pdf}")
 
 if __name__ == "__main__":
-    plot_figure4()
+    parser = argparse.ArgumentParser(description="Plot Figure 4 RF Validation")
+    parser.add_argument("--output-dir", type=str, default="figures/cdf_v2", help="Directory where to save the figure")
+    parser.add_argument("--output-name", type=str, default="Figure_4_RF_performance", help="Base name of the output file")
+    args = parser.parse_args()
+    plot_figure4(out_dir=args.output_dir, out_name=args.output_name)

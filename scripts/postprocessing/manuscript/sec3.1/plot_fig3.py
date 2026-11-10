@@ -125,7 +125,7 @@ def make_fig3_a_d(out_dir: Path):
     # Colormap: Sequential YlGnBu (pale cream -> green-cyan -> dark blue)
     # --------------------------------------------------------------------------
     support_bounds = np.linspace(0, 100, 11)
-    cmap_sup_base = plt.cm.get_cmap('YlGnBu', 10)
+    cmap_sup_base = plt.get_cmap('YlGnBu', 10)
     cmap_sup = copy.copy(cmap_sup_base)
     cmap_sup.set_bad(color='#dfdfdf')  # Neutral light gray clearly distinct from pale yellow
     norm_sup = BoundaryNorm(support_bounds, ncolors=cmap_sup.N, clip=True)
@@ -297,7 +297,7 @@ def make_fig3_e_h(out_dir: Path):
     # Panels (f) & (g): Discrete Mean Signed Increments (BrBG, 14 classes)
     # --------------------------------------------------------------------------
     incr_bounds = np.arange(-0.035, 0.0351, 0.005)
-    cmap_incr_base = plt.cm.get_cmap('BrBG', 14)
+    cmap_incr_base = plt.get_cmap('RdBu_r', 14)
     cmap_incr = copy.copy(cmap_incr_base)
     cmap_incr.set_bad(color='#f2f2f2')
     norm_incr = BoundaryNorm(incr_bounds, ncolors=cmap_incr.N, clip=True)
@@ -315,7 +315,7 @@ def make_fig3_e_h(out_dir: Path):
     # --------------------------------------------------------------------------
     # Panel (h): Discrete Difference Map (RdBu_r, 14 classes)
     # --------------------------------------------------------------------------
-    cmap_h_base = plt.cm.get_cmap('RdBu_r', 14)
+    cmap_h_base = plt.get_cmap('RdBu_r', 14)
     cmap_h = copy.copy(cmap_h_base)
     cmap_h.set_bad(color='#f2f2f2')
     norm_h = BoundaryNorm(incr_bounds, ncolors=cmap_h.N, clip=True)
@@ -325,11 +325,29 @@ def make_fig3_e_h(out_dir: Path):
     setup_map_ax(ax_h, r"$\bf{(h)}$ Increment difference: NoCDF − CDF", 
                  show_yticklabels=False, show_xticklabels=True)
     
-    # In-map statistical annotations
+    # In-map statistical annotations (dynamically computed from data)
+    # « Drying » = part des pixels de moyenne < 0, « Wetting » = part > 0, « NoCDF > CDF » = part des pixels de difference > 0
+    val_f = ds_eh['mean_cdf_matched'].values
+    val_g = ds_eh['mean_nocdf_matched'].values
+    val_h = ds_eh['mean_diff_matched'].values
+    valid_f = val_f[np.isfinite(val_f)]
+    valid_g = val_g[np.isfinite(val_g)]
+    valid_h = val_h[np.isfinite(val_h)]
+    
+    pct_f_wet = 100.0 * np.sum(valid_f > 0) / len(valid_f)
+    pct_f_dry = 100.0 * np.sum(valid_f < 0) / len(valid_f)
+    pct_g_wet = 100.0 * np.sum(valid_g > 0) / len(valid_g)
+    pct_g_dry = 100.0 * np.sum(valid_g < 0) / len(valid_g)
+    pct_h_gt = 100.0 * np.sum(valid_h > 0) / len(valid_h)
+    
+    label_f = f"Wetting: {pct_f_wet:.1f}%" if pct_f_wet >= pct_f_dry else f"Drying: {pct_f_dry:.1f}%"
+    label_g = f"Drying: {pct_g_dry:.1f}%" if pct_g_dry >= pct_g_wet else f"Wetting: {pct_g_wet:.1f}%"
+    label_h = f"NoCDF > CDF: {pct_h_gt:.1f}%"
+    
     bbox_props = dict(facecolor='white', edgecolor='0.75', alpha=0.82, pad=1.5)
-    ax_f.text(0.04, 0.06, 'Drying: 96.7%', transform=ax_f.transAxes, fontsize=8.2, bbox=bbox_props)
-    ax_g.text(0.04, 0.06, 'Wetting: 36.2%', transform=ax_g.transAxes, fontsize=8.2, bbox=bbox_props)
-    ax_h.text(0.04, 0.06, 'NoCDF > CDF: 98.2%', transform=ax_h.transAxes, fontsize=8.2, bbox=bbox_props)
+    ax_f.text(0.04, 0.06, label_f, transform=ax_f.transAxes, fontsize=8.2, bbox=bbox_props)
+    ax_g.text(0.04, 0.06, label_g, transform=ax_g.transAxes, fontsize=8.2, bbox=bbox_props)
+    ax_h.text(0.04, 0.06, label_h, transform=ax_h.transAxes, fontsize=8.2, bbox=bbox_props)
     
     # Colorbars geometry
     fig.canvas.draw()
