@@ -22,7 +22,7 @@ Ce rapport documente l'audit du **Point C**, évaluant la relation entre l'écar
      - Cultures + Prairies (Classes 12 + 10 : *Croplands + Grasslands*)
      - Cultures + Mosaïque + Prairies (Classes 12 + 14 + 10)
      - Ensemble des surfaces non forestières (Classes MODIS-IGBP > 4)
-   - Analyse comparative pour la période quinquennale (2016–2020) et pour l'année spécifique de sécheresse estivale 2018.
+   - Analyse comparative pour la période quinquennale (2016–2020) et pour l'année spécifique pluvieuse 2018.
 
 ---
 
@@ -160,4 +160,4 @@ Les résultats détaillés sont stockés dans ce dossier sous forme de tables CS
   - 1–10 % : Moyenne = +0.01122 m³/m³, Médiane = +0.00983 ($N=279$, $p = 0.714$)
   - 10–30 % : Moyenne = +0.03444 m³/m³, Médiane = +0.02228 ($N=93$, $p < 0.0001$)
   - \> 30 % : Moyenne = +0.04930 m³/m³, Médiane = +0.05216 ($N=147$, $p < 0.0001$)
-  - *Constat* : En 2018 (sécheresse estivale marquée), les cultures intensément irriguées (> 30 %) présentent un signal d'accroissement estival significativement quadruplé par rapport aux cultures sèches témoin (+0.04930 vs +0.01234 m³/m³, $p < 0.0001$).
+  - *Constat* : En 2018 (année pluvieuse), les cultures intensément irriguées (> 30 %) présentent un signal d'accroissement estival significativement quadruplé par rapport aux cultures sèches témoin (+0.04930 vs +0.01234 m³/m³, $p < 0.0001$).
