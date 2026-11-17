@@ -1,0 +1,129 @@
+xai_figure_for_Ahmad_revised — notes de révision
+=================================================
+Générée le 2026-10-18 par scripts/figures/make_xai_figure_for_ahmad_revised.py
+Sorties : figures/discussion/xai_figure_for_Ahmad_revised.{png,pdf,svg}
+          figures/discussion/xai_figure_for_Ahmad_revised_values.csv (valeurs exactes + affichées)
+La version d'origine (make_xai_figure_for_ahmad.py, xai_figure_for_Ahmad.*) n'a pas été modifiée.
+Statut : figure de DISCUSSION scientifique (pas une figure finale du papier).
+
+
+1. Corrections scientifiques
+----------------------------
+Panneau (a)
+- Formulation diagnostique / associative au lieu de causale :
+    SOURCE   : "Which conditions control the SMAP analysis update?"
+            -> "Which conditions are associated with SMAP analysis updates?"
+    TRANSFER : "When and where does the surface update propagate?"
+            -> "Under which conditions do DA-induced responses appear downstream?"
+    VALUE    : inchangé ("When does the DA response improve agreement with an independent
+               reference?"), cible et note "> 0: DA closer to GLEAM ET" conservées.
+- Familles de prédicteurs propres à chaque étape : le bandeau est séparé en deux groupes,
+  "SOURCE · TRANSFER · VALUE" (6 familles) et "TRANSFER · VALUE only" (Antecedent fluxes,
+  Assimilation history). Les 3 flèches "bandeau -> chaque bloc", qui suggéraient que toutes les
+  familles alimentaient tous les blocs, ont été supprimées.
+  Vérification : configs/datasets/source.yaml (context_only_feature_set, 35 prédicteurs) ne
+  contient aucune variable de ces deux familles ; dans tidy_group_summary.csv, les 10 modèles
+  TRANSFER et VALUE (CDF et NoCDF) ont une importance non nulle pour les 9 familles du registre.
+- Note ajoutée : "Predictor selection is stage-specific to avoid target leakage and circular
+  interpretation."
+- Encadré irrigation ajouté : "Current baseline experiments: irrigation OFF. Open question:
+  should irrigation-on sensitivity experiments be added?"
+- Titre général et titres de panneaux remplacés par ceux demandés.
+
+Panneau (b)
+- Seules les 6 familles du jeu SOURCE sont affichées (voir § 4).
+- Encadré "Key reading" réécrit (4 points, ton prudent) :
+    · Antecedent soil moisture dominates SOURCE attribution, particularly under CDF.
+    · Under NoCDF, attribution is relatively more distributed across meteorology and
+      land-surface properties.
+    · Interpretation remains diagnostic rather than causal.
+    · Lower NoCDF predictive skill should be kept in mind (2020 hold-out R² = 0.24 vs 0.58 for CDF).
+  Les R² ont été relus dans figures/manuscript/rf/rf_eval/Figure4_2020_holdout_metrics.csv
+  (SOURCE : CDF 0.580, NoCDF 0.244). Attention : ils portent sur tout le hold-out 2020
+  (n = 596 877), pas seulement sur la cohorte SHAP de 10 000 pixel-jours.
+- La mention de Spearman a été supprimée (voir § 3).
+
+Forme
+- Fond blanc, aucune icône, aucune ombre. Boîtes plus claires (bordure gris-bleu fine, en-tête
+  gris-bleu très léger), bandeau des familles allégé (fond blanc, bordure très claire).
+- Couleurs plus sobres : CDF bleu #3E6A97, NoCDF ocre #C8904F ; étiquettes de valeurs dans des
+  teintes plus foncées de ces mêmes couleurs ; gris secondaire #5E5E5E (moins foncé qu'avant).
+- Tailles de police harmonisées : titre 13, titres de panneaux 11, en-têtes de boîtes 10,
+  texte 8.8, notes 8.0, bas de figure 7.9 (au moins 7.8 partout ; avant : 7.2).
+- "Key reading" placé dans un encadré épuré ; notes de bas de figure regroupées sur 3 lignes.
+- Police : Nimbus Sans (URW), clone métrique d'Helvetica. Arial, Helvetica et Calibri ne sont
+  pas installées sur le cluster. Dans le SVG, la police déclarée est "Arial, Helvetica,
+  Nimbus Sans, sans-serif". Le PDF embarque Nimbus Sans entière (limitation de matplotlib 3.3).
+
+
+2. Vérifications numériques (affichées dans la sortie du script)
+----------------------------------------------------------------
+Source : data/processed/modeling/xai/final_2020/summaries/tidy_group_summary.csv
+         (SOURCE_da_{cdf,nocdf}_daily_absolute_increment_matched_support)
+- Recalcul indépendant à partir des parquets SHAP bruts (Σ mean|SHAP| par famille, normalisé) :
+  écart max avec le CSV = 7e-15 pp (CDF), 4e-15 pp (NoCDF). 35 prédicteurs, aucun non rattaché à
+  une famille.
+- Support apparié vérifié : les clés (date, y_index, x_index) sont identiques pour CDF et NoCDF,
+  n = 10 000.
+- Familles non nulles dans SOURCE : exactement les 6 familles affichées (vérifié par une assertion
+  dans le script).
+- Sommes : 100.0000 % (valeurs exactes) et 100.0 % (valeurs arrondies affichées), pour CDF comme
+  pour NoCDF.
+- Arrondi : demi-supérieur à 1 décimale (Decimal ROUND_HALF_UP).
+
+  Famille                    CDF exact  NoCDF exact  Δ exact | CDF aff.  NoCDF aff.  Δ affiché
+  Antecedent soil moisture     58.762     38.519     +20.243 |  58.8       38.5       +20.3
+  Meteorology                  19.865     26.690      −6.826 |  19.9       26.7        −6.8
+  Soil properties               5.019     11.366      −6.348 |   5.0       11.4        −6.4
+  Land cover / vegetation       5.696     10.253      −4.557 |   5.7       10.3        −4.6
+  Topography                    1.011      3.522      −2.511 |   1.0        3.5        −2.5
+  Temporal context              9.647      9.649      −0.002 |   9.6        9.6         0.0
+
+- Incohérence corrigée : l'ancienne figure affichait +20.2 et −6.3, c'est-à-dire les différences
+  exactes arrondies, alors que les étiquettes des barres donnaient 58.8 − 38.5 = 20.3 et
+  5.0 − 11.4 = −6.4. La colonne "CDF − NoCDF (pp)" est maintenant calculée à partir des valeurs
+  affichées : barres, étiquettes et différences sont donc cohérentes à la lecture. Cela est
+  précisé en bas de figure ("from the displayed values"). Les différences exactes sont dans le
+  CSV (colonne CDF_minus_NoCDF_exact_pp).
+- Les barres sont tracées avec les valeurs exactes ; les étiquettes affichent les valeurs
+  arrondies. Il n'y a pas d'écart visible (≤ 0.05 pp).
+
+
+3. Corrélation de Spearman : SUPPRIMÉE
+--------------------------------------
+- La valeur de 0.93 vient de source_matched_comparison_stats.json ("group_rho"). Recalculée, elle
+  vaut 0.931, mais sur les 9 familles du registre, dont 3 sont structurellement nulles dans SOURCE
+  (Antecedent fluxes, Assimilation history, forcing_perturbation_controls). Ces trois ex-aequo à 0
+  gonflent artificiellement la corrélation.
+- Sur les 6 familles réellement présentes dans SOURCE : ρ = 0.77 (n = 6, p = 0.07). Ce n'est pas
+  informatif.
+- La statistique n'était donc ni clairement définie ni robuste : elle a été retirée de la figure.
+
+
+4. Familles absentes du modèle SOURCE
+-------------------------------------
+Option retenue : SUPPRESSION des lignes vides dans le panneau (b), avec la note de bas de figure
+"Antecedent fluxes and assimilation history are excluded from the SOURCE predictor set and are
+used only in the TRANSFER and VALUE models."
+Le panneau (a) le montre aussi : ces deux familles forment le groupe "TRANSFER · VALUE only",
+avec des marqueurs creux.
+Précisions pour la discussion avec Ahmad :
+- Le modèle SOURCE expliqué est le jeu context_only (35 prédicteurs). Le primary_feature_set de
+  SOURCE contient en plus innovation et forecast_variance (diagnostics EnKF, non rattachés au
+  registre de familles). Ils sont volontairement exclus de l'analyse présentée.
+- Une 9e famille du registre, forcing_perturbation_controls, n'est pas affichée (8 familles
+  demandées). Elle est absente de SOURCE, mais présente dans TRANSFER et VALUE (≈ 9 % pour ΔQs
+  en CDF).
+
+
+5. Caption courte proposée
+--------------------------
+(a) Conceptual XAI framework used to diagnose the SMAP assimilation pathway, from the analysis
+update (SOURCE), to downstream hydrological responses (TRANSFER), and finally to observational
+value relative to an independent ET reference (GLEAM; VALUE). Predictor families are grouped by
+physical role, with stage-specific selection. (b) Preliminary grouped predictor attribution
+(share of grouped mean |SHAP|) for the SOURCE model (target |δx|, 2020 hold-out, identical
+pixel-days, n = 10,000), comparing CDF and NoCDF configurations. The comparison suggests a
+stronger dominance of antecedent soil moisture under CDF, whereas NoCDF shows relatively more
+distributed attribution across other predictor families; differences are diagnostic, not causal,
+and the NoCDF model has lower predictive skill.

@@ -1,0 +1,253 @@
+# SMAP-XAI Operational Data Inventory
+
+**Project:** SMAP-XAI Audit
+**Author:** M. El Aabaribaoune (@um6p)
+
+## 1. Purpose
+
+This document is the operational inventory of source data used by SMAP-XAI Audit and records:
+- source paths;
+- variables;
+- file patterns;
+- units;
+- temporal resolution;
+- spatial resolution;
+- coverage;
+- unresolved source metadata.
+
+## 2. Noah-MP / LIS Experiments
+
+**Root:** `/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/experiments/NorthMor/matrix_2016_2020/`
+
+| Experiment | Directory | Assimilation | CDF matching |
+|------------|-----------|--------------|--------------|
+| OPL | `OPL_noirr_2016_2020/` | No | No |
+| DA-NoCDF | `DA_nocdf_noirr_2016_2020/` | Yes (EnKF) | No |
+| DA-CDF | `DA_cdf_noirr_2016_2020/` | Yes (EnKF) | Yes |
+
+## 3. Common Noah-MP Output Characteristics
+
+**SURFACEMODEL file pattern:**
+`output/YYYY-MM/SURFACEMODEL/YYYYMM/LIS_HIST_YYYYMMDD0000.d01.nc`
+
+- **Format:** NetCDF4
+- **Grid:** 121 x 181
+- **Latitude:** 30.0 to 36.0
+- **Longitude:** -10.0 to -1.0
+- **Resolution:** 0.05 degree
+- **Native output interval:** 24 h
+- **Available HIST timestamp range:** 2016-01-02 00:00 to 2021-01-01 00:00
+- **Number of HIST timestamps:** 1827
+
+> **Important note:** Variables are `_tavg` outputs with `time_increment=86400`. The LIS filename timestamp corresponds to the **end of the averaging interval** (confirmed from LIS source code: `LIS_surfaceModelMod.F90`, `LIS_fileIOMod.F90`, `LIS_histDataMod.F90`, `LIS_historyMod.F90`). For example, `LIS_HIST_201601020000.d01.nc` represents the daily average over `[2016-01-01 00:00, 2016-01-02 00:00)`. Thus, its canonical model date is **2016-01-01**.
+
+## 4. Variables Used by SMAP-XAI
+
+| Scientific quantity | Experiment(s) | File family | Exact variable | Units | Native temporal representation | Grid |
+|---------------------|---------------|-------------|----------------|-------|--------------------------------|------|
+| Surface soil moisture | OPL, DA-NoCDF, DA-CDF | SURFACEMODEL | `SoilMoist_tavg`, layer 1 | m3 m-3 | `_tavg` (24 h) | 121x181 |
+| Root-zone soil moisture components | OPL, DA-NoCDF, DA-CDF | SURFACEMODEL | `SoilMoist_tavg`, layers 1–4 | m3 m-3 | `_tavg` (24 h) | 121x181 |
+| Evapotranspiration | OPL, DA-NoCDF, DA-CDF | SURFACEMODEL | `Evap_tavg` | kg m-2 s-1 | `_tavg` (24 h) | 121x181 |
+| Surface runoff | OPL, DA-NoCDF, DA-CDF | SURFACEMODEL | `Qs_tavg` | kg m-2 s-1 | `_tavg` (24 h) | 121x181 |
+| Baseflow / subsurface runoff | OPL, DA-NoCDF, DA-CDF | SURFACEMODEL | `Qsb_tavg` | kg m-2 s-1 | `_tavg` (24 h) | 121x181 |
+
+## 5. Soil-Moisture Layers
+
+- **Layer 1:** 0–10 cm
+- **Layer 2:** 10–40 cm
+- **Layer 3:** 40–100 cm
+- **Layer 4:** 100–200 cm
+
+**Thicknesses:** `[10, 30, 60, 100]` cm
+
+SSM = Layer 1.
+
+Noah-MP stores four native soil-moisture layers.
+No native derived RZSM variable is stored in the source HIST files.
+
+## 6. Assimilation Diagnostics
+
+**DA experiments:**
+DA-NoCDF, DA-CDF
+
+**Increment file pattern:**
+`output/YYYY-MM/EnKF/YYYYMM/LIS_DA_EnKF_YYYYMMDDHHMI_incr.a01.d01.nc`
+
+**Increment variables:**
+`anlys_incr_Soil Moisture Layer X_01` (X = 1,2,3,4)
+- **Canonical diagnostic:** `increment`
+- **Definition:** `analysis - forecast`
+- **Units:** `m3 m-3`
+- **Interpretation:** positive increment = analysis wetter than forecast
+- Computed independently for each Noah-MP soil-moisture layer.
+
+**Innovation file pattern:**
+`output/YYYY-MM/EnKF/YYYYMM/LIS_DA_EnKF_YYYYMMDDHHMI_innov.a01.d01.nc`
+
+**Innovation variables:**
+`innov_01`
+- **Canonical diagnostic:** `innovation`
+- **Definition:** `observation - forecast` (`y - H(x_f)`)
+- **Units:** `m3 m-3`
+- **Interpretation:** positive innovation = SMAP observation wetter than model forecast. For CDF-matched experiments, the innovation refers to the observation representation actually passed to the filter after the configured rescaling/bias-treatment step.
+
+`ninnov_01`
+- **Definition:** `innovation / sqrt(HPH^T + R)`
+- **Units:** dimensionless
+
+`forecast_sigma_01`
+- **Definition:** Forecast error variance (`HPH^T`). **Important:** despite the variable name, this field stores forecast error variance, not forecast standard deviation.
+- **Units:** `(m3 m-3)^2`
+
+`analysis_residual_01`
+- **Definition:** `observation - analysis` (`y - H(x_a)`)
+- **Units:** `m3 m-3`
+- *(Optional DA diagnostic, not added to the core SMAP-XAI variable set yet)*
+
+**Observation type (`_01` suffix):**
+- **Observation:** SMAP(NASA) soil moisture
+- **Configured product:** SPL3SMP_E
+
+**Evidence:**
+Definitions were confirmed directly from LIS source code (`enkf_Mod.F90`, `enkf_general.F90`, `my_matrix_functions.F90`) and the experiment SMAP configuration.
+
+**Temporal organization:**
+event-driven / irregular; timestamps encoded in filenames.
+
+*(Optional diagnostic: ensemble spread is available in `_spread.a01.d01.nc` files)*
+
+## 7. Native Flux Characteristics
+
+`Evap_tavg`, `Qs_tavg` and `Qsb_tavg` are 24-h time-averaged flux rates in `kg m-2 s-1`.
+
+## 8. ET Observations
+
+Primary independent ET reference:
+    GLEAM v4.3a
+
+Product:
+    GLEAM v4.3a
+
+Variable:
+    E
+
+Units:
+    mm day-1
+
+Native temporal resolution:
+    daily
+
+Coverage:
+    2015–2020
+
+Analysis overlap:
+    2016–2020
+
+Grid:
+    0.1 degree
+    1800 x 3600
+    global lat/lon
+
+Second independent ET reference:
+    MOD16A2GF Collection 6.1
+
+Root:
+    /home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/NoahMP_Morocco/data/validation/evapotranspiration/MOD16/raw/
+
+Product:
+    MOD16A2GF Collection 6.1
+
+Tile:
+    h17v05
+
+File pattern:
+    MOD16A2GF.AYYYYDDD.h17v05.061.*.hdf
+
+ET subdataset:
+    ET_500m
+
+QC subdataset:
+    ET_QC_500m
+
+Raw type:
+    scaled integer
+
+Scale factor:
+    0.1
+
+Physical ET:
+    kg m-2 per composite
+    numerically equivalent to mm per composite
+
+Native temporal support:
+    8-day composite
+
+Coverage:
+    2015–2020
+    46 composites per year
+    full overlap with 2016–2020
+
+Spatial resolution:
+    500 m
+
+Projection:
+    MODIS Sinusoidal
+
+Tile coverage:
+    h17v05 covers the Noah-MP study domain
+
+Fill value:
+    32767
+
+## 9. In-Situ Observations
+
+**Source:**
+`/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/data/insitu_data/ABH_stations_plusziz_and_abhbc1.csv`
+
+**Status:**
+Historical in-situ precipitation dataset.
+NOT usable for the current 2016–2020 SMAP-XAI analysis.
+
+**Dataset Metadata:**
+- **Stations:** 227
+- **Native frequency:** daily
+- **Full temporal coverage:** 1979-01-01 to 2014-12-31
+- **Overlap with SMAP-XAI 2016–2020:** none
+- **Coordinates:** available for all stations
+- **Precipitation units:** not documented / to confirm
+- **Negative precipitation values:** 10,390 records
+- **Interpretation of negative values:** unresolved
+
+**Note:**
+This historical CSV is excluded from the active 2016–2020 workflow.
+Individual station files overlapping 2016–2020 are documented below,
+but their variable identities and units still require external
+confirmation.
+
+### 9.1 Individual station files
+
+**Source directory:**
+`/home/mohammad.elaabaribao/lustre/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/data/insitu_data/`
+
+**Structure:**
+- **Format:** Plain text, space/tab delimited, no headers.
+- **Date representation:** Columns 1, 2, 3 correspond to Year, Month, Day.
+- **Missing value convention:** Sentinel value `-99.9`.
+
+| Station | Station ID | Variables | Units | Frequency | Period | Domain status | Metadata provenance |
+|---------|------------|-----------|-------|-----------|--------|---------------|---------------------|
+| Agadir-massira | Candidate: 60252 / GMAD | Col 4, 5, 6 | To confirm externally | Daily | 1992–2022 | Inside | Unknown source; coordinates from historical CSV |
+| Chefchaouen | Candidate: 60106 | Col 4, 5, 6 | To confirm externally | Daily | 1994–2022 | Inside | Unknown source; coordinates from historical CSV |
+| Guelmim | Candidate: 60280 | Col 4, 5, 6 | To confirm externally | Daily | 1992–2022 | Outside | Unknown source; coordinates from historical CSV |
+| Tiznit | Candidate: 60270 | Col 4, 5, 6 | To confirm externally | Daily | 1989–2022 | Outside | Unknown source; coordinates from historical CSV |
+
+**Active SMAP-XAI Station Inputs:**
+Pending external confirmation of variable names and units, **Agadir-massira** and **Chefchaouen** are potentially usable for the 2016–2020 study. Guelmim and Tiznit fall outside the model domain and will not be used.
+
+## 10. Unresolved Source Metadata
+
+| Item | Decision / metadata still needed |
+|------|----------------------------------|
+| Individual station TXT variable identities | To confirm externally |
+| Individual station TXT physical units | To confirm externally |
+| Candidate station identities / coordinates | To confirm externally |

@@ -1,0 +1,46 @@
+models:
+  random_forest:
+    pilot:
+      n_estimators: 200
+      max_depth: 16
+      min_samples_leaf: 5
+      max_features: 0.7
+      bootstrap: true
+      random_state: 42
+      save_model: true
+
+    RF_A:
+      n_estimators: 300
+      max_depth: 12
+      min_samples_leaf: 10
+      max_features: 0.7
+      bootstrap: true
+      random_state: 42
+      save_model: true
+
+    RF_B:
+      n_estimators: 300
+      max_depth: 16
+      min_samples_leaf: 5
+      max_features: 0.7
+      bootstrap: true
+      random_state: 42
+      save_model: true
+
+    RF_C:
+      n_estimators: 300
+      max_depth: 20
+      min_samples_leaf: 5
+      max_features: 0.7
+      bootstrap: true
+      random_state: 42
+      save_model: false
+
+    RF_D:
+      n_estimators: 300
+      max_depth: 16
+      min_samples_leaf: 10
+      max_features: 1.0
+      bootstrap: true
+      random_state: 42
+      save_model: false

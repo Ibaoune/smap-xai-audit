@@ -1,0 +1,164 @@
+target:
+- value_ae
+assimilation_source_current:
+- source_signed_increment_t
+- source_absolute_increment_t
+- finite_innovation_fraction_t
+assimilation_source_history:
+- source_signed_increment_pre3d_sum
+- source_signed_increment_pre7d_sum
+- source_absolute_increment_pre3d_sum
+- source_absolute_increment_pre7d_sum
+- finite_innovation_fraction_pre3d_mean
+- finite_innovation_fraction_pre7d_mean
+baseline_state:
+- ssm_opl_lag1
+- rzsm_opl_lag1
+environmental_context:
+- precip_t
+- tair_t
+- precip_lag1
+- precip_pre3d_sum
+- precip_pre7d_sum
+- tair_lag1
+- tair_pre3d_mean
+- tair_pre7d_mean
+baseline_flux_lagged:
+- et_opl_lag1
+- surface_runoff_opl_lag1
+- baseflow_opl_lag1
+forcing_perturbation_control:
+- delta_precip_forcing_t
+- delta_precip_forcing_pre3d_sum
+- delta_precip_forcing_pre7d_sum
+trajectory_memory:
+- delta_ssm_lag1
+- delta_rzsm_lag1
+- delta_et_lag1
+- delta_surface_runoff_lag1
+- delta_baseflow_lag1
+realized_transfer_response:
+- delta_rzsm_t
+- delta_et_t
+static:
+- elevation
+- land_cover_fraction_1
+- land_cover_fraction_2
+- land_cover_fraction_3
+- land_cover_fraction_4
+- land_cover_fraction_5
+- land_cover_fraction_6
+- land_cover_fraction_7
+- land_cover_fraction_8
+- land_cover_fraction_9
+- land_cover_fraction_10
+- land_cover_fraction_11
+- land_cover_fraction_12
+- land_cover_fraction_13
+- land_cover_fraction_14
+- land_cover_fraction_15
+- land_cover_fraction_16
+- land_cover_fraction_17
+- land_cover_fraction_18
+- land_cover_fraction_19
+- land_cover_fraction_20
+- soil_texture_fraction_1
+- soil_texture_fraction_2
+- soil_texture_fraction_3
+- soil_texture_fraction_4
+- soil_texture_fraction_5
+- soil_texture_fraction_6
+- soil_texture_fraction_7
+- soil_texture_fraction_8
+- soil_texture_fraction_9
+- soil_texture_fraction_10
+- soil_texture_fraction_11
+- soil_texture_fraction_12
+- soil_texture_fraction_13
+- soil_texture_fraction_14
+- soil_texture_fraction_15
+- soil_texture_fraction_16
+temporal_context:
+- month
+- day_of_year
+- doy_sin
+- doy_cos
+metadata:
+- year
+- date
+- lat
+- lon
+- gleam_y_index
+- gleam_x_index
+- experiment
+quality_metadata:
+- valid_noahmp_land_fraction
+- high_land_coverage
+forbidden_same_day:
+- gleam
+- et_gleam
+- et_opl_t
+- et_da_t
+- error_opl
+- error_da
+forbidden_reference_fields:
+- value_ae_lag1
+- value_se
+- value_nae
+- value_refnorm
+- ratio
+- log_ratio
+feature_sets:
+  value_context_feature_set:
+    description: Primary value context mode (no same-day transfer response)
+    includes:
+    - assimilation_source_current
+    - assimilation_source_history
+    - baseline_state
+    - environmental_context
+    - baseline_flux_lagged
+    - forcing_perturbation_control
+    - static
+    - temporal_context
+  value_memory_augmented_feature_set:
+    description: Value memory-augmented mode (includes trajectory memory)
+    includes:
+    - assimilation_source_current
+    - assimilation_source_history
+    - baseline_state
+    - environmental_context
+    - baseline_flux_lagged
+    - forcing_perturbation_control
+    - trajectory_memory
+    - static
+    - temporal_context
+  value_transfer_informed_feature_set:
+    description: Realized-response explanatory mode
+    includes:
+    - assimilation_source_current
+    - assimilation_source_history
+    - baseline_state
+    - environmental_context
+    - baseline_flux_lagged
+    - forcing_perturbation_control
+    - trajectory_memory
+    - realized_transfer_response
+    - static
+    - temporal_context
+zero_variance_on_value_support:
+  exclude_from_model_by_default: true
+  features:
+  - land_cover_fraction_15
+  - land_cover_fraction_17
+  - land_cover_fraction_18
+  - land_cover_fraction_19
+  - land_cover_fraction_20
+  - soil_texture_fraction_10
+  - soil_texture_fraction_11
+  - soil_texture_fraction_13
+  - soil_texture_fraction_14
+  - soil_texture_fraction_15
+  - soil_texture_fraction_16
+  - soil_texture_fraction_2
+  - soil_texture_fraction_5
+  - soil_texture_fraction_8

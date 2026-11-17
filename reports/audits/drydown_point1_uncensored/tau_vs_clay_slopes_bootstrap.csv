@@ -1,0 +1,6 @@
+subset,season,n_events,slope_smap,slope_smap_ci95_low,slope_smap_ci95_high,slope_ol,slope_ol_ci95_low,slope_ol_ci95_high
+Baseline (N>=3),MAM,46797,4.4,2.88,5.82,-18.38,-23.17,-14.77
+Baseline (N>=3),JJA,5207,-0.46,-3.05,1.21,-6.56,-16.03,4.16
+Baseline (N>=3),ALL,152465,7.54,5.89,8.94,-18.19,-22.42,-14.64
+Sensitivity (N>=4),MAM,44952,4.91,3.35,6.36,-19.57,-24.58,-15.76
+Sensitivity (N>=4),JJA,4547,0.21,-2.48,2.1,-6.99,-14.62,2.86

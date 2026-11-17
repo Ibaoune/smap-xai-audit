@@ -1,0 +1,75 @@
+assimilation_diagnostics_or_history:
+  - source_absolute_increment_pre3d_sum
+  - source_absolute_increment_pre7d_sum
+  - source_absolute_increment_t
+  - source_signed_increment_pre3d_sum
+  - source_signed_increment_pre7d_sum
+  - source_signed_increment_t
+  - finite_innovation_count_pre3d
+  - finite_innovation_count_pre7d
+  - finite_innovation_fraction_pre3d_mean
+  - finite_innovation_fraction_pre7d_mean
+  - finite_innovation_fraction_t
+  - days_since_finite_innovation_7d
+  - observation_frequency
+
+antecedent_soil_moisture_state:
+  - rzsm_lag1
+  - rzsm_opl_lag1
+  - ssm_lag1
+  - ssm_opl_lag1
+
+meteorological_forcing:
+  - precip_t
+  - precip_lag1
+  - precip_pre3d_sum
+  - precip_pre7d_sum
+  - tair_t
+  - tair_lag1
+  - tair_pre3d_mean
+  - tair_pre7d_mean
+
+antecedent_land_surface_fluxes:
+  - baseflow_opl_lag1
+  - et_opl_lag1
+  - surface_runoff_opl_lag1
+
+soil_properties:
+  - soil_texture_fraction_1
+  - soil_texture_fraction_12
+  - soil_texture_fraction_3
+  - soil_texture_fraction_4
+  - soil_texture_fraction_6
+  - soil_texture_fraction_7
+  - soil_texture_fraction_9
+
+land_cover_or_vegetation:
+  - land_cover_fraction_1
+  - land_cover_fraction_10
+  - land_cover_fraction_11
+  - land_cover_fraction_12
+  - land_cover_fraction_13
+  - land_cover_fraction_14
+  - land_cover_fraction_16
+  - land_cover_fraction_2
+  - land_cover_fraction_3
+  - land_cover_fraction_4
+  - land_cover_fraction_5
+  - land_cover_fraction_6
+  - land_cover_fraction_7
+  - land_cover_fraction_8
+  - land_cover_fraction_9
+
+topography:
+  - elevation
+
+forcing_perturbation_controls:
+  - delta_precip_forcing_t
+  - delta_precip_forcing_pre3d_sum
+  - delta_precip_forcing_pre7d_sum
+
+temporal_context:
+  - month
+  - day_of_year
+  - doy_cos
+  - doy_sin

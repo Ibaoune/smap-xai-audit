@@ -1,0 +1,49 @@
+protocol:
+  development_year: 2019
+  test_year: 2020  # SEALED — not used until final XAI evaluation
+
+  # Cohort index: all 50,000 balanced pixel-days stored as parquet (date+y+x keys)
+  # Used as the sampling universe; SHAP values are NOT computed for all 50k rows.
+  shap_cohort_size: 50000
+
+  # SHAP compute subset: deterministic balanced sub-sample nested within the 50k index
+  # Balanced by month x spatial_fold, seed 42, sorted (date, y_index, x_index)
+  # Frozen after sample-size stability audit (RF-04B closure):
+  #   5k vs 10k: predictor rho=0.999, group rho=1.000, max group diff=0.016
+  # 10k is sufficient for stable global importance estimation.
+  # Do NOT change without a documented technical failure.
+  shap_compute_size: 10000
+
+  # Permutation importance subset: nested within the 10k SHAP compute cohort
+  # (first 5000 rows by sorted date, y_index, x_index from the compute cohort)
+  permutation_compute_size: 5000
+
+  random_seed: 42
+  sampling_dimensions:
+    - month
+    - spatial_fold
+  target_stratification: forbidden
+
+explainer:
+  class: shap.TreeExplainer
+  feature_perturbation: tree_path_dependent
+  model_output: raw
+
+permutation:
+  scoring: neg_mean_absolute_error
+  n_repeats: 5
+
+feature_registry:
+  # Global XAI feature-group registry covers 58 unique predictors
+  # across all SOURCE/TRANSFER/VALUE model families.
+  global_feature_count: 58
+  # SOURCE context_only_feature_set uses a strict 35-predictor subset.
+  # TRANSFER and VALUE use different/larger subsets.
+  source_context_only_feature_count: 35
+
+plotting:
+  # matplotlib only — no seaborn dependency
+  # seaborn was pip-installed ad-hoc during RF-04B development
+  # and was removed from the plotting code at RF-04B closure.
+  # environment.yml does NOT include seaborn.
+  backend: matplotlib

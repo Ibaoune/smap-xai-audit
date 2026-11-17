@@ -1,0 +1,35 @@
+source:
+  target: daily_absolute_increment
+  baselines:
+    - zero
+    - train_median
+    - monthly_train_median
+  statistical_reference: monthly_train_median
+
+transfer:
+  targets:
+    - delta_rzsm
+    - delta_et
+    - delta_surface_runoff
+    - delta_baseflow
+  baselines:
+    - zero
+    - train_mean
+    - monthly_train_mean
+    - persistence_lag1
+  statistical_reference: monthly_train_mean
+  memory_reference: persistence_lag1
+
+value:
+  target: value_ae
+  baselines:
+    - zero
+    - train_mean
+    - train_median
+    - monthly_train_median
+  statistical_reference: monthly_train_median
+
+final_test:
+  enabled: false
+
+splits_reference: configs/modeling/splits.yaml

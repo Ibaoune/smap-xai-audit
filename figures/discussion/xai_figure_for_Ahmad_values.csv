@@ -1,0 +1,9 @@
+group,family,CDF,NoCDF,CDF_minus_NoCDF_pp,in_SOURCE_predictor_set
+antecedent_soil_moisture_state,Antecedent soil moisture,58.76,38.52,20.24,True
+meteorological_forcing,Meteorology,19.86,26.69,-6.83,True
+antecedent_land_surface_fluxes,Antecedent fluxes,0.00,0.00,0.00,False
+assimilation_diagnostics_or_history,Assimilation history,0.00,0.00,0.00,False
+soil_properties,Soil properties,5.02,11.37,-6.35,True
+land_cover_or_vegetation,Land cover / vegetation,5.70,10.25,-4.56,True
+topography,Topography,1.01,3.52,-2.51,True
+temporal_context,Temporal context,9.65,9.65,-0.00,True

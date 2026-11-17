@@ -11,3 +11,48 @@ dist/
 
 # Editors / OS
 .DS_Store
+
+# Data
+data/**/*
+!data/**/
+!data/**/README.md
+
+# Reports
+reports/**/*
+!reports/**/
+!reports/**/README.md
+
+# Logs
+logs/
+!logs/README.md
+
+# Artifacts
+artifacts/**/*
+!artifacts/**/
+!artifacts/**/README.md
+
+# Fortran runtime unit outputs (ephemeral diagnostics)
+fort.*
+
+# Large intermediate distribution caches for manuscript figures (reproducible via pipeline)
+figures/manuscript/section_3_1/*.npz
+figures/manuscript/section_3_1/*.nc
+
+# Rendered figures and unversioned outputs (reproducible from scripts)
+figures/audit/*.pdf
+figures/audit/*.png
+figures/discussion/*.pdf
+figures/discussion/*.png
+figures/discussion/*.svg
+figures/manuscript/rf/rf_eval/*.pdf
+figures/manuscript/rf/rf_eval/*.png
+
+# Historical Section 3.1 unversioned outputs (invalidated legacy CDF, awaiting pipeline recalculation)
+figures/manuscript/section_3_1/*.pdf
+figures/manuscript/section_3_1/*.csv
+figures/manuscript/section_3_1/*.txt
+
+# Legacy figures archive (binary and data outputs kept out of Git, manifest tracked)
+figures/legacy/**/*
+!figures/legacy/**/
+!figures/legacy/**/README.md

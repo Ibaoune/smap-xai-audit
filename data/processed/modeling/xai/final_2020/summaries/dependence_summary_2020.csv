@@ -1,0 +1,41 @@
+model_key,block,experiment,target,predictor,classification,evidence_note
+SOURCE_da_cdf_daily_absolute_increment_matched_support,SOURCE,da_cdf,daily_absolute_increment,ssm_lag1,clearly informative monotonic,strong positive correlation (rho=0.86)
+SOURCE_da_cdf_daily_absolute_increment_matched_support,SOURCE,da_cdf,daily_absolute_increment,precip_lag1,clearly informative monotonic,strong positive correlation (rho=0.62)
+SOURCE_da_cdf_daily_absolute_increment_matched_support,SOURCE,da_cdf,daily_absolute_increment,rzsm_lag1,clearly informative monotonic,strong positive correlation (rho=0.90)
+SOURCE_da_cdf_daily_absolute_increment_matched_support,SOURCE,da_cdf,daily_absolute_increment,land_cover_fraction_16,clearly informative monotonic,strong positive correlation (rho=0.83)
+SOURCE_da_nocdf_daily_absolute_increment_matched_support,SOURCE,da_nocdf,daily_absolute_increment,ssm_lag1,clearly informative monotonic,strong positive correlation (rho=0.73)
+SOURCE_da_nocdf_daily_absolute_increment_matched_support,SOURCE,da_nocdf,daily_absolute_increment,precip_lag1,clearly informative monotonic,strong positive correlation (rho=0.79)
+SOURCE_da_nocdf_daily_absolute_increment_matched_support,SOURCE,da_nocdf,daily_absolute_increment,rzsm_lag1,clearly informative monotonic,strong positive correlation (rho=0.85)
+SOURCE_da_nocdf_daily_absolute_increment_matched_support,SOURCE,da_nocdf,daily_absolute_increment,land_cover_fraction_16,clearly informative monotonic,strong positive correlation (rho=0.79)
+TRANSFER_da_cdf_delta_rzsm_native_support,TRANSFER,da_cdf,delta_rzsm,rzsm_opl_lag1,clearly informative monotonic,strong negative correlation (rho=-0.77)
+TRANSFER_da_cdf_delta_rzsm_native_support,TRANSFER,da_cdf,delta_rzsm,ssm_opl_lag1,clearly informative monotonic,strong negative correlation (rho=-0.85)
+TRANSFER_da_cdf_delta_rzsm_native_support,TRANSFER,da_cdf,delta_rzsm,baseflow_opl_lag1,weak,low amplitude and correlation (rho=0.10)
+TRANSFER_da_cdf_delta_et_native_support,TRANSFER,da_cdf,delta_et,et_opl_lag1,informative nonlinear,moderate correlation (rho=-0.32) with dispersion
+TRANSFER_da_cdf_delta_et_native_support,TRANSFER,da_cdf,delta_et,ssm_opl_lag1,informative nonlinear,moderate correlation (rho=-0.40) with dispersion
+TRANSFER_da_cdf_delta_et_native_support,TRANSFER,da_cdf,delta_et,source_signed_increment_pre7d_sum,informative nonlinear,moderate correlation (rho=0.37) with dispersion
+TRANSFER_da_cdf_delta_surface_runoff_native_support,TRANSFER,da_cdf,delta_surface_runoff,precip_t,weak,low amplitude and correlation (rho=-0.20)
+TRANSFER_da_cdf_delta_surface_runoff_native_support,TRANSFER,da_cdf,delta_surface_runoff,land_cover_fraction_16,clearly informative monotonic,strong negative correlation (rho=-0.81)
+TRANSFER_da_cdf_delta_surface_runoff_native_support,TRANSFER,da_cdf,delta_surface_runoff,soil_texture_fraction_6,approximately flat,very small SHAP amplitude
+TRANSFER_da_cdf_delta_baseflow_native_support,TRANSFER,da_cdf,delta_baseflow,baseflow_opl_lag1,weak,low amplitude and correlation (rho=-0.18)
+TRANSFER_da_cdf_delta_baseflow_native_support,TRANSFER,da_cdf,delta_baseflow,land_cover_fraction_16,clearly informative monotonic,strong negative correlation (rho=-0.78)
+TRANSFER_da_cdf_delta_baseflow_native_support,TRANSFER,da_cdf,delta_baseflow,rzsm_opl_lag1,weak,low amplitude and correlation (rho=-0.04)
+TRANSFER_da_nocdf_delta_rzsm_native_support,TRANSFER,da_nocdf,delta_rzsm,rzsm_opl_lag1,clearly informative monotonic,strong negative correlation (rho=-0.90)
+TRANSFER_da_nocdf_delta_rzsm_native_support,TRANSFER,da_nocdf,delta_rzsm,ssm_opl_lag1,informative nonlinear,moderate correlation (rho=-0.53) with dispersion
+TRANSFER_da_nocdf_delta_rzsm_native_support,TRANSFER,da_nocdf,delta_rzsm,baseflow_opl_lag1,clearly informative monotonic,strong positive correlation (rho=0.73)
+TRANSFER_da_nocdf_delta_et_native_support,TRANSFER,da_nocdf,delta_et,et_opl_lag1,clearly informative monotonic,strong negative correlation (rho=-0.83)
+TRANSFER_da_nocdf_delta_et_native_support,TRANSFER,da_nocdf,delta_et,ssm_opl_lag1,clearly informative monotonic,strong negative correlation (rho=-0.72)
+TRANSFER_da_nocdf_delta_et_native_support,TRANSFER,da_nocdf,delta_et,source_signed_increment_pre7d_sum,clearly informative monotonic,strong positive correlation (rho=0.74)
+TRANSFER_da_nocdf_delta_surface_runoff_native_support,TRANSFER,da_nocdf,delta_surface_runoff,precip_t,informative nonlinear,moderate correlation (rho=0.34) with dispersion
+TRANSFER_da_nocdf_delta_surface_runoff_native_support,TRANSFER,da_nocdf,delta_surface_runoff,land_cover_fraction_16,clearly informative monotonic,strong negative correlation (rho=-0.79)
+TRANSFER_da_nocdf_delta_surface_runoff_native_support,TRANSFER,da_nocdf,delta_surface_runoff,soil_texture_fraction_6,clearly informative monotonic,strong positive correlation (rho=0.74)
+TRANSFER_da_nocdf_delta_baseflow_native_support,TRANSFER,da_nocdf,delta_baseflow,baseflow_opl_lag1,heterogeneous / no simple global relationship,"strong dispersion at similar predictor values, low rho (0.12)"
+TRANSFER_da_nocdf_delta_baseflow_native_support,TRANSFER,da_nocdf,delta_baseflow,land_cover_fraction_16,clearly informative monotonic,strong negative correlation (rho=-0.79)
+TRANSFER_da_nocdf_delta_baseflow_native_support,TRANSFER,da_nocdf,delta_baseflow,rzsm_opl_lag1,clearly informative monotonic,strong positive correlation (rho=0.86)
+VALUE_da_cdf_value_ae_native_support,VALUE,da_cdf,value_ae,ssm_opl_lag1,heterogeneous / no simple global relationship,"strong dispersion at similar predictor values, low rho (0.05)"
+VALUE_da_cdf_value_ae_native_support,VALUE,da_cdf,value_ae,et_opl_lag1,informative nonlinear,moderate correlation (rho=-0.41) with dispersion
+VALUE_da_cdf_value_ae_native_support,VALUE,da_cdf,value_ae,tair_t,clearly informative monotonic,strong negative correlation (rho=-0.68)
+VALUE_da_cdf_value_ae_native_support,VALUE,da_cdf,value_ae,land_cover_fraction_16,clearly informative monotonic,strong negative correlation (rho=-0.77)
+VALUE_da_nocdf_value_ae_native_support,VALUE,da_nocdf,value_ae,ssm_opl_lag1,informative nonlinear,moderate correlation (rho=0.48) with dispersion
+VALUE_da_nocdf_value_ae_native_support,VALUE,da_nocdf,value_ae,et_opl_lag1,clearly informative monotonic,strong positive correlation (rho=0.74)
+VALUE_da_nocdf_value_ae_native_support,VALUE,da_nocdf,value_ae,tair_t,heterogeneous / no simple global relationship,"strong dispersion at similar predictor values, low rho (-0.26)"
+VALUE_da_nocdf_value_ae_native_support,VALUE,da_nocdf,value_ae,land_cover_fraction_16,informative nonlinear,moderate correlation (rho=-0.36) with dispersion
