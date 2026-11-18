@@ -1,0 +1,11 @@
+experiment,period_type,period,wb_residual_water_added_mm,direct_increments_4layers_mm,discrepancy_mm
+NoCDF,Seasonal,DJF,-16.96,-142.0,125.04
+NoCDF,Seasonal,MAM,-75.11,-213.09,137.98
+NoCDF,Seasonal,JJA,58.48,2.78,55.7
+NoCDF,Seasonal,SON,9.57,-134.58,144.15
+NoCDF,Annual Total (2016-2020),ALL,-24.02,-486.9,462.88
+CDF,Seasonal,DJF,60.5,-61.51,122.01
+CDF,Seasonal,MAM,103.72,-60.32,164.04
+CDF,Seasonal,JJA,98.41,-15.38,113.79
+CDF,Seasonal,SON,77.3,-69.78,147.08
+CDF,Annual Total (2016-2020),ALL,339.93,-206.97,546.9

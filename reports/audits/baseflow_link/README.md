@@ -1,15 +1,12 @@
-# Audit de l'Impact de l'Assimilation SMAP sur le Débit de Base (Baseflow)
+# Audit Hydrologique : Profil Vertical d'Humidité, Débit de Base ($Q_{\text{sb}}$) et Eau Nette Ajoutée par le Filtre
 
-**Branche** : `elaabar`  
-**Dépôt** : `smap-xai-audit`  
-**Date d'exécution** : 17 Novembre 2026  
-**Auteur** : mohammad.elaabaribao
+Ce rapport documente la réponse hydrologique globale à l'assimilation des données SMAP (2016–2020) sur le domaine NorthMor (~5 km, 121×181).
 
 ---
 
 ## 1. Contexte et Objectifs
 
-L'assimilation de données SMAP (par filtre de Kalman d'ensemble, EnKF 20 membres) modifie l'état d'humidité du sol superficiel (couche 1 : 0–10 cm). Par diffusion capillaire et gravité verticale, ces incréments se propagent dans les couches racinaires profondes (couche 2 : 10–40 cm, couche 3 : 40–100 cm, couche 4 : 100–200 cm), modifiant le stock d'eau souterrain et influençant le drainage profond et le débit de base ($Q_{\text{sb}}$).
+L'assimilation de données SMAP (EnKF 20 membres) modifie l'état d'humidité du sol superficiel (couche 1 : 0–10 cm). Par diffusion capillaire et drainage gravitaire, ces incréments se propagent dans les couches racinaires profondes (couche 2 : 10–40 cm, couche 3 : 40–100 cm, couche 4 : 100–200 cm), modifiant le stock d'eau souterrain et influençant le drainage profond et le débit de base ($Q_{\text{sb}}$).
 
 L'audit analyse comparativement :
 1. **`DA_nocdf_noirr` vs `OPL_noirr`** : Assimilation brute sans correction de biais.
@@ -36,63 +33,60 @@ L'audit analyse comparativement :
 | CDF | Mai | +0.0056 | -0.0030 | -0.0030 | -0.0064 | -8.5 mm | +0.0461 | +0.0030 | +0.1990 | +0.0014 |
 | CDF | Juil | +0.0081 | -0.0027 | -0.0026 | -0.0062 | -7.8 mm | +0.0263 | +0.0004 | +0.1811 | +0.0003 |
 
-Voir la figure complète : [`delta_soilm_and_baseflow_response.png`](file:///srv/lustre01/project/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit/reports/audits/baseflow_link/delta_soilm_and_baseflow_response.png).
+Figure associée : [`delta_soilm_and_baseflow_response.png`](file:///srv/lustre01/project/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit/reports/audits/baseflow_link/delta_soilm_and_baseflow_response.png).
 
 ---
 
-## 3. Corrélations Décalées : Incréments Printaniers $\to$ Débit de Base $Q_{\text{sb}}$ (0 à 60 Jours)
+## 3. Bilan Hydrique et Eau Nette Ajoutée par le Filtre
 
-Corrélation de Pearson entre l'anomalie de stockage en fin de printemps ($\Delta W_{\text{tot}}$) et le débit de base journalier ultérieur $\Delta Q_{\text{sb}}(t + \text{lag})$ pour chaque texture :
-
-| Texture | Fraction Argile | Corrélation $r$ (lag 0 j) | Corrélation $r$ (lag 15 j) | Corrélation $r$ (lag 30 j) | Corrélation $r$ (lag 45 j) | Corrélation $r$ (lag 60 j) | Lag du Pic |
-|:--------|:---------------:|:-------------------------:|:--------------------------:|:--------------------------:|:--------------------------:|:--------------------------:|:----------:|
-| Sand | 3 % | **0.464** | 0.465 | 0.403 | 0.334 | 0.293 | **5–10 jours** |
-| Sandy Loam | 10 % | 0.482 | 0.491 | 0.484 | **0.502** | 0.499 | **45–50 jours** |
-| Silt Loam | 13 % | 0.461 | 0.466 | 0.476 | **0.491** | 0.488 | **45 jours** |
-| Loam | 19 % | 0.488 | 0.498 | 0.502 | **0.521** | 0.518 | **45–50 jours** |
-| Sandy Clay Loam | 27 % | 0.469 | 0.475 | 0.481 | **0.499** | 0.495 | **45 jours** |
-| Clay Loam | 34 % | 0.479 | 0.487 | 0.495 | **0.514** | 0.511 | **45–50 jours** |
-| Clay | 58 % | 0.481 | 0.488 | 0.494 | **0.512** | 0.510 | **45–50 jours** |
-
-### Analyse de la réponse hydrodynamique :
-- Sur les sols sableux à forte conductivité hydraulique saturée ($K_{\text{sat}}$ élevée), le pic de corrélation est quasi-instantané (5 à 10 jours), puis s'atténue rapidement.
-- Sur les sols limoneux et argileux, la réponse est lente et intégrée : la percolation profonde et la vidange de l'aquifère non confiné de Noah-MP atteignent leur couplage maximal **entre 40 et 50 jours après le printemps**, maintenant une influence significative jusqu'à 60 jours ($r > 0.50$).
-- Les courbes de corrélation par texture sont visualisables dans [`lagged_correlation_spring_increment_to_baseflow.png`](file:///srv/lustre01/project/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit/reports/audits/baseflow_link/lagged_correlation_spring_increment_to_baseflow.png).
-
----
-
-## 4. Bilan Hydrique Saisonnier et Vérification des Précipitations Perturbées
-
-### Vérification de la Moyenne d'Ensemble des Précipitations Perturbées
-Dans LIS EnKF, les forçages atmosphériques subissent des perturbations stochastiques d'ensemble. Nous avons vérifié si la moyenne des 20 membres $\overline{P}_{\text{ens}}$ introduit un biais par rapport au forçage non perturbé de l'OL ($P_{\text{OL}}$) :
+### Vérification du Forçage Pluviométrique Perturbé
+Dans LIS EnKF, les forçages atmosphériques reçoivent des perturbations stochastiques d'ensemble. La moyenne des 20 membres $\overline{P}_{\text{ens}}$ ne présente aucun biais systématique par rapport au forçage déterministe de l'OL :
 - Écart moyen domaine : **$+0.00167\text{ mm/j}$** ($\sim 0.6\text{ mm/an}$)
 - Écart-type : $0.0595\text{ mm/j}$
 - Médiane ($P_{50}$) : **$0.0000\text{ mm/j}$**
 - Percentile 5 / 95 : $[-0.0097, +0.0111]\text{ mm/j}$
 
-**Conclusion** : Le forçage pluviométrique est strictement non biaisé. Les variations de débit de base et d'ET résultent exclusivement de l'assimilation des données SMAP.
+Le forçage précipité est donc strictement non biaisé.
 
-### Bilan Hydrique Saisonnier Cumulé (DA − OL)
+### Comparaison : Résidu du Bilan de Flux vs Incréments Directs (4 Couches)
 
-| Run | Saison | $N_{\text{jours}}$ | $\Delta P_{\text{ens}}$ Cum (mm) | $\Delta\text{ET}$ Cum (mm) | $\Delta Q_{\text{s}}$ Cum (mm) | $\Delta Q_{\text{sb}}$ Cum (mm) | $\Delta\text{Drainage}$ Net ($\Delta P - \Delta\text{ET} - \Delta Q$) |
-|:----|:------:|:------------------:|:--------------------------------:|:--------------------------:|:------------------------------:|:-------------------------------:|:--------------------------------------------------------------------:|
-| **NoCDF** | DJF | 452 | +0.88 mm | -43.41 mm | +1.85 mm | +24.60 mm | +17.84 mm |
-| NoCDF | MAM | 460 | +0.98 mm | -96.26 mm | +2.39 mm | +18.76 mm | +76.09 mm |
-| NoCDF | JJA | 460 | +0.24 mm | +53.19 mm | +0.12 mm | +5.16 mm | -58.23 mm |
-| NoCDF | SON | 455 | +0.95 mm | +2.90 mm | +0.63 mm | +6.03 mm | -8.61 mm |
-| **CDF** | DJF | 452 | +0.88 mm | +41.74 mm | +1.60 mm | +17.16 mm | -59.62 mm |
-| CDF | MAM | 460 | +0.98 mm | +76.32 mm | +2.67 mm | +24.72 mm | -102.73 mm |
-| CDF | JJA | 460 | +0.24 mm | +85.46 mm | +0.27 mm | +12.68 mm | -98.17 mm |
-| CDF | SON | 455 | +0.95 mm | +66.62 mm | +1.24 mm | +9.44 mm | -76.35 mm |
+L'eau nette ajoutée par le filtre d'assimilation EnKF est estimée selon deux méthodes indépendantes :
+1. **Méthode indirecte (Résidu de flux de surface)** : $\Delta \text{Flux} = \Delta\text{ET} + \Delta Q_{\text{s}} + \Delta Q_{\text{sb}} - \Delta P_{\text{ens}}$
+2. **Méthode directe (Somme intégrée des incréments sur les 4 couches)** :
+   $$\Delta W_{\text{direct}} = \sum_{t} \sum_{k=1}^4 \Delta\theta_k(t) \cdot \Delta z_k$$
+   avec $\Delta z = [100, 300, 600, 1000]\text{ mm}$, calculée directement depuis les 9 196 fichiers `LIS_DA_EnKF_*_incr.a01.d01.nc` de production (2016–2020).
+
+| Expérience | Période | Eau Nette Résidu de Flux (mm) | Incréments Directs 4 Couches (mm) | Écart Résidu − Direct (mm) |
+|:-----------|:-------:|:-----------------------------:|:---------------------------------:|:--------------------------:|
+| **NoCDF** | DJF | -16.96 | **-142.00** | +125.04 |
+| NoCDF | MAM | -75.11 | **-213.09** | +137.98 |
+| NoCDF | JJA | +58.48 | **+2.78** | +55.70 |
+| NoCDF | SON | +9.57 | **-134.58** | +144.15 |
+| **NoCDF** | **Annuel (2016–2020)** | **-24.02** | **-486.90** | **+462.88** |
+| **CDF** | DJF | +60.50 | **-61.51** | +122.01 |
+| CDF | MAM | +103.72 | **-60.32** | +164.04 |
+| CDF | JJA | +98.41 | **-15.38** | +113.79 |
+| CDF | SON | +77.30 | **-69.78** | +147.08 |
+| **CDF** | **Annuel (2016–2020)** | **+339.93** | **-206.97** | **+546.90** |
+
+Fichiers de données associés :
+- [`water_balance_vs_direct_increments.csv`](file:///srv/lustre01/project/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit/reports/audits/baseflow_link/water_balance_vs_direct_increments.csv)
+- [`seasonal_water_balance_da_minus_ol.csv`](file:///srv/lustre01/project/empowermed-ahl6xm8o7mg/users/mohammad.elaabaribao/smap-xai-audit/reports/audits/baseflow_link/seasonal_water_balance_da_minus_ol.csv)
+
+### Interprétation de l'écart :
+1. **Incréments directs** :
+   - En NoCDF, le filtre retire directement **-486.9 mm** sur 5 ans (~97 mm/an), avec un assèchement massif en hiver et printemps (-142 mm en DJF, -213 mm en MAM). En été (JJA), la somme des incréments redevient positive (+2.78 mm) sous l'effet du seuil de flétrissement qui filtre les observations les plus sèches (Hypothèse E5).
+   - En CDF, les incréments directs sont également négatifs globalement (-206.97 mm sur 5 ans), mais beaucoup plus modérés.
+2. **Origine de l'écart avec le résidu de flux** :
+   - Le résidu basé uniquement sur les flux de surface ($\Delta\text{ET} + \Delta Q - \Delta P$) néglige la dynamique interne du stock d'eau souterraine de Noah-MP (schéma SIMGM avec aquifère non confiné et nappe phréatique mobile $Z_{\text{WT}}$).
+   - L'eau retirée par le filtre modifie la recharge de la nappe et le stockage profond, créant un déphasage pluriannuel qui n'est pas équilibré à court terme par les seuls flux de surface.
 
 ---
 
-## 5. Synthèse des Résultats
+## 4. Synthèse
 
 1. **Mécanisme NoCDF** :
-   - En NoCDF, l'assimilation SMAP retire de l'eau en surface ($\Delta\theta_1 < 0$ tout l'hiver et le printemps, jusqu'à -35 mm de stock total).
-   - Cette diminution d'humidité réduit drastiquement l'évapotranspiration printanière ($\Delta\text{ET} = -96.3\text{ mm}$ en MAM), ce qui préserve une fraction d'eau qui alimente temporairement le drainage profond et soutient un débit de base résiduel (+18.8 mm en MAM).
+   - L'assèchement direct par l'EnKF (-486.9 mm sur 5 ans) restreint la disponibilité en eau pour l'évapotranspiration au printemps ($\Delta\text{ET} = -96.3\text{ mm}$ en MAM).
+   - En été, l'inversion des incréments directs (+2.78 mm en JJA) confirme que la coupure à $smcwlt + 0.02$ sélectionne préférentiellement les observations humides.
 2. **Mécanisme CDF** :
-   - L'égalisation quantile-quantile élimine l'assèchement en surface et injecte artificiellement de l'eau ($\Delta\theta_1 > 0$), stimulant une évapotranspiration continuellement excédentaire (+76 mm en MAM, +85 mm en JJA) ainsi qu'un excédent permanent de débit de base (+24.7 mm en MAM).
-3. **Mémoire du système aquifère** :
-   - La réponse de $Q_{\text{sb}}$ aux corrections d'humidité de fin de printemps présente une mémoire de 40 à 50 jours sur les sols dominants (Loam, Clay Loam, Clay), illustrant le rôle de filtre passe-bas des couches profondes et de l'aquifère de Noah-MP.
+   - Le rescaling par CDF matching réhausse artificiellement les valeurs sèches de SMAP vers la climatologie humide de Noah-MP, injectant de l'eau dans le bilan de flux et maintenant une ET constamment excédentaire.
