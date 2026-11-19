@@ -183,7 +183,7 @@ Le tableau ci-dessous rapporte le résidu de bilan d'eau interne propre à chaqu
 
 #### Données quantitatives issues du tableau :
 * Pour `OL_DAIC_2018` (run 1 membre déterministe, sans perturbation ni DA), le résidu de fermeture est remarquable : **-0.36 mm** en janvier, **-0.28 mm** en février, **-0.40 mm** en mars, **-0.34 mm** en avril et **-0.35 mm** en mai. Noah-MP conserve donc la masse d'eau à moins de 0.40 mm/mois près.
-* Pour `ENS_OPL_2018`, le résidu interne négatif (-3.61 à -8.46 mm/mois) s'explique par les perturbations d'état aléatoires additives injectées toutes les 3 heures sur la couche 1 d'humidité du sol.
+* Pour `ENS_OPL_2018`, le résidu interne moyen d'ensemble est négatif (-3.61 à -8.46 mm/mois). L'attribution quantitative entre perturbations de forçage et perturbations d'état fait l'objet d'expériences de sensibilité dédiées.
 * Pour `DA_nocdf_2018`, le résidu interne est positif et reflète exactement l'extraction d'eau par les incréments d'assimilation EnKF.
 
 ### 5.3. Bilan d'Eau Différentiel ENS_OPL − OL_DAIC (Effet d'Ensemble Pur)
@@ -200,7 +200,7 @@ Le tableau ci-dessous présente le bilan d'eau mensuel complet entre la moyenne 
 
 #### Données quantitatives issues du tableau :
 * $\Delta P = P_{\text{ENS}} - P_{\text{OL}}$ est infime : **+0.11 mm** en janvier, **+0.08 mm** en février, **+0.14 mm** en mars, **+0.12 mm** en avril, **+0.05 mm** en mai (écart maximal de **0.14 mm/mois < 1 mm/mois**), confirmant la stricte conservation du forçage pluviométrique dans l'ensemble.
-* L'excédent d'évapotranspiration $\Delta ET$ (+2.81 mm en janvier à +7.54 mm en mai) quantifie la non-linéarité stomatique et racinaire induite par les perturbations météorologiques sur l'ensemble des membres.
+* L'écart d'évapotranspiration $\Delta ET$ (+2.81 mm en janvier à +7.54 mm en mai) quantifie la différence d'évapotranspiration entre la moyenne des membres perturbés et la simulation déterministe non perturbée.
 * La variation différentielle de stock $\Delta(\Delta\text{Stock})$ reste modérée (+0.12 à +0.65 mm), démontrant que le membre représentatif reproduit fidèlement la trajectoire d'accumulation hydrique moyenne.
 
 ---

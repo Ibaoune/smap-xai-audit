@@ -53,7 +53,7 @@ $$\text{Fraction Expliquée} = \frac{\Delta\theta_1(\text{ENS})}{\Delta\theta_1(
 ### Conclusions clés sur l'hypothèse E6 :
 1. **Rôle transitoire de l'ensemble au spinup** : En janvier, l'effet d'ensemble explique 76.6 % de l'écart initial. Cela correspond à la dispersion initiale des perturbations d'états et de forçages.
 2. **Effondrement rapide de l'effet d'ensemble** : Dès février (19.5 %), mars (13.4 %), avril (10.0 %) et surtout **mai (3.9 %)**, la part attribuable à l'ensemble devient marginale.
-3. **Prépondérance absolue de l'assimilation SMAP** : En mai, sur les $-0.0282\text{ m}^3/\text{m}^3$ d'écart entre `DA_nocdf` et `OPL`, **96.1 % provient strictement de l'assimilation directe des observations SMAP**.
+3. **Écart net entre DA_nocdf et OPL** : En mai, l'écart sur l'humidité de surface atteint $-0.0282\text{ m}^3/\text{m}^3$ entre `DA_nocdf` et `OPL`, traduisant l'impact combiné des incréments d'assimilation et de la réponse dynamique de la colonne.
 4. **Comportement opposé sur l'évapotranspiration (ET)** : Les perturbations de forçage dans `ENS_OPL` apportent un surplus net de pluie (+6.8 mm en mars), stimulant l'ET (+2.3 à +5.9 mm/mois). À l'inverse, l'assimilation SMAP dans `DA_nocdf` assèche le sol et comprime l'ET de façon drastique (-8.1 à -12.3 mm/mois). L'assimilation surmonte et inverse totalement l'effet de l'ensemble.
 5. **Validation de l'assimilation calée CDF** : `DA_cdf` reste très proche de l'Open-Loop (+0.0016 à +0.0037 m³/m³), prouvant que le calage CDF neutralise le signal d'assèchement SMAP.
 
