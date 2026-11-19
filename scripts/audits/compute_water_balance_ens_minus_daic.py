@@ -3,10 +3,11 @@
 compute_water_balance_ens_minus_daic.py
 
 Calcule le bilan d'eau mensuel complet pour ENS_OPL - OL_DAIC (effet d'ensemble pur)
-pour les 5 mois (janvier-mai 2018).
+pour les 12 mois (janvier-décembre 2018).
 Stock total = 4 couches SMC + aquifere (WA) + canopee (CANWAT) + neige (SNEQV)
 Residu = Delta_P - Delta_ET - Delta_Qs - Delta_Qsb - Delta(Delta_Stock)
 Avec P_OL_DAIC extrait directement de OPL_noirr (meme forcage IMERG deterministe).
++ Ligne JJA et ligne de totaux annuels
 """
 
 import os
@@ -33,6 +34,13 @@ months = [
     ("2018-03", "201803", 31, "201803010000", "201803312345"),
     ("2018-04", "201804", 30, "201804010000", "201804302345"),
     ("2018-05", "201805", 31, "201805010000", "201805312345"),
+    ("2018-06", "201806", 30, "201806010000", "201806302345"),
+    ("2018-07", "201807", 31, "201807010000", "201807312345"),
+    ("2018-08", "201808", 31, "201808010000", "201808312345"),
+    ("2018-09", "201809", 30, "201809010000", "201809302345"),
+    ("2018-10", "201810", 31, "201810010000", "201810312345"),
+    ("2018-11", "201811", 30, "201811010000", "201811302345"),
+    ("2018-12", "201812", 31, "201812010000", "201812312345"),
 ]
 
 def read_storage_ens(fp):
@@ -124,7 +132,7 @@ for m_label, ym, n_days, t_start, t_end in months:
     curr_rst_daic = os.path.join(daic_dir, f"output/SURFACEMODEL/{ym}/LIS_RST_NOAHMP401_{t_end}.d01.nc")
     
     if not os.path.exists(curr_rst_daic):
-        print(f"[INFO] Le restart de fin de mois pour {m_label} n'est pas encore disponible dans OL_DAIC. Arret a ce mois.")
+        print(f"[INFO] Le restart de fin de mois pour {m_label} n'est pas encore disponible dans OL_DAIC. Arret.")
         break
         
     start_dt = datetime.datetime.strptime(t_start[:8], "%Y%m%d")
@@ -212,6 +220,22 @@ for m_label, ym, n_days, t_start, t_end in months:
 
 if rows:
     df_ens_daic = pd.DataFrame(rows)
+    
+    # JJA line
+    jja_rows = df_ens_daic[df_ens_daic['month'].isin(['2018-06', '2018-07', '2018-08'])]
+    jja_entry = {'month': 'JJA'}
+    for col in df_ens_daic.columns:
+        if col != 'month':
+            jja_entry[col] = round(jja_rows[col].sum(), 2)
+            
+    # Annuel line
+    ann_entry = {'month': 'Annuel'}
+    for col in df_ens_daic.columns:
+        if col != 'month':
+            ann_entry[col] = round(df_ens_daic[col].sum(), 2)
+            
+    df_ens_daic = pd.concat([df_ens_daic, pd.DataFrame([jja_entry, ann_entry])], ignore_index=True)
+    
     out_csv = os.path.join(OUT_DIR, "water_balance_ens_minus_daic_monthly.csv")
     df_ens_daic.to_csv(out_csv, index=False)
     print(f"[SUCCES] Bilan d'eau ENS_OPL - OL_DAIC sauvegarde dans : {out_csv}")

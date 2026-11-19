@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """
 compute_water_balance_janmay.py
-Calcule le bilan d'eau mensuel complet (Janvier à Mai 2018) :
+
+Calcule le bilan d'eau mensuel complet (Janvier à Décembre 2018) :
 Stock total = 4 couches (SMC) + aquifère (WA) + canopée (CANWAT) + neige (SNEQV).
 Bilan différentiel DA_nocdf - ENS_OPL :
 Résidu = ΔP − ΔET − ΔQs − ΔQsb − Δ(Δstock)
 Comparaison directe face aux incréments EnKF archivés.
++ Ligne JJA et ligne de totaux annuels
 """
 import os
 import glob
@@ -31,6 +33,13 @@ months = [
     ("2018-03", "201803", 31, "201803010000", "201803312345"),
     ("2018-04", "201804", 30, "201804010000", "201804302345"),
     ("2018-05", "201805", 31, "201805010000", "201805312345"),
+    ("2018-06", "201806", 30, "201806010000", "201806302345"),
+    ("2018-07", "201807", 31, "201807010000", "201807312345"),
+    ("2018-08", "201808", 31, "201808010000", "201808312345"),
+    ("2018-09", "201809", 30, "201809010000", "201809302345"),
+    ("2018-10", "201810", 31, "201810010000", "201810312345"),
+    ("2018-11", "201811", 30, "201811010000", "201811302345"),
+    ("2018-12", "201812", 31, "201812010000", "201812312345"),
 ]
 
 def read_storage(fp):
@@ -179,6 +188,34 @@ for m_label, ym, n_days, t_start, t_end in months:
     prev_rst_da  = curr_rst_da
 
 df_wb = pd.DataFrame(rows)
+
+# JJA line
+jja_rows = df_wb[df_wb['month'].isin(['2018-06', '2018-07', '2018-08'])]
+jja_entry = {'month': 'JJA'}
+for col in df_wb.columns:
+    if col != 'month':
+        if col == 'unaccounted_discrepancy_mm':
+            continue
+        elif col == 'n_EnKF_events':
+            jja_entry[col] = int(jja_rows[col].sum())
+        else:
+            jja_entry[col] = round(jja_rows[col].sum(), 2)
+jja_entry['unaccounted_discrepancy_mm'] = round(jja_entry['residue_mm'] - (-jja_entry['EnKF_increment_mm']), 2)
+
+# Annuel line
+ann_entry = {'month': 'Annuel'}
+for col in df_wb.columns:
+    if col != 'month':
+        if col == 'unaccounted_discrepancy_mm':
+            continue
+        elif col == 'n_EnKF_events':
+            ann_entry[col] = int(df_wb[col].sum())
+        else:
+            ann_entry[col] = round(df_wb[col].sum(), 2)
+ann_entry['unaccounted_discrepancy_mm'] = round(ann_entry['residue_mm'] - (-ann_entry['EnKF_increment_mm']), 2)
+
+df_wb = pd.concat([df_wb, pd.DataFrame([jja_entry, ann_entry])], ignore_index=True)
+
 out_csv = os.path.join(OUT_DIR, "water_balance_da_minus_ens_monthly.csv")
 df_wb.to_csv(out_csv, index=False)
 print(f"[SUCCÈS] Bilan d'eau sauvegardé dans : {out_csv}")
