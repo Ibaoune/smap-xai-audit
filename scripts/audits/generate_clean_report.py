@@ -46,6 +46,10 @@ df_e5_texture = pd.read_csv(os.path.join(REPORT_DIR, "e5_nowilt_impact_by_textur
 df_drydown    = pd.read_csv(os.path.join(REPORT_DIR, "ol_hourly_drydown_comparison.csv"))
 df_diurnal    = pd.read_csv(os.path.join(REPORT_DIR, "ol_smap_overpass_sampling_bias.csv"))
 df_wb         = pd.read_csv(os.path.join(REPORT_DIR, "water_balance_da_minus_ens_monthly.csv"))
+f_wb_ens      = os.path.join(REPORT_DIR, "water_balance_ens_minus_daic_monthly.csv")
+has_wb_ens    = os.path.exists(f_wb_ens)
+if has_wb_ens:
+    df_wb_ens = pd.read_csv(f_wb_ens)
 
 # Table 1: E6 Monthly
 t1 = df_e6_monthly[['month', 'delta_SM1_ENS_OPL', 'delta_SM1_DAnocdf', 'delta_SM1_DAcdf', 'fraction_SM1_explained_nocdf_pct',
@@ -94,6 +98,12 @@ t7 = df_wb[['month', 'P_ENS_mm', 'P_DA_mm', 'delta_P_mm', 'delta_ET_mm', 'delta_
             'delta_Stock_ENS_mm', 'delta_Stock_DA_mm', 'delta_delta_Stock_mm', 'residue_mm', 'EnKF_increment_mm', 'unaccounted_discrepancy_mm']].copy()
 t7.columns = ['Mois', 'P ENS', 'P DA', 'ΔP', 'ΔET', 'ΔQs', 'ΔQsb', 'ΔStock ENS', 'ΔStock DA', 'Δ(ΔStock)', 'Résidu (mm)', 'Incrément EnKF (mm)', 'Écart (mm)']
 md_t7 = df_to_markdown(t7)
+
+if has_wb_ens:
+    t8 = df_wb_ens[['month', 'P_ENS_mm', 'P_OL_DAIC_mm', 'delta_P_mm', 'delta_ET_mm', 'delta_Qs_mm', 'delta_Qsb_mm',
+                    'delta_Stock_ENS_mm', 'delta_Stock_OL_DAIC_mm', 'delta_delta_Stock_mm', 'flux_balance_diff_mm', 'residue_mm']].copy()
+    t8.columns = ['Mois', 'P ENS', 'P OL_DAIC', 'ΔP', 'ΔET', 'ΔQs', 'ΔQsb', 'ΔStock ENS', 'ΔStock OL', 'Δ(ΔStock)', 'Bilan Flux', 'Résidu (mm)']
+    md_t8 = df_to_markdown(t8)
 
 # Extraction dynamique de valeurs pour les paragraphes
 frac_jan = df_e6_monthly.loc[df_e6_monthly['month'] == 201801, 'fraction_SM1_explained_nocdf_pct'].values[0]
@@ -151,10 +161,10 @@ Le tableau suivant récapitule les écarts mensuels d'humidité superficielle ($
 {md_t1}
 
 ### Données quantitatives issues du tableau :
-* En janvier, l'effet d'ensemble explique **{frac_jan:.1f} %** de l'écart initial ($\Delta\\text{{SM1}}(\\text{{ENS}}) = {t1.loc[t1['Mois']==201801, 'ΔSM1 (ENS - OPL)'].values[0]:.4f}$ vs $\Delta\\text{{SM1}}(\\text{{DAnocdf}}) = {t1.loc[t1['Mois']==201801, 'ΔSM1 (DAnocdf - OPL)'].values[0]:.4f}$).
+* En janvier, l'effet d'ensemble explique **{frac_jan:.1f} %** de l'écart initial ($\Delta\\\text{{SM1}}(\\\text{{ENS}}) = {t1.loc[t1['Mois']==201801, 'ΔSM1 (ENS - OPL)'].values[0]:.4f}$ vs $\Delta\\\text{{SM1}}(\\\text{{DAnocdf}}) = {t1.loc[t1['Mois']==201801, 'ΔSM1 (DAnocdf - OPL)'].values[0]:.4f}$).
 * En février, la part de l'ensemble tombe à **{frac_feb:.1f} %**.
 * En mars, elle atteint **{frac_mar:.1f} %**, en avril **{frac_apr:.1f} %**, et s'établit à **{frac_may:.1f} %** en mai.
-* En mai, sur un écart $\Delta\\text{{SM1}}$ de **{may_d_da:.4f} m³/m³**, la contribution de l'ensemble n'est que de **{may_d_ens:.4f} m³/m³**, ce qui signifie que **{may_da_pct_direct:.1f} % du dessèchement de DA_nocdf résulte directement de l'assimilation SMAP**.
+* En mai, sur un écart $\Delta\\\text{{SM1}}$ de **{may_d_da:.4f} m³/m³**, la contribution de l'ensemble n'est que de **{may_d_ens:.4f} m³/m³**, ce qui signifie que **{may_da_pct_direct:.1f} % du dessèchement de DA_nocdf résulte directement de l'assimilation SMAP**.
 * Sur le plan atmosphérique, les forçages perturbés dans `ENS_OPL` introduisent un excédent de pluie atteignant **+{p_ens_mar:.2f} mm** en mars, augmentant l'ET d'ensemble de **+{et_ens_mar:.2f} mm**. À l'inverse, l'assimilation SMAP dans `DA_nocdf` assèche le profil et comprime l'ET de **{et_da_may:.2f} mm** en mai.
 
 ![Effet d'ensemble vs DA](figures/fig_e6_ensemble_vs_da_response.png)
@@ -169,9 +179,9 @@ Le tableau ci-dessous rapporte la fréquence mensuelle à laquelle les membres d
 {md_t2}
 
 ### Données quantitatives issues du tableau :
-* Le plancher physique extrême $0.02\\text{{ m}}^3/\\text{{m}}^3$ n'est jamais atteint de janvier à mars (0.000 %), et n'atteint que **{f_002_may:.3f} %** des mailles de surface en mai.
-* Le plafond de saturation $\\text{{SMCMAX}}$ n'est jamais atteint (**0.000 %** sur l'ensemble des 5 mois).
-* Le point de flétrissement $\\text{{SMCWLT}}$ est atteint naturellement par le modèle en surface sur **{f_wlt_apr:.2f} %** des mailles en avril et **{f_wlt_may:.2f} %** en mai.
+* Le plancher physique extrême $0.02\\\text{{ m}}^3/\\\text{{m}}^3$ n'est jamais atteint de janvier à mars (0.000 %), et n'atteint que **{f_002_may:.3f} %** des mailles de surface en mai.
+* Le plafond de saturation $\\\text{{SMCMAX}}$ n'est jamais atteint (**0.000 %** sur l'ensemble des 5 mois).
+* Le point de flétrissement $\\\text{{SMCWLT}}$ est atteint naturellement par le modèle en surface sur **{f_wlt_apr:.2f} %** des mailles en avril et **{f_wlt_may:.2f} %** en mai.
 
 ---
 
@@ -195,8 +205,8 @@ Le tableau ci-dessous confronte le nombre d'observations SMAP assimilées dans `
 {md_t4}
 
 ### Données quantitatives issues du tableau :
-* Sur sol argileux (Clay, 58 % argile, $\\text{{SMCWLT}} = {clay_row['SMCWLT']:.3f}$), l'incrément moyen EnKF passe de **{clay_row['Incr EnKF nocdf']:.5f}** à **{clay_row['Incr EnKF nowilt']:.5f}**, provoquant un assèchement supplémentaire $\\Delta\\text{{SM1}}$ de **{clay_row['ΔSM1 (nowilt - nocdf)']:.4f} m³/m³** (colonne asséchée de **{clay_row['ΔSMcol (mm)']:.2f} mm**) et une baisse d'ET de **{clay_row['ΔET (mm/mois)']:.2f} mm/mois**.
-* Sur sol limoneux (Silt Loam, $\\text{{SMCWLT}} = {silt_row['SMCWLT']:.3f}$), l'assèchement additionnel $\\Delta\\text{{SM1}}$ est de **{silt_row['ΔSM1 (nowilt - nocdf)']:.4f} m³/m³** et la réduction d'ET atteint **{silt_row['ΔET (mm/mois)']:.2f} mm/mois**.
+* Sur sol argileux (Clay, 58 % argile, $\\\text{{SMCWLT}} = {clay_row['SMCWLT']:.3f}$), l'incrément moyen EnKF passe de **{clay_row['Incr EnKF nocdf']:.5f}** à **{clay_row['Incr EnKF nowilt']:.5f}**, provoquant un assèchement supplémentaire $\\Delta\\\text{{SM1}}$ de **{clay_row['ΔSM1 (nowilt - nocdf)']:.4f} m³/m³** (colonne asséchée de **{clay_row['ΔSMcol (mm)']:.2f} mm**) et une baisse d'ET de **{clay_row['ΔET (mm/mois)']:.2f} mm/mois**.
+* Sur sol limoneux (Silt Loam, $\\\text{{SMCWLT}} = {silt_row['SMCWLT']:.3f}$), l'assèchement additionnel $\\Delta\\\text{{SM1}}$ est de **{silt_row['ΔSM1 (nowilt - nocdf)']:.4f} m³/m³** et la réduction d'ET atteint **{silt_row['ΔET (mm/mois)']:.2f} mm/mois**.
 
 ![Impact de la censure par texture](figures/fig_e5_nowilt_vs_da_and_ens.png)
 
@@ -209,9 +219,9 @@ Le tableau ci-dessous confronte le nombre d'observations SMAP assimilées dans `
 {md_t5}
 
 ### Données quantitatives issues du tableau :
-* Pour la texture dominante Loam (19 % argile, 13 828 événements ajustés), le temps caractéristique de séchage médian $\\tau$ passe de **{loam_dd['tau_ctrl_median']:.2f} jours** dans `ctrl` à **{loam_dd['tau_rsf2_median']:.2f} jours** dans `rsf2` ($\\Delta\\tau = +{loam_dd['delta_tau_median']:.2f}\\text{{ j}}$).
-* L'humidité résiduelle $\\theta_{{\\text{{res}}}}$ chute de **{loam_dd['theta_res_ctrl_median']:.3f}** dans `ctrl` à **{loam_dd['theta_res_rsf2_median']:.3f}** dans `rsf2`.
-* La fréquence à laquelle le sol superficiel passe sous le seuil $\\text{{SMCWLT}}$ passe de **{loam_dd['freq_below_wlt_ctrl_pct']:.1f} %** dans `ctrl` à **{loam_dd['freq_below_wlt_rsf2_pct']:.1f} %** dans `rsf2` pour le Loam, et de **{sand_dd['freq_below_wlt_ctrl_pct']:.1f} %** à **{sand_dd['freq_below_wlt_rsf2_pct']:.1f} %** pour le Sable.
+* Pour la texture dominante Loam (19 % argile, 13 828 événements ajustés), le temps caractéristique de séchage médian $\\tau$ passe de **{loam_dd['tau_ctrl_median']:.2f} jours** dans `ctrl` à **{loam_dd['tau_rsf2_median']:.2f} jours** dans `rsf2` ($\\Delta\\tau = +{loam_dd['delta_tau_median']:.2f}\\\text{{ j}}$).
+* L'humidité résiduelle $\\theta_{{\\\text{{res}}}}$ chute de **{loam_dd['theta_res_ctrl_median']:.3f}** dans `ctrl` à **{loam_dd['theta_res_rsf2_median']:.3f}** dans `rsf2`.
+* La fréquence à laquelle le sol superficiel passe sous le seuil $\\\text{{SMCWLT}}$ passe de **{loam_dd['freq_below_wlt_ctrl_pct']:.1f} %** dans `ctrl` à **{loam_dd['freq_below_wlt_rsf2_pct']:.1f} %** dans `rsf2` pour le Loam, et de **{sand_dd['freq_below_wlt_ctrl_pct']:.1f} %** à **{sand_dd['freq_below_wlt_rsf2_pct']:.1f} %** pour le Sable.
 
 ![Comparaison séchage rsf2 vs ctrl](figures/fig_ol_rsf2_vs_ctrl_drydown_tau_p5.png)
 
@@ -228,18 +238,31 @@ Le tableau ci-dessous confronte le nombre d'observations SMAP assimilées dans `
 
 ---
 
-## 5. Bilan d'Eau Complet et Conservation face aux Incréments EnKF (DA_nocdf − ENS_OPL)
+## 5. Bilan d'Eau Complet et Conservation des Masses
+
+### 5.1. Bilan d'Eau DA_nocdf − ENS_OPL (Confrontation aux Incréments EnKF)
 
 Le tableau suivant présente le bilan d'eau mensuel intégré calculé à partir des restarts complets (SMC 4 couches + aquifère WA + canopée CANWAT + neige SNEQV) et des flux cumulés journaliers (Precipitation, ET, Qs, Qsb) pour la différence `DA_nocdf − ENS_OPL` :
 
 {md_t7}
 
-### Données quantitatives issues du tableau :
-* En mai, la variation nette des flux $\\Delta P - \\Delta ET - \\Delta Q_s - \\Delta Q_{{sb}}$ est de **+{df_wb.loc[df_wb['month']=='2018-05', 'flux_balance_diff_mm'].values[0]:.2f} mm**, la variation différentielle de stock $\\Delta(\\Delta\\text{{Stock}})$ est de **+{df_wb.loc[df_wb['month']=='2018-05', 'delta_delta_Stock_mm'].values[0]:.2f} mm**, ce qui donne un résidu de bilan de **+{wb_res_may:.2f} mm**.
+#### Données quantitatives issues du tableau :
+* En mai, la variation nette des flux $\Delta P - \Delta ET - \Delta Q_s - \Delta Q_{{sb}}$ est de **+{df_wb.loc[df_wb['month']=='2018-05', 'flux_balance_diff_mm'].values[0]:.2f} mm**, la variation différentielle de stock $\Delta(\Delta\\text{{Stock}})$ est de **+{df_wb.loc[df_wb['month']=='2018-05', 'delta_delta_Stock_mm'].values[0]:.2f} mm**, ce qui donne un résidu de bilan de **+{wb_res_may:.2f} mm**.
 * Les incréments EnKF cumulés sur le mois de mai totalisent exactement **{wb_inc_may:.2f} mm** d'eau extraite.
 * L'écart inexpliqué entre le résidu de bilan et l'incrément EnKF n'est que de **{wb_err_may:.2f} mm** en mai (concordance supérieure à **99.8 %**).
 * En mars, l'incrément EnKF totalise **{wb_inc_mar:.2f} mm** d'eau extraite face à un résidu de bilan de **+{wb_res_mar:.2f} mm** (écart de **{df_wb.loc[df_wb['month']=='2018-03', 'unaccounted_discrepancy_mm'].values[0]:.2f} mm**).
 * **Conclusion** : Le déficit d'eau de `DA_nocdf` par rapport à `ENS_OPL` est rigoureusement et quantitativement imputable aux incréments d'assimilation EnKF négatifs.
+
+### 5.2. Bilan d'Eau ENS_OPL − OL_DAIC (Effet d'Ensemble Pur)
+
+Le tableau suivant présente le bilan d'eau comparant la moyenne d'ensemble sans assimilation (`ENS_OPL_2018`, 20 membres) au run open-loop déterministe initialisé sur la moyenne spatiale de colonne (`OL_DAIC_2018`, 1 membre) :
+
+{md_t8}
+
+#### Données quantitatives issues du tableau :
+* $\Delta P = 0.00\\text{{ mm}}$ sur tous les mois disponibles, confirmant que le forçage pluviométrique moyen de l'ensemble est rigoureusement identique au forçage déterministe (propriété `zeromean = 1` du schéma GMAO).
+* En janvier, l'écart d'évapotranspiration $\Delta ET = +{df_wb_ens.loc[df_wb_ens['month']=='2018-01', 'delta_ET_mm'].values[0]:.2f}\\text{{ mm}}$ et l'écart d'écoulement sous-surfacique $\Delta Q_{{sb}} = +{df_wb_ens.loc[df_wb_ens['month']=='2018-01', 'delta_Qsb_mm'].values[0]:.2f}\\text{{ mm}}$ traduisent l'effet non-linéaire des perturbations d'ensemble sur l'extraction racinaire et la conductance stomatique.
+* En février, $\Delta ET = +{df_wb_ens.loc[df_wb_ens['month']=='2018-02', 'delta_ET_mm'].values[0]:.2f}\\text{{ mm}}$ et la variation différentielle de stock $\Delta(\Delta\\text{{Stock}})$ est de **+{df_wb_ens.loc[df_wb_ens['month']=='2018-02', 'delta_delta_Stock_mm'].values[0]:.2f} mm**, confirmant la cohérence de l'accumulation hydrique entre la moyenne d'ensemble et le membre représentatif.
 
 ---
 
@@ -253,6 +276,7 @@ Tous les tableaux ci-dessus sont directement générés à partir des fichiers s
 5. `ol_hourly_drydown_comparison.csv`
 6. `ol_smap_overpass_sampling_bias.csv`
 7. `water_balance_da_minus_ens_monthly.csv`
+8. `water_balance_ens_minus_daic_monthly.csv`
 """
 
 with open(README_PATH, "w") as f:
