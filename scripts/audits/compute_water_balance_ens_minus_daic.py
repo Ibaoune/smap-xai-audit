@@ -3,9 +3,10 @@
 compute_water_balance_ens_minus_daic.py
 
 Calcule le bilan d'eau mensuel complet pour ENS_OPL - OL_DAIC (effet d'ensemble pur)
-pour les mois disponibles (janvier-mai 2018).
+pour les 5 mois (janvier-mai 2018).
 Stock total = 4 couches SMC + aquifere (WA) + canopee (CANWAT) + neige (SNEQV)
 Residu = Delta_P - Delta_ET - Delta_Qs - Delta_Qsb - Delta(Delta_Stock)
+Avec P_OL_DAIC extrait directement de OPL_noirr (meme forcage IMERG deterministe).
 """
 
 import os
@@ -94,6 +95,21 @@ def get_monthly_fluxes_daic(flist):
             qsb_tot += float(np.mean(ds.variables['Qsb_tavg'][:].squeeze()[landmask] * 86400.0))
     return et_tot, qs_tot, qsb_tot
 
+def get_monthly_precip_opl_noirr(m_label, ym, n_days, t_start):
+    opl_dir = os.path.join(BASE_DIR, "experiments/NorthMor/matrix_2016_2020/OPL_noirr_2016_2020")
+    dt = datetime.datetime.strptime(t_start[:8], "%Y%m%d")
+    p_tot = 0.0
+    for i in range(n_days):
+        d_next = dt + datetime.timedelta(days=i+1)
+        ym_next = d_next.strftime("%Y%m")
+        fn = f"LIS_HIST_{d_next.strftime('%Y%m%d')}0000.d01.nc"
+        p1 = os.path.join(opl_dir, f"output/{m_label}/SURFACEMODEL/{ym_next}/{fn}")
+        p2 = os.path.join(opl_dir, f"output/{m_label}/SURFACEMODEL/{ym}/{fn}")
+        fpath = p1 if os.path.exists(p1) else p2
+        with nc.Dataset(fpath) as ds:
+            p_tot += float(np.mean(ds.variables['TotalPrecip_tavg'][:].squeeze()[landmask] * 86400.0))
+    return p_tot
+
 rst_ens_dir = os.path.join(BASE_DIR, "experiments/NorthMor/matrix_2016_2020/sensitivity_2018/ENS_OPL_2018/output/SURFACEMODEL")
 rst_da_base = os.path.join(BASE_DIR, "experiments/NorthMor/matrix_2016_2020/DA_nocdf_noirr_2016_2020")
 daic_dir    = os.path.join(BASE_DIR, "experiments/NorthMor/matrix_2016_2020/sensitivity_2018/OL_DAIC_2018")
@@ -156,9 +172,9 @@ for m_label, ym, n_days, t_start, t_end in months:
     
     p_ens, et_ens, qs_ens, qsb_ens = get_monthly_fluxes_ens(hist_ens)
     et_daic, qs_daic, qsb_daic     = get_monthly_fluxes_daic(hist_daic)
-    p_daic = p_ens  # Forcage identique et zeromean=1
+    p_daic = get_monthly_precip_opl_noirr(m_label, ym, n_days, t_start)
     
-    dp   = p_ens - p_daic  # 0.00
+    dp   = p_ens - p_daic
     det  = et_ens - et_daic
     dqs  = qs_ens - qs_daic
     dqsb = qsb_ens - qsb_daic
@@ -199,6 +215,4 @@ if rows:
     out_csv = os.path.join(OUT_DIR, "water_balance_ens_minus_daic_monthly.csv")
     df_ens_daic.to_csv(out_csv, index=False)
     print(f"[SUCCES] Bilan d'eau ENS_OPL - OL_DAIC sauvegarde dans : {out_csv}")
-    print(df_ens_daic[['month', 'delta_P_mm', 'delta_ET_mm', 'delta_Qs_mm', 'delta_Qsb_mm', 'delta_delta_Stock_mm', 'residue_mm']])
-else:
-    print("[ATTENTION] Aucun mois complet disponible a traiter.")
+    print(df_ens_daic[['month', 'P_ENS_mm', 'P_OL_DAIC_mm', 'delta_P_mm', 'delta_ET_mm', 'delta_Qs_mm', 'delta_Qsb_mm', 'delta_delta_Stock_mm', 'residue_mm']])
