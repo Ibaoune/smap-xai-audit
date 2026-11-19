@@ -1,0 +1,4 @@
+restart_file,n_members_all_4_layers_exact_mid,n_members_all_4_layers_close_1e6,layer_1_exact_mid,layer_2_exact_mid,layer_3_exact_mid,layer_4_exact_mid,total_evaluated_members
+LIS_RST_NOAHMP401_201802282345.d01.nc,0,1,0,0,1,57,320600
+LIS_RST_NOAHMP401_201803312345.d01.nc,0,0,0,0,0,6,320600
+LIS_RST_NOAHMP401_201804010000.d01.nc,78,78,79,78,79,86,320600
